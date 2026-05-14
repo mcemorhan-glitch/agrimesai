@@ -948,7 +948,8 @@ function populateFilters() {
 
 function fillSel(id, pairs, keep) {
   const el = document.getElementById(id);
-  const first = el.options[0].outerHTML;
+  if (!el) return;
+  const first = el.options[0]?.outerHTML || '';
   el.innerHTML = first + pairs.map(([v,l]) => `<option value="${esc(v)}">${esc(l)}</option>`).join('');
   if (keep) el.value = keep;
 }
