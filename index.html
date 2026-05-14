@@ -3223,8 +3223,6 @@ async function loadApproval() {
   const reg    = g('ap-reg');
   const person = g('ap-person');
   const status = g('ap-approval');
-  const imp    = g('ap-import');
-
   let q = sb.from('shifts').select('*').order('start_dt', { ascending: false }).limit(500);
   if (reg) q = q.eq('region', reg);
   if (person) q = q.eq('person', person);
@@ -3552,7 +3550,6 @@ function populateApprovalFilters() {
   const userRegion = currentProfile?.region;
   const ppl = [...new Set(allShifts.map(s=>s.person))].sort();
   fillSel('ap-person', ppl.map(p=>[p,cn(p)]), g('ap-person'));
-  fillSel('ap-import', allImports.map(i=>[i,i.slice(0,8)+'…']), g('ap-import'));
 
   // Tüm kullanıcılar tüm bölgelere erişebilir
   const regSel = document.getElementById('ap-reg');
