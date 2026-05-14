@@ -800,7 +800,7 @@ async function enterApp(user) {
   // Hide import tab for non-admins (only admins can import)
   // Region managers can only see approval tab + dashboard
   applyRoleUI();
-  loadAll();
+  loadAll().then(() => go('approval')).catch(() => go('approval'));
 }
 
 function applyRoleUI() {
@@ -3116,6 +3116,12 @@ async function fillCmpStatusCells(shifts) {
     .select('olusturan,start_dt,end_dt,is_no')
     .limit(1000);
   if (!sysRows?.length) return;
+
+  // Debug: ilk birkaç ismi logla
+  if (sysRows.length > 0) {
+    console.log('Nova isim örneği:', normName(sysRows[0].olusturan), '| WA isim örneği:', shifts[0] ? normName(shifts[0].person) : '—');
+    console.log('nameMappings:', nameMappings);
+  }
 
   const tolMs = 30 * 60000;
   shifts.forEach(s => {
