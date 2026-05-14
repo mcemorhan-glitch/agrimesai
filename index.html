@@ -616,6 +616,35 @@ hr.div{border:none;border-top:1px solid var(--border);margin:24px 0;}
         </div>
       </div>
 
+
+      <!-- Kim Bu? Modalı -->
+      <div id="whois-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:400;align-items:center;justify-content:center">
+        <div style="background:var(--surface);border-radius:var(--radius-xl);padding:28px 32px;width:100%;max-width:440px;box-shadow:0 8px 32px rgba(0,0,0,0.25)">
+          <div style="font-size:16px;font-weight:600;margin-bottom:6px">❓ Bu kişi kim?</div>
+          <div style="font-size:13px;color:var(--text2);margin-bottom:16px">
+            WhatsApp'taki <strong id="whois-wa-name" style="color:var(--text)"></strong> ismi Nova sisteminde kim?
+          </div>
+          <div class="field">
+            <label>Nova'dan seç</label>
+            <select id="whois-sel" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:13px">
+              <option value="">— Listeden seç —</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Veya elle yaz <span style="font-weight:400;color:var(--text3)">(Nova'daki tam isim)</span></label>
+            <input id="whois-custom" type="text" placeholder="Ali Veli" style="width:100%">
+          </div>
+          <div id="whois-err" style="color:var(--red);font-size:13px;margin-bottom:10px;display:none">Lütfen bir isim seçin veya yazın</div>
+          <div style="font-size:11px;color:var(--text3);margin-bottom:14px">Bu eşleştirme kaydedilir, bir daha sorulmaz.</div>
+          <div style="display:flex;gap:8px;justify-content:space-between">
+            <button class="btn btn-sm btn-d" onclick="skipWhoIs()">Bu kişiyi atla</button>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-sm" onclick="closeWhoIsModal()">İptal</button>
+              <button class="btn btn-p btn-sm" onclick="confirmWhoIs()">Eşleştir &amp; Kaydet</button>
+            </div>
+          </div>
+        </div>
+      </div>
       <div id="reject-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;align-items:center;justify-content:center">
         <div style="background:var(--surface);border-radius:var(--radius-xl);padding:28px 32px;width:100%;max-width:400px;box-shadow:0 8px 32px rgba(0,0,0,0.2)">
           <div style="font-size:15px;font-weight:600;margin-bottom:12px">Reddetme Notu</div>
@@ -2107,6 +2136,9 @@ function normName(n) {
   return (n||'').toUpperCase()
     .replace(/İ/g,'I').replace(/Ğ/g,'G').replace(/Ü/g,'U')
     .replace(/Ş/g,'S').replace(/Ö/g,'O').replace(/Ç/g,'C')
+    // Unvan/prefix temizle: Sgs, ~, Bay, Bey, Abi, Abla, Bro
+    .replace(/^(SGS|BAY|BEY|DR|MR|MRS)\s+/,'')
+    .replace(/\s+(ABI|ABLA|BEY|BAY|BRO)$/,'')
     .replace(/~\s*/,'').replace(/\s+SGS$/,'').trim();
 }
 
@@ -2642,6 +2674,9 @@ function normName(n) {
   return (n||'').toUpperCase()
     .replace(/İ/g,'I').replace(/Ğ/g,'G').replace(/Ü/g,'U')
     .replace(/Ş/g,'S').replace(/Ö/g,'O').replace(/Ç/g,'C')
+    // Unvan/prefix temizle: Sgs, ~, Bay, Bey, Abi, Abla, Bro
+    .replace(/^(SGS|BAY|BEY|DR|MR|MRS)\s+/,'')
+    .replace(/\s+(ABI|ABLA|BEY|BAY|BRO)$/,'')
     .replace(/~\s*/,'').replace(/\s+SGS$/,'').trim();
 }
 
@@ -3118,13 +3153,8 @@ async function fillCmpStatusCells(shifts) {
     .limit(1000);
   if (!sysRows?.length) return;
 
-  // Debug: ilk birkaç ismi logla
-  if (sysRows.length > 0) {
-    console.log('Nova isim örneği:', normName(sysRows[0].olusturan), '| WA isim örneği:', shifts[0] ? normName(shifts[0].person) : '—');
-    console.log('nameMappings:', nameMappings);
-  }
-
   const tolMs = 30 * 60000;
+  const sysNames = [...new Set(sysRows.map(r => r.olusturan).filter(Boolean))];
   shifts.forEach(s => {
     const cell = document.getElementById('cmp-cell-' + s.id);
     if (!cell) return;
@@ -3134,9 +3164,17 @@ async function fillCmpStatusCells(shifts) {
 
     const match = sysRows.find(r => {
       const sysName = normName(r.olusturan);
-      const nameOk  = mapped
-        ? (sysName === mapped || sysName.includes(mapped) || mapped.includes(sysName))
-        : waName.split(/\s+/).some(w => w.length > 2 && sysName.includes(w));
+      // Mapping varsa direkt karşılaştır
+      let nameOk = false;
+      if (mapped && mapped !== '__SKIP__') {
+        nameOk = sysName === mapped || sysName.includes(mapped) || mapped.includes(sysName);
+      } else {
+        // Kelime bazlı — "SGS", "ABI" gibi kelimeleri atla
+        const skipWords = new Set(['SGS','ABI','ABLA','BEY','BAY','BRO','DR']);
+        const waWords  = waName.split(/\s+/).filter(w => w.length > 2 && !skipWords.has(w));
+        const sysWords = sysName.split(/\s+/).filter(w => w.length > 2);
+        nameOk = waWords.some(w => sysWords.some(s => s.includes(w) || w.includes(s)));
+      }
       if (!nameOk) return false;
       const sysStart = new Date(r.start_dt);
       const sameDay  = waStart.toDateString() === sysStart.toDateString();
@@ -3149,6 +3187,21 @@ async function fillCmpStatusCells(shifts) {
       cell.innerHTML = diff === 0
         ? '<span class="badge bg" style="font-size:10px">✓ Eşleşti</span>'
         : `<span class="badge ba" style="font-size:10px">⚡ ${diff}dk fark</span>`;
+    } else if (nameMappings[waName] === '__SKIP__') {
+      cell.innerHTML = '<span class="muted" style="font-size:11px">Atlandı</span>';
+    } else if (!nameMappings[waName]) {
+      // Eşleşme yok ve mapping de yok — "Kim bu?" butonu göster
+      const btn = document.createElement('button');
+      btn.className = 'btn btn-sm';
+      btn.style.cssText = 'font-size:10px;padding:2px 6px;color:var(--amber);border-color:var(--amber-border)';
+      btn.textContent = '❓ Kim bu?';
+      btn.onclick = () => askWhoIs(s.person);
+      cell.innerHTML = '';
+      cell.appendChild(btn);
+      // Eşleştirilmesi gereken isimleri kuyruğa ekle
+      if (!whoIsQueue.find(q => q.waName === s.person)) {
+        whoIsQueue.push({ waName: s.person, sysNames });
+      }
     } else {
       cell.innerHTML = '<span class="badge" style="background:var(--red-bg);color:var(--red);border:1px solid var(--red-border);font-size:10px">✗ Nova yok</span>';
     }
@@ -3215,6 +3268,90 @@ async function saveEditShift() {
   closeEditShiftModal();
   loadApproval();
   loadAll();
+}
+
+
+// ════════════════════════════════════════════
+//  "KİM BU?" — İsim Eşleştirme
+// ════════════════════════════════════════════
+
+let whoIsQueue = [];
+let whoIsCurrent = null;
+
+function askWhoIs(waName) {
+  // Bu WA isminin Nova karşılığını sor
+  const entry = whoIsQueue.find(q => q.waName === waName);
+  if (!entry) {
+    // Direkt modal aç
+    whoIsCurrent = { waName, sysNames: [] };
+  } else {
+    whoIsCurrent = entry;
+  }
+  openWhoIsModal();
+}
+
+function openWhoIsModal() {
+  if (!whoIsCurrent) return;
+  const modal = document.getElementById('whois-modal');
+  if (!modal) return;
+  document.getElementById('whois-wa-name').textContent = whoIsCurrent.waName;
+  document.getElementById('whois-err').style.display = 'none';
+  document.getElementById('whois-custom').value = '';
+
+  // Dropdown'u doldur
+  const sel = document.getElementById('whois-sel');
+  const names = whoIsCurrent.sysNames?.length
+    ? whoIsCurrent.sysNames
+    : Object.values(nameMappings).filter(v => v && v !== '__SKIP__');
+  sel.innerHTML = '<option value="">— Nova listesinden seç —</option>' +
+    names.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join('');
+
+  modal.style.display = 'flex';
+}
+
+function closeWhoIsModal() {
+  document.getElementById('whois-modal').style.display = 'none';
+  whoIsCurrent = null;
+}
+
+async function confirmWhoIs() {
+  const sel    = document.getElementById('whois-sel').value.trim();
+  const custom = document.getElementById('whois-custom').value.trim();
+  const sysName = custom || sel;
+
+  if (!sysName) {
+    document.getElementById('whois-err').style.display = 'block';
+    return;
+  }
+
+  const ok = await saveNameMapping(whoIsCurrent.waName, sysName);
+  if (!ok) return;
+
+  // Kuyruktan kaldır
+  whoIsQueue = whoIsQueue.filter(q => q.waName !== whoIsCurrent.waName);
+  closeWhoIsModal();
+  toast(`"${whoIsCurrent.waName}" → "${sysName}" eşleştirildi ✓`);
+
+  // Onay tablosunu yenile
+  if (apAllData.length) fillCmpStatusCells(apAllData);
+
+  // Kuyrukta başka var mı?
+  if (whoIsQueue.length > 0) {
+    setTimeout(() => {
+      whoIsCurrent = whoIsQueue[0];
+      openWhoIsModal();
+    }, 500);
+  }
+}
+
+async function skipWhoIs() {
+  if (!whoIsCurrent) return;
+  await saveNameMapping(whoIsCurrent.waName, '__SKIP__');
+  whoIsQueue = whoIsQueue.filter(q => q.waName !== whoIsCurrent.waName);
+  closeWhoIsModal();
+  if (whoIsQueue.length > 0) {
+    setTimeout(() => { whoIsCurrent = whoIsQueue[0]; openWhoIsModal(); }, 300);
+  }
 }
 
 // ════════════════════════════════════════════
