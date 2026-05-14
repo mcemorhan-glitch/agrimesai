@@ -238,7 +238,7 @@ hr.div{border:none;border-top:1px solid var(--border);margin:24px 0;}
   </header>
   <main>
     <div class="tabs">
-      <button class="tab-btn active" onclick="go('approval')">Vardiyalar</button>
+      <button class="tab-btn" onclick="go('shifts')">Vardiyalar</button>
       <button class="tab-btn" onclick="go('summary')">Özet</button>
       <button class="tab-btn" onclick="go('messages')">Ham Mesajlar</button>
       <button class="tab-btn" onclick="go('approval')">Onay <span id="approval-badge" style="display:none;background:var(--red);color:#fff;border-radius:10px;font-size:10px;padding:1px 6px;margin-left:3px"></span></button>
@@ -3391,7 +3391,7 @@ function exportCSV() {
 // ─────────────────────────────────────────────
 //  UI HELPERS
 // ─────────────────────────────────────────────
-const TABS=['approval','compare','shifts','summary','messages','admin','log','import'];
+const TABS=['shifts','summary','messages','approval','admin','compare','log','import'];
 function go(name) {
   // Buton active
   document.querySelectorAll('.tab-btn').forEach(b => {
