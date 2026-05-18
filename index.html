@@ -531,6 +531,17 @@ hr.div{border:none;border-top:1px solid var(--border);margin:24px 0;}
       </div>
 
 
+
+      <!-- Bakım Araçları -->
+      <div style="margin-top:20px;padding:16px 20px;background:var(--surface2);border-radius:var(--radius-lg);border:1px dashed var(--border)">
+        <div style="font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px">🔧 Bakım</div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <button class="btn btn-sm" onclick="fixMissingJobNos()">İş No Düzelt (? olanları)</button>
+          <span class="muted" id="fix-job-status"></span>
+        </div>
+        <div style="font-size:11px;color:var(--text3);margin-top:6px">Ham mesajlardan "/" formatına göre iş no yeniden çekilir, sadece "?" olan kayıtlar güncellenir.</div>
+      </div>
+
     </div>
 
     <!-- ONAY -->
@@ -577,7 +588,7 @@ hr.div{border:none;border-top:1px solid var(--border);margin:24px 0;}
             <th class="sortable" onclick="apSort('end_dt')">Bitiş</th>
             <th class="sortable" onclick="apSort('duration_h')">Toplam</th>
             <th class="sortable" style="color:var(--amber)" onclick="apSort('overtime_h')">Fazla Mesai</th>
-            <th>Kıyaslama</th>
+            <th class="sortable" onclick="apSort('cmp_status')">Kıyaslama</th>
             <th class="sortable" onclick="apSort('approval_status')">Onay Durumu</th>
             <th></th>
           </tr></thead>
@@ -1165,11 +1176,19 @@ function renderSummary() {
 
 // İş numarasını normalize et
 function normJob(text) {
+  if (!text) return null;
+
+  // "/" varsa ilk "/" öncesini iş no olarak al (Wi 37990 / Autoport / Bitiş formatı)
+  if (text.includes('/')) {
+    const part = text.split('/')[0].trim();
+    if (part) return part;
+  }
+
   const t = text.toUpperCase()
     .replace(/İ/g,'I').replace(/Ğ/g,'G').replace(/Ü/g,'U')
     .replace(/Ş/g,'S').replace(/Ö/g,'O').replace(/Ç/g,'C');
   // IZM-199-26, IZM199-26, IST37840, IST 37840-B vb.
-  const m = t.match(/\b(IZM|IST)\s*[-]?\s*(\d{2,6})\s*[-]?\s*(\d{0,2})\s*[-]?\s*([A-Z]?)\b/);
+  const m = t.match(/\b(IZM|IST|WI)\s*[-]?\s*(\d{2,6})\s*[-]?\s*(\d{0,2})\s*[-]?\s*([A-Z]?)\b/);
   if (!m) return null;
   let parts = [m[1], m[2]];
   if (m[3]) parts.push(m[3]);
@@ -3211,12 +3230,15 @@ async function fillCmpStatusCells(shifts) {
 
     if (match) {
       const diff = Math.round(Math.abs(new Date(s.start_dt) - new Date(match.start_dt)) / 60000);
+      s._cmpStatus = diff === 0 ? 'matched' : 'diff';
       cell.innerHTML = diff === 0
         ? '<span class="badge bg" style="font-size:10px">✓ Eşleşti</span>'
         : `<span class="badge ba" style="font-size:10px">⚡ ${diff}dk fark</span>`;
     } else if (nameMappings[waName] === '__SKIP__') {
+      s._cmpStatus = 'matched'; // atlanmış = sorun yok
       cell.innerHTML = '<span class="muted" style="font-size:11px">Atlandı</span>';
     } else if (!nameMappings[waName]) {
+      s._cmpStatus = 'unknown';
       // Eşleşme yok ve mapping de yok — "Kim bu?" butonu göster
       const btn = document.createElement('button');
       btn.className = 'btn btn-sm';
@@ -3230,6 +3252,7 @@ async function fillCmpStatusCells(shifts) {
         whoIsQueue.push({ waName: s.person, sysNames });
       }
     } else {
+      s._cmpStatus = 'no_nova';
       cell.innerHTML = '<span class="badge" style="background:var(--red-bg);color:var(--red);border:1px solid var(--red-border);font-size:10px">✗ Nova yok</span>';
     }
   });
@@ -3297,6 +3320,92 @@ async function saveEditShift() {
   loadAll();
 }
 
+
+
+async function fixMissingJobNos() {
+  const statusEl = document.getElementById('fix-job-status');
+  statusEl.textContent = 'Ham mesajlar yükleniyor…';
+
+  // raw_messages'tan "/" içeren mesajları çek
+  const { data: msgs, error: msgErr } = await sb
+    .from('raw_messages')
+    .select('import_id, dt, sender, body')
+    .ilike('body', '%/%')
+    .limit(2000);
+
+  if (msgErr) { toast('Hata: ' + msgErr.message, true); statusEl.textContent = ''; return; }
+  if (!msgs?.length) { toast('Ham mesaj bulunamadı', true); statusEl.textContent = ''; return; }
+
+  statusEl.textContent = msgs.length + ' mesaj bulundu, eşleştiriliyor…';
+
+  // Gönderici + tarih bazında iş no map'i oluştur
+  const jobMap = {}; // key: "sender|tarih" -> iş no
+  msgs.forEach(m => {
+    const job = normJob(m.body);
+    if (!job || job === '?') return;
+    const dt = new Date(m.dt);
+    const dateKey = dt.toISOString().slice(0,10);
+    const key = (m.sender||'') + '|' + dateKey;
+    jobMap[key] = job;
+  });
+
+  console.log('Job map size:', Object.keys(jobMap).length);
+
+  // job='?' olan shifts'leri çek
+  const { data: shifts, error: shiftErr } = await sb
+    .from('shifts')
+    .select('id, person, start_dt, job, import_id')
+    .or('job.eq.?,job.is.null')
+    .limit(500);
+
+  if (shiftErr) { toast('Hata: ' + shiftErr.message, true); return; }
+  if (!shifts?.length) { toast('Düzeltilecek kayıt yok', true); statusEl.textContent = ''; return; }
+
+  let updated = 0, skipped = 0;
+  const updates = [];
+
+  shifts.forEach(s => {
+    const dt = new Date(s.start_dt);
+    const dateKey = dt.toISOString().slice(0,10);
+    // Gönderici ismini normalize et
+    const senderNorm = normName(s.person);
+    // jobMap'te bu kişi + tarih kombinasyonu var mı?
+    const matchKey = Object.keys(jobMap).find(k => {
+      const [kSender, kDate] = k.split('|');
+      return kDate === dateKey && (
+        normName(kSender).includes(senderNorm.split(' ')[0]) ||
+        senderNorm.includes(normName(kSender).split(' ')[0])
+      );
+    });
+
+    if (matchKey) {
+      updates.push({ id: s.id, job: jobMap[matchKey] });
+    } else {
+      skipped++;
+    }
+  });
+
+  if (!updates.length) {
+    toast('Eşleşen ham mesaj bulunamadı — ' + skipped + ' kayıt atlandı');
+    statusEl.textContent = '';
+    return;
+  }
+
+  statusEl.textContent = updates.length + ' kayıt güncelleniyor…';
+
+  // Chunk olarak güncelle
+  for (let i = 0; i < updates.length; i += 50) {
+    const chunk = updates.slice(i, i + 50);
+    for (const u of chunk) {
+      const { error } = await sb.from('shifts').update({ job: u.job }).eq('id', u.id);
+      if (!error) updated++;
+    }
+  }
+
+  toast(`${updated} kayıt güncellendi ✓, ${skipped} atlandı`);
+  statusEl.textContent = `✓ ${updated} güncellendi`;
+  loadAll();
+}
 
 // ════════════════════════════════════════════
 //  "KİM BU?" — İsim Eşleştirme
@@ -3478,18 +3587,38 @@ function apSort(field) {
     }
   });
 
-  // Veriyi sırala
+  // Onay durumu sıralama önceliği
+  const statusOrder = { pending: 0, info_requested: 1, rejected: 2, approved: 3 };
+
+  // Kıyaslama sütunu için cmp_score kullan (fillCmpStatusCells tarafından set edilir)
   apAllData.sort((a, b) => {
-    let av = a[apSortField], bv = b[apSortField];
+    let av, bv;
+
+    if (apSortField === 'approval_status') {
+      av = statusOrder[a.approval_status || 'pending'] ?? 0;
+      bv = statusOrder[b.approval_status || 'pending'] ?? 0;
+      return apSortDir === 'asc' ? av - bv : bv - av;
+    }
+
+    if (apSortField === 'cmp_status') {
+      // 0=eşleşti, 1=fark, 2=nova yok, 3=kim bu
+      const cmpOrder = { matched: 0, diff: 1, no_nova: 2, unknown: 3 };
+      av = cmpOrder[a._cmpStatus || 'unknown'] ?? 3;
+      bv = cmpOrder[b._cmpStatus || 'unknown'] ?? 3;
+      return apSortDir === 'asc' ? av - bv : bv - av;
+    }
+
+    av = a[apSortField];
+    bv = b[apSortField];
     if (av == null) av = '';
     if (bv == null) bv = '';
-    // Sayısal alanlar
+
     if (['duration_h','overtime_h','normal_h'].includes(apSortField)) {
       av = parseFloat(av) || 0;
       bv = parseFloat(bv) || 0;
       return apSortDir === 'asc' ? av - bv : bv - av;
     }
-    // String/tarih
+
     av = String(av).toLowerCase();
     bv = String(bv).toLowerCase();
     if (av < bv) return apSortDir === 'asc' ? -1 : 1;
