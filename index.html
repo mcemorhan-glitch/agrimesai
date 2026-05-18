@@ -3707,6 +3707,16 @@ function apSort(field) {
   renderApprovalTablePaged(apAllData, 0);
 }
 
+
+async function deleteShift(id) {
+  if (!confirm('Bu vardiyayı silmek istediğinizden emin misiniz?')) return;
+  const { error } = await sb.from('shifts').delete().eq('id', id);
+  if (error) { toast('Silme hatası: ' + error.message, true); return; }
+  toast('Vardiya silindi');
+  loadApproval();
+  loadAll();
+}
+
 // ════════════════════════════════════════════
 //  ONAY SİSTEMİ
 // ════════════════════════════════════════════
