@@ -546,6 +546,7 @@ hr.div{border:none;border-top:1px solid var(--border);margin:24px 0;}
         <select id="ap-person" onchange="loadApproval()"><option value="">Tüm çalışanlar</option></select>
         <select id="ap-approval" onchange="loadApproval()">
           <option value="pending">Bekleyenler</option>
+          <option value="info_requested">Açıklama İstenenler</option>
           <option value="approved">WA Onaylananlar</option>
           <option value="nova_approved">Nova'da Onaylanacaklar</option>
           <option value="rejected">Reddedilenler</option>
@@ -645,6 +646,24 @@ hr.div{border:none;border-top:1px solid var(--border);margin:24px 0;}
           </div>
         </div>
       </div>
+
+      <!-- Açıklama İstendi Modalı -->
+      <div id="info-request-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;align-items:center;justify-content:center">
+        <div style="background:var(--surface);border-radius:var(--radius-xl);padding:28px 32px;width:100%;max-width:440px;box-shadow:0 8px 32px rgba(0,0,0,0.2)">
+          <div style="font-size:15px;font-weight:600;margin-bottom:4px">? Açıklama İste</div>
+          <div id="info-request-job" style="font-size:12px;color:var(--text3);margin-bottom:14px;font-family:var(--mono)"></div>
+          <div class="field">
+            <label>Açıklama Notu <span style="color:var(--red)">*</span></label>
+            <textarea id="info-request-note" style="width:100%;height:90px;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg);color:var(--text);font-size:13px;resize:none" placeholder="Hangi konuda açıklama veya belge bekleniyor?"></textarea>
+          </div>
+          <div id="info-request-err" style="color:var(--red);font-size:13px;margin-bottom:10px;display:none">Açıklama notu zorunlu</div>
+          <div style="display:flex;gap:8px;justify-content:flex-end">
+            <button class="btn btn-sm" onclick="closeInfoRequestModal()">İptal</button>
+            <button class="btn btn-sm" style="background:#ffc107;color:#212529;border-color:#ffc107" onclick="confirmInfoRequest()">? Açıklama İste</button>
+          </div>
+        </div>
+      </div>
+
       <div id="reject-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;align-items:center;justify-content:center">
         <div style="background:var(--surface);border-radius:var(--radius-xl);padding:28px 32px;width:100%;max-width:400px;box-shadow:0 8px 32px rgba(0,0,0,0.2)">
           <div style="font-size:15px;font-weight:600;margin-bottom:12px">Reddetme Notu</div>
@@ -3155,8 +3174,7 @@ async function fillCmpStatusCells(shifts) {
 
   const tolMs = 30 * 60000;
   const sysNames = [...new Set(sysRows.map(r => r.olusturan).filter(Boolean))];
-  console.log('fillCmp: shifts=', shifts.length, 'sysRows=', sysRows.length,
-    'örnek WA:', normName(shifts[0]?.person), '| örnek Nova:', normName(sysRows[0]?.olusturan));
+
   shifts.forEach(s => {
     const cell = document.getElementById('cmp-cell-' + s.id);
     if (!cell) return;
@@ -3292,7 +3310,7 @@ function askWhoIs(waName) {
   openWhoIsModal();
 }
 
-function openWhoIsModal() {
+async function openWhoIsModal() {
   if (!whoIsCurrent) return;
   const modal = document.getElementById('whois-modal');
   if (!modal) return;
@@ -3300,15 +3318,22 @@ function openWhoIsModal() {
   document.getElementById('whois-err').style.display = 'none';
   document.getElementById('whois-custom').value = '';
 
-  // Dropdown'u doldur
+  // Nova'daki tüm benzersiz isimleri çek
   const sel = document.getElementById('whois-sel');
-  const names = whoIsCurrent.sysNames?.length
-    ? whoIsCurrent.sysNames
-    : Object.values(nameMappings).filter(v => v && v !== '__SKIP__');
-  sel.innerHTML = '<option value="">— Nova listesinden seç —</option>' +
-    names.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join('');
-
+  sel.innerHTML = '<option value="">Yükleniyor…</option>';
   modal.style.display = 'flex';
+
+  try {
+    const { data } = await sb.from('sys_shifts')
+      .select('olusturan')
+      .not('olusturan', 'is', null)
+      .limit(500);
+    const novaNames = [...new Set((data||[]).map(r => r.olusturan).filter(Boolean))].sort();
+    sel.innerHTML = '<option value="">— Nova listesinden seç —</option>' +
+      novaNames.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join('');
+  } catch(e) {
+    sel.innerHTML = '<option value="">Yüklenemedi — elle yazın</option>';
+  }
 }
 
 function closeWhoIsModal() {
@@ -3354,6 +3379,46 @@ async function skipWhoIs() {
   if (whoIsQueue.length > 0) {
     setTimeout(() => { whoIsCurrent = whoIsQueue[0]; openWhoIsModal(); }, 300);
   }
+}
+
+
+// ── Açıklama İstendi ──
+let infoRequestShiftId = null;
+
+function openInfoRequestModal(id) {
+  infoRequestShiftId = id;
+  const shift = apAllData.find(s => s.id === id);
+  const el = document.getElementById('info-request-modal');
+  if (!el) return;
+  const jobEl = document.getElementById('info-request-job');
+  if (jobEl && shift) jobEl.textContent = cn(shift.person) + ' — ' + (shift.job||'?') + ' — ' + fmtD(shift.start_dt);
+  document.getElementById('info-request-note').value = '';
+  document.getElementById('info-request-err').style.display = 'none';
+  el.style.display = 'flex';
+}
+
+function closeInfoRequestModal() {
+  document.getElementById('info-request-modal').style.display = 'none';
+  infoRequestShiftId = null;
+}
+
+async function confirmInfoRequest() {
+  const note = document.getElementById('info-request-note').value.trim();
+  if (!note) {
+    document.getElementById('info-request-err').style.display = 'block';
+    return;
+  }
+  const { error } = await sb.from('shifts').update({
+    approval_status: 'info_requested',
+    approval_note:   note,
+    approved_at:     new Date().toISOString(),
+    approved_by:     currentUser?.email
+  }).eq('id', infoRequestShiftId);
+  if (error) { toast('Hata: ' + error.message, true); return; }
+  toast('Açıklama istendi olarak işaretlendi');
+  closeInfoRequestModal();
+  loadApproval();
+  loadAll();
 }
 
 // ════════════════════════════════════════════
