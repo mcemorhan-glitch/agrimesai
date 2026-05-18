@@ -274,6 +274,7 @@ hr.div{border:none;border-top:1px solid var(--border);margin:24px 0;}
           <option value="tekirdag">Tekirdağ</option>
           <option value="bandirma">Bandırma</option>
           <option value="izmir">İzmir</option>
+          <option value="takim_lideri">Takım Lideri</option>
         </select>
         <select id="f-job"><option value="">Tüm işler</option></select>
         <select id="f-sta"><option value="">Tüm durumlar</option><option value="done">Tamamlandı</option><option value="open">Açık</option></select>
@@ -301,6 +302,7 @@ hr.div{border:none;border-top:1px solid var(--border);margin:24px 0;}
           <option value="tekirdag">Tekirdağ</option>
           <option value="bandirma">Bandırma</option>
           <option value="izmir">İzmir</option>
+          <option value="takim_lideri">Takım Lideri</option>
         </select>
         <div style="display:flex;gap:4px;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">
           <button id="s-src-wa" class="btn" style="border:none;border-radius:0;background:var(--accent);color:#fff;padding:6px 14px;font-size:13px" onclick="setSumSource('wa')">📱 WA</button>
@@ -414,6 +416,7 @@ hr.div{border:none;border-top:1px solid var(--border);margin:24px 0;}
           <option value="tekirdag">Tekirdağ</option>
           <option value="bandirma">Bandırma</option>
           <option value="izmir">İzmir</option>
+          <option value="takim_lideri">Takım Lideri</option>
         </select>
         <input type="date" id="log-from" style="padding:7px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:13px">
         <input type="date" id="log-to"   style="padding:7px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:13px">
@@ -454,10 +457,11 @@ hr.div{border:none;border-top:1px solid var(--border);margin:24px 0;}
           <div style="margin-top:12px">
             <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Bölge</div>
             <div style="display:flex;gap:6px;flex-wrap:wrap" id="region-btns">
-              <button class="btn region-btn" data-r="istanbul"  onclick="selectRegion(this)">İstanbul</button>
-              <button class="btn region-btn" data-r="tekirdag"  onclick="selectRegion(this)">Tekirdağ</button>
-              <button class="btn region-btn" data-r="bandirma"  onclick="selectRegion(this)">Bandırma</button>
-              <button class="btn region-btn" data-r="izmir"     onclick="selectRegion(this)">İzmir</button>
+              <button class="btn region-btn" data-r="istanbul"   onclick="selectRegion(this)">İstanbul</button>
+              <button class="btn region-btn" data-r="tekirdag"   onclick="selectRegion(this)">Tekirdağ</button>
+              <button class="btn region-btn" data-r="bandirma"   onclick="selectRegion(this)">Bandırma</button>
+              <button class="btn region-btn" data-r="izmir"      onclick="selectRegion(this)">İzmir</button>
+              <button class="btn region-btn" data-r="takim_lideri" onclick="selectRegion(this)">Takım Lideri</button>
             </div>
           </div>
 
@@ -553,6 +557,7 @@ hr.div{border:none;border-top:1px solid var(--border);margin:24px 0;}
           <option value="tekirdag">Tekirdağ</option>
           <option value="bandirma">Bandırma</option>
           <option value="izmir">İzmir</option>
+          <option value="takim_lideri">Takım Lideri</option>
         </select>
         <select id="ap-person" onchange="loadApproval()"><option value="">Tüm çalışanlar</option></select>
         <select id="ap-approval" onchange="loadApproval()">
@@ -3732,7 +3737,17 @@ async function loadApproval() {
   const status = g('ap-approval');
   let q = sb.from('shifts').select('*').order('start_dt', { ascending: false }).limit(500);
   if (reg) q = q.eq('region', reg);
-  if (person) q = q.eq('person', person);
+  if (person) {
+    // Seçilen WA ismiyle aynı mapped ismine sahip tüm WA isimlerini bul
+    const mappedTarget = cn(person);
+    const allPersons = [...new Set(allShifts.map(s => s.person))];
+    const matchingPersons = allPersons.filter(p => cn(p) === mappedTarget);
+    if (matchingPersons.length > 1) {
+      q = q.in('person', matchingPersons);
+    } else {
+      q = q.eq('person', person);
+    }
+  }
   if (status === 'nova_approved') {
     q = q.eq('approval_status', 'approved');
   } else if (status) {
