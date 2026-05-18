@@ -573,7 +573,7 @@ hr.div{border:none;border-top:1px solid var(--border);margin:24px 0;}
             <th>Çalışan</th><th>Bölge</th><th>İş No</th><th>Tarih</th>
             <th>Başlama</th><th>Bitiş</th><th>Toplam</th>
             <th style="color:var(--amber)">Fazla Mesai</th>
-            <th>Kıyaslama</th><th>Onay Durumu</th><th>Onay</th><th>Diğer</th>
+            <th>Kıyaslama</th><th>Onay Durumu</th><th></th>
           </tr></thead>
           <tbody id="ap-tb"></tbody>
         </table>
@@ -3422,6 +3422,32 @@ async function confirmInfoRequest() {
   loadAll();
 }
 
+
+function toggleApMore(btn) {
+  // Diğer açık menüleri kapat
+  document.querySelectorAll('.ap-more-menu').forEach(m => {
+    if (m !== btn.nextElementSibling) m.style.display = 'none';
+  });
+  const menu = btn.nextElementSibling;
+  menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+  // Dışarı tıklayınca kapat
+  if (menu.style.display === 'block') {
+    setTimeout(() => {
+      document.addEventListener('click', function closeMenu(e) {
+        if (!menu.contains(e.target) && e.target !== btn) {
+          menu.style.display = 'none';
+          document.removeEventListener('click', closeMenu);
+        }
+      });
+    }, 0);
+  }
+}
+
+function closeApMore(item) {
+  const menu = item.closest('.ap-more-menu');
+  if (menu) menu.style.display = 'none';
+}
+
 // ════════════════════════════════════════════
 //  ONAY SİSTEMİ
 // ════════════════════════════════════════════
@@ -3520,15 +3546,18 @@ function renderApprovalTable(data) {
       <td class="mono" style="color:var(--amber)">${s.overtime_h && parseFloat(s.overtime_h)>0 ? fmtH(s.overtime_h) : '—'}</td>
       <td id="cmp-cell-${s.id}"><span class="muted" style="font-size:11px">—</span></td>
       <td><span class="badge ${badgeCls}">${badgeLabel}</span>${note}</td>
-      <td style="white-space:nowrap">
-        ${as !== 'approved'      ? `<button class="btn btn-sm" style="background:var(--green-bg);color:var(--green);border-color:var(--green-border)" onclick="approveShift(${s.id})" title="Onayla">✓</button>` : ''}
-        ${as !== 'info_requested' ? `<button class="btn btn-sm" style="background:#fff3cd;color:#856404;border-color:#ffc107;margin-left:2px" onclick="openInfoRequestModal(${s.id})" title="Açıklama İste">?</button>` : ''}
-        ${as !== 'rejected'       ? `<button class="btn btn-sm" style="background:var(--red-bg);color:var(--red);border-color:var(--red-border);margin-left:2px" onclick="openRejectModal([${s.id}])">✗</button>` : ''}
-        ${as !== 'pending'        ? `<button class="btn btn-sm" style="margin-left:2px" onclick="quickResetApproval(${s.id})" title="Sıfırla">↺</button>` : ''}
-      </td>
-      <td style="white-space:nowrap">
-        <button class="btn btn-sm" onclick="openEditShiftModal(${s.id})" title="Düzenle">✏</button>
-        <button class="btn btn-sm btn-d" style="margin-left:2px" onclick="deleteShift(${s.id})" title="Sil">🗑</button>
+      <td style="white-space:nowrap;position:relative">
+        ${as !== 'approved' ? `<button class="btn btn-sm" style="background:var(--green-bg);color:var(--green);border-color:var(--green-border);padding:3px 7px" onclick="approveShift(${s.id})" title="Onayla">✓</button>` : ''}
+        ${as !== 'info_requested' ? `<button class="btn btn-sm" style="background:#fff3cd;color:#856404;border-color:#ffc107;margin-left:2px;padding:3px 7px" onclick="openInfoRequestModal(${s.id})" title="Açıklama İste">?</button>` : ''}
+        <div class="ap-more-wrap" style="display:inline-block;position:relative;margin-left:2px">
+          <button class="btn btn-sm" style="padding:3px 7px" onclick="toggleApMore(this)" title="Daha fazla">…</button>
+          <div class="ap-more-menu" style="display:none;position:absolute;right:0;top:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 4px 12px rgba(0,0,0,0.12);z-index:50;min-width:140px;padding:4px 0">
+            ${as !== 'rejected' ? `<button class="ap-more-item" onclick="closeApMore(this);openRejectModal([${s.id}])">✗ Reddet</button>` : ''}
+            ${as !== 'pending'  ? `<button class="ap-more-item" onclick="closeApMore(this);quickResetApproval(${s.id})">↺ Sıfırla</button>` : ''}
+            <button class="ap-more-item" onclick="closeApMore(this);openEditShiftModal(${s.id})">✏ Düzenle</button>
+            <button class="ap-more-item" style="color:var(--red)" onclick="closeApMore(this);deleteShift(${s.id})">🗑 Sil</button>
+          </div>
+        </div>
       </td>
     </tr>`;
   }).join('');
