@@ -3448,6 +3448,52 @@ function closeApMore(item) {
   if (menu) menu.style.display = 'none';
 }
 
+
+// ════════════════════════════════════════════
+//  SORT
+// ════════════════════════════════════════════
+
+let apSortField = 'start_dt';
+let apSortDir   = 'desc';
+
+function apSort(field) {
+  if (apSortField === field) {
+    apSortDir = apSortDir === 'asc' ? 'desc' : 'asc';
+  } else {
+    apSortField = field;
+    apSortDir   = field === 'start_dt' ? 'desc' : 'asc';
+  }
+
+  // Header ikonlarını güncelle
+  document.querySelectorAll('th.sortable').forEach(th => {
+    th.classList.remove('sort-asc','sort-desc');
+    if (th.getAttribute('onclick') === `apSort('${field}')`) {
+      th.classList.add(apSortDir === 'asc' ? 'sort-asc' : 'sort-desc');
+    }
+  });
+
+  // Veriyi sırala
+  apAllData.sort((a, b) => {
+    let av = a[apSortField], bv = b[apSortField];
+    if (av == null) av = '';
+    if (bv == null) bv = '';
+    // Sayısal alanlar
+    if (['duration_h','overtime_h','normal_h'].includes(apSortField)) {
+      av = parseFloat(av) || 0;
+      bv = parseFloat(bv) || 0;
+      return apSortDir === 'asc' ? av - bv : bv - av;
+    }
+    // String/tarih
+    av = String(av).toLowerCase();
+    bv = String(bv).toLowerCase();
+    if (av < bv) return apSortDir === 'asc' ? -1 : 1;
+    if (av > bv) return apSortDir === 'asc' ?  1 : -1;
+    return 0;
+  });
+
+  renderApprovalTablePaged(apAllData, 0);
+}
+
 // ════════════════════════════════════════════
 //  ONAY SİSTEMİ
 // ════════════════════════════════════════════
@@ -3626,8 +3672,8 @@ async function confirmApprove() {
   if (error) { toast('Hata: '+error.message, true); return; }
   toast(`${approveTargetIds.length > 1 ? approveTargetIds.length + ' kayıt' : 'Kayıt'} onaylandı ✓`);
   clearSelection();
+  loadApproval();
   loadAll();
-  if (document.getElementById('tab-approval')?.classList.contains('active')) loadApproval();
 }
 
 function hasRegionAccess(region) { return true; }
