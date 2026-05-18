@@ -547,7 +547,6 @@ hr.div{border:none;border-top:1px solid var(--border);margin:24px 0;}
         <select id="ap-approval" onchange="loadApproval()">
           <option value="pending">Bekleyenler</option>
           <option value="info_requested">Açıklama İstenenler</option>
-          <option value="approved">WA Onaylananlar</option>
           <option value="nova_approved">Nova'da Onaylanacaklar</option>
           <option value="rejected">Reddedilenler</option>
           <option value="">Tümü</option>
@@ -3854,8 +3853,17 @@ function populateApprovalFilters() {
 const PC={}, CP=['#1d4ed8','#15803d','#b45309','#b91c1c','#7c3aed','#0e7490','#c2410c','#4d7c0f','#be185d','#0f766e'];
 let ci=0;
 function pColor(n){ if(!PC[n]) PC[n]=CP[ci++%CP.length]; return PC[n]; }
-function ini(n){ return (n||'').replace(/~\s*/,'').trim().split(' ').filter(Boolean).map(w=>w[0]).join('').toUpperCase().slice(0,2)||'?'; }
-function cn(n){ return (n||'').replace(/~\s*/,'').trim(); }
+function ini(n){ const d = cn(n); return d.split(' ').filter(Boolean).map(w=>w[0].toUpperCase()).join('').slice(0,2); }
+function cn(n) {
+  if (!n) return '';
+  // Mapping varsa Nova'daki gerçek ismi göster
+  const mapped = nameMappings && nameMappings[normName(n)];
+  if (mapped && mapped !== '__SKIP__') {
+    // Capitalize: DANYAL AKBAS -> Danyal Akbaş (orijinal kayıtlı hali kullan)
+    return mapped.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+  }
+  return (n||'').replace(/~\s*/,'').replace(/^(Sgs|SGS)\s+/i,'').replace(/\s+(Abi|Abla|Bey|Bay)$/i,'').trim();
+}
 function fmtT(v){ if(!v)return'—'; const d=v instanceof Date?v:new Date(v); return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0'); }
 function fmtD(v){ if(!v)return'—'; const d=v instanceof Date?v:new Date(v); return d.getDate().toString().padStart(2,'0')+'.'+(d.getMonth()+1).toString().padStart(2,'0')+'.'+d.getFullYear(); }
 function fmtFull(v){ return fmtD(v)+' '+fmtT(v); }
