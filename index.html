@@ -569,10 +569,17 @@ hr.div{border:none;border-top:1px solid var(--border);margin:24px 0;}
         <table>
           <thead><tr>
             <th style="width:32px"><input type="checkbox" id="ap-hdr-chk" onchange="toggleSelectAll(this.checked)"></th>
-            <th>Çalışan</th><th>Bölge</th><th>İş No</th><th>Tarih</th>
-            <th>Başlama</th><th>Bitiş</th><th>Toplam</th>
-            <th style="color:var(--amber)">Fazla Mesai</th>
-            <th>Kıyaslama</th><th>Onay Durumu</th><th></th>
+            <th class="sortable" onclick="apSort('person')">Çalışan</th>
+            <th class="sortable" onclick="apSort('region')">Bölge</th>
+            <th class="sortable" onclick="apSort('job')">İş No</th>
+            <th class="sortable" onclick="apSort('start_dt')">Tarih</th>
+            <th class="sortable" onclick="apSort('start_dt')">Başlama</th>
+            <th class="sortable" onclick="apSort('end_dt')">Bitiş</th>
+            <th class="sortable" onclick="apSort('duration_h')">Toplam</th>
+            <th class="sortable" style="color:var(--amber)" onclick="apSort('overtime_h')">Fazla Mesai</th>
+            <th>Kıyaslama</th>
+            <th class="sortable" onclick="apSort('approval_status')">Onay Durumu</th>
+            <th></th>
           </tr></thead>
           <tbody id="ap-tb"></tbody>
         </table>
@@ -3520,6 +3527,7 @@ async function loadApproval() {
   if (error) { toast('Yükleme hatası: '+error.message, true); return; }
 
   const apData = data || [];
+  await loadNameMappings(); // cn() için mapping'lerin yüklü olması şart
   renderApprovalTablePaged(apData, 0);
   updateApprovalBadge();
 }
