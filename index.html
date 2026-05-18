@@ -1923,9 +1923,6 @@ function renderLog(data) {
     tb.innerHTML = '<tr class="empty"><td colspan="10">Kayıt bulunamadı</td></tr>';
     return;
   }
-  // Kıyaslama sonuçlarını async olarak doldur
-  setTimeout(() => fillCmpStatusCells(data), 100);
-
   tb.innerHTML = data.map(s => {
     const actionBadge =
       s.approval_status === 'approved' ? '<span class="badge bg">✓ Onaylandı</span>' :
@@ -3146,15 +3143,20 @@ async function deleteUser(userId) {
 
 async function fillCmpStatusCells(shifts) {
   if (!shifts?.length || !sb) return;
-  // Bu vardiyaların Nova'da karşılığı var mı?
-  const names = [...new Set(shifts.map(s => s.person))];
   const { data: sysRows } = await sb.from('sys_shifts')
     .select('olusturan,start_dt,end_dt,is_no')
-    .limit(1000);
-  if (!sysRows?.length) return;
+    .limit(2000);
+  if (!sysRows?.length) {
+    console.warn('fillCmpStatusCells: sys_shifts boş');
+    return;
+  }
+
+  await loadNameMappings();
 
   const tolMs = 30 * 60000;
   const sysNames = [...new Set(sysRows.map(r => r.olusturan).filter(Boolean))];
+  console.log('fillCmp: shifts=', shifts.length, 'sysRows=', sysRows.length,
+    'örnek WA:', normName(shifts[0]?.person), '| örnek Nova:', normName(sysRows[0]?.olusturan));
   shifts.forEach(s => {
     const cell = document.getElementById('cmp-cell-' + s.id);
     if (!cell) return;
@@ -3399,6 +3401,8 @@ function renderApprovalTablePaged(data, page) {
 
   renderApprovalTable(pageData);
   document.getElementById('ap-cnt').textContent = total + ' kayıt';
+  // Kıyaslama sütunlarını doldur
+  setTimeout(() => fillCmpStatusCells(pageData), 200);
 
   // Sayfalama
   const pg = document.getElementById('ap-pagination');
