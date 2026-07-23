@@ -801,7 +801,12 @@ let currentProfile = null; // { role: 'admin'|'region_manager', region: 'izmir'|
 
   try {
     sb = window.supabase.createClient(url, key, {
-      auth: { persistSession: !isFileProtocol, autoRefreshToken: !isFileProtocol }
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: false,   // OAuth redirect'i engelle
+        flowType: 'implicit',
+      }
     });
   } catch(e) {
     console.warn('Supabase init failed:', e);
@@ -1599,6 +1604,8 @@ async function saveImport() {
       .map(p => ({ waName: p, sysNames: [] }));
     // Kaydetme işlemini modal kapandıktan sonra devam ettirmek için flag koy
     window._pendingSaveImport = true;
+    // İlk elemanı seç ve modalı aç
+    whoIsCurrent = whoIsQueue[0];
     openWhoIsModal();
     return;
   }
@@ -4073,7 +4080,7 @@ function go(name) {
   if (name==='summary')  { try { renderSummary(); } catch(e){} }
   if (name==='messages') { try { renderMsgs(); } catch(e){} }
   if (name==='import')   { try { populateCmpPerson(); initCmpDateRange(); } catch(e){} }
-  if (name==='approval') { try { populateApprovalFilters(); loadApproval(); } catch(e){} }
+  if (name==='approval') { try { populateApprovalFilters().then(() => loadApproval()); } catch(e){} }
   if (name==='admin')    { try { loadUsers(); } catch(e){} }
   if (name==='compare')  { try { populateCmpPerson(); initCompareDateRange(); } catch(e){ console.error(e); } }
   if (name==='log')      { try { populateLogFilters(); loadLog(); } catch(e){ console.error(e); } }
