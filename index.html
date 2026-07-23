@@ -1606,7 +1606,7 @@ async function saveImport() {
     window._pendingSaveImport = true;
     // İlk elemanı seç ve modalı aç
     whoIsCurrent = whoIsQueue[0];
-    openWhoIsModal();
+    openWhoIsModal(whoIsCurrent);
     return;
   }
 
@@ -3512,7 +3512,8 @@ function askWhoIs(waName) {
   openWhoIsModal();
 }
 
-async function openWhoIsModal() {
+async function openWhoIsModal(entry) {
+  if (entry) whoIsCurrent = entry;
   if (!whoIsCurrent) return;
   const modal = document.getElementById('whois-modal');
   if (!modal) return;
@@ -3553,6 +3554,11 @@ async function confirmWhoIs() {
     return;
   }
 
+  if (!whoIsCurrent) {
+    closeWhoIsModal();
+    return;
+  }
+
   const ok = await saveNameMapping(whoIsCurrent.waName, sysName);
   if (!ok) return;
 
@@ -3568,7 +3574,7 @@ async function confirmWhoIs() {
   if (whoIsQueue.length > 0) {
     setTimeout(() => {
       whoIsCurrent = whoIsQueue[0];
-      openWhoIsModal();
+      openWhoIsModal(whoIsCurrent);
     }, 500);
   } else if (window._pendingSaveImport) {
     // Tüm isimler eşleştirildi, kaydetmeye devam et
@@ -3582,7 +3588,7 @@ async function skipWhoIs() {
   whoIsQueue = whoIsQueue.filter(q => q.waName !== whoIsCurrent.waName);
   closeWhoIsModal();
   if (whoIsQueue.length > 0) {
-    setTimeout(() => { whoIsCurrent = whoIsQueue[0]; openWhoIsModal(); }, 300);
+    setTimeout(() => { whoIsCurrent = whoIsQueue[0]; openWhoIsModal(whoIsCurrent); }, 300);
   } else if (window._pendingSaveImport) {
     setTimeout(() => _doSaveImport(), 300);
   }
