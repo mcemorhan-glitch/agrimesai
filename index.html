@@ -217,7 +217,7 @@ hr.div{border:none;border-top:1px solid var(--border);margin:24px 0;}
 <!-- ══ AUTH ══ -->
 <div id="screen-auth" class="center-screen" style="display:none">
   <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);padding:36px 40px;width:100%;max-width:380px;box-shadow:var(--shadow)">
-    <div style="font-size:20px;font-weight:700;letter-spacing:-.4px;margin-bottom:4px">AGRI Mesai Takip</div>
+    <div style="font-size:20px;font-weight:700;letter-spacing:-.4px;margin-bottom:4px">AGRI Mesai Takip <span style="font-size:11px;font-weight:400;color:var(--text3)">v1.04</span></div>
     <div style="font-size:13px;color:var(--text2);margin-bottom:26px">Devam etmek için giriş yapın</div>
     <div id="auth-err" style="background:var(--red-bg);border:1px solid var(--red-border);color:var(--red);border-radius:var(--radius);padding:10px 12px;font-size:13px;margin-bottom:14px;display:none"></div>
     <div class="field"><label>E-posta</label><input id="a-email" type="email" placeholder="ornek@sirket.com" autocomplete="email"></div>
@@ -228,7 +228,7 @@ hr.div{border:none;border-top:1px solid var(--border);margin:24px 0;}
 
 <div id="app" style="display:none">
   <header>
-    <div class="logo">AGRI Mesai Takip</div>
+    <div class="logo">AGRI Mesai Takip <span style="font-size:11px;font-weight:400;color:var(--text3)">v1.04</span></div>
     <div class="hdr-right">
       <span id="db-dot"><span class="dot dy"></span></span>
       <span id="user-role-badge" style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:10px;display:none"></span>
@@ -980,9 +980,7 @@ async function loadAll() {
     let shiftsQ = sb.from('shifts').select('*').order('start_dt', { ascending: false }).limit(1000);
     const [r1] = await Promise.all([shiftsQ]);
     if (r1.error) throw r1.error;
-    if (r2.error) throw r2.error;
     allShifts = r1.data || [];
-    allMsgs = r2.data || [];
     allImports = [...new Set(allShifts.map(s => s.import_id).filter(Boolean))];
     renderDashboard();
     populateFilters();
