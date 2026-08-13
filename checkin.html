@@ -452,54 +452,24 @@ async function init() {
 // ══════════════════════════════════
 //  AUTH
 // ══════════════════════════════════
-async function sendMagicLink() {
+async function doLogin() {
   const email = document.getElementById('auth-email').value.trim();
-  if (!email) { showAuthMsg('E-posta gerekli', true); return; }
+  const pass  = document.getElementById('auth-pass').value;
+  if (!email || !pass) { showAuthMsg('E-posta ve şifre gerekli', true); return; }
 
-  const btn = document.getElementById('btn-send-link');
+  const btn = document.getElementById('btn-login');
   btn.disabled = true;
-  btn.textContent = 'Gönderiliyor…';
+  btn.textContent = 'Giriş yapılıyor…';
   showAuthMsg('');
 
-  const { error } = await sb2.auth.signInWithOtp({
-    email,
-    options: { shouldCreateUser: false } // sadece kayıtlı kullanıcılar
-  });
-
-  btn.disabled = false;
-  btn.textContent = 'Giriş Linki Gönder';
-
-  if (error) {
-    showAuthMsg(error.message.includes('not found') ? 'Bu e-posta kayıtlı değil.' : error.message, true);
-    return;
-  }
-
-  showAuthMsg('✓ Kod gönderildi! E-postanı kontrol et.');
-  document.getElementById('auth-step1').style.display = 'none';
-  document.getElementById('auth-step2').style.display = 'block';
-  setTimeout(() => document.getElementById('auth-otp').focus(), 100);
-}
-
-async function verifyOtp() {
-  const email = document.getElementById('auth-email').value.trim();
-  const token = document.getElementById('auth-otp').value.trim();
-  if (!token) { showAuthMsg2('Kodu gir', true); return; }
-
-  const btn = document.getElementById('btn-verify');
-  btn.disabled = true;
-  btn.textContent = 'Doğrulanıyor…';
-
-  const { error } = await sb2.auth.verifyOtp({ email, token, type: 'email' });
+  const { error } = await sb2.auth.signInWithPassword({ email, password: pass });
   btn.disabled = false;
   btn.textContent = 'Giriş Yap';
 
-  if (error) { showAuthMsg2('Kod hatalı veya süresi dolmuş.', true); return; }
-}
-
-function backToEmail() {
-  document.getElementById('auth-step1').style.display = 'block';
-  document.getElementById('auth-step2').style.display = 'none';
-  showAuthMsg('');
+  if (error) {
+    showAuthMsg('E-posta veya şifre hatalı.', true);
+    return;
+  }
 }
 
 async function doLogout() {
@@ -513,11 +483,7 @@ function showAuthMsg(msg, isErr=false) {
   el.textContent = msg;
   el.className = 'auth-msg ' + (isErr ? 'err' : 'ok');
 }
-function showAuthMsg2(msg, isErr=false) {
-  const el = document.getElementById('auth-msg2');
-  el.textContent = msg;
-  el.className = 'auth-msg ' + (isErr ? 'err' : 'ok');
-}
+
 
 // ══════════════════════════════════
 //  ENTER APP
@@ -674,6 +640,24 @@ async function startShift() {
 
   const btn = document.getElementById('btn-start');
   btn.disabled = true;
+  btn.innerHTML = '<span>⏳</span> Kontrol ediliyor…';
+
+  // Çakışma kontrolü — aynı kullanıcı zaten açık vardiyası var mı?
+  const { data: openShifts } = await sb2.from('shifts')
+    .select('id, job, start_dt')
+    .eq('person', currentUser.email)
+    .eq('status', 'open')
+    .neq('source', 'device_alert');
+
+  if (openShifts?.length > 0) {
+    const s = openShifts[0];
+    const startStr = new Date(s.start_dt).toLocaleTimeString('tr-TR', { hour:'2-digit', minute:'2-digit' });
+    toast(`Zaten açık vardiya var: ${s.job} (${startStr})`, true);
+    btn.disabled = false;
+    btn.innerHTML = '<span>▶</span> Vardiyaya Başla';
+    return;
+  }
+
   btn.innerHTML = '<span>⏳</span> Kaydediliyor…';
 
   const now = new Date();
