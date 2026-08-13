@@ -420,7 +420,19 @@ async function init() {
     deviceId = result.visitorId;
   } catch(e) { deviceId = 'unknown'; }
 
-  // Auth durumu
+  // Magic link hash kontrolü (URL'de token varsa otomatik giriş)
+  const hash = window.location.hash;
+  if (hash && hash.includes('access_token')) {
+    // Supabase magic link token'ı işle
+    const { data: { session }, error } = await sb2.auth.getSession();
+    if (session) {
+      window.location.hash = ''; // hash'i temizle
+      await enterApp(session.user);
+      return;
+    }
+  }
+
+  // Normal auth durumu
   const { data: { session } } = await sb2.auth.getSession();
   if (session) {
     await enterApp(session.user);
@@ -429,8 +441,8 @@ async function init() {
   }
 
   sb2.auth.onAuthStateChange(async (event, session) => {
-    if (session) await enterApp(session.user);
-    else showScreen('auth');
+    if (event === 'SIGNED_IN' && session) await enterApp(session.user);
+    else if (event === 'SIGNED_OUT') showScreen('auth');
   });
 
   // Konum al
