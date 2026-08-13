@@ -518,17 +518,8 @@ async function checkDevice(userId) {
   } else if (profile.device_id !== deviceId) {
     // Farklı cihaz — uyarı toast (engellemiyoruz, sadece log)
     toast('⚠ Farklı cihazdan giriş tespit edildi', true);
-    // Yöneticiye bildirim için log
-    await sb2.from('shifts').insert({
-      person: currentUser.email,
-      job: 'DEVICE_WARNING',
-      start_dt: new Date().toISOString(),
-      status: 'open',
-      region: 'system',
-      approval_status: 'pending',
-      source: 'device_alert',
-      device_id: deviceId
-    }).select();
+    // Sadece console log — DB'ye kaydetme
+    console.warn('DEVICE_WARNING: farklı cihaz tespit edildi', deviceId);
   }
 }
 
@@ -579,6 +570,7 @@ async function loadActiveShift() {
     .select('*')
     .eq('person', currentUser.email)
     .eq('status', 'open')
+    .eq('source', 'app')
     .order('start_dt', { ascending: false })
     .limit(1);
 
@@ -677,7 +669,21 @@ async function startShift() {
 
 async function endShift() {
   if (!activeShift) return;
-  if (!currentLat) { toast('Konum alınamadı, lütfen bekleyin', true); return; }
+
+  // Konum yoksa yeniden almayı dene
+  if (!currentLat) {
+    toast('Konum alınıyor…');
+    await new Promise((resolve) => {
+      navigator.geolocation.getCurrentPosition(
+        pos => { currentLat = pos.coords.latitude; currentLng = pos.coords.longitude; resolve(); },
+        () => resolve(),
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    });
+  }
+
+  // Konum hâlâ yoksa konum olmadan kaydet
+  const hasLocation = !!currentLat;
 
   const btn = document.getElementById('btn-end');
   btn.disabled = true;
@@ -687,13 +693,16 @@ async function endShift() {
   const startDt = new Date(activeShift.start_dt);
   const dur = (now - startDt) / 3600000;
 
-  const { error } = await sb2.from('shifts').update({
-    end_dt:       now.toISOString(),
-    duration_h:   parseFloat(dur.toFixed(2)),
-    status:       'done',
-    checkout_lat: currentLat,
-    checkout_lng: currentLng,
-  }).eq('id', activeShift.id);
+  const updateData = {
+    end_dt:     now.toISOString(),
+    duration_h: parseFloat(dur.toFixed(2)),
+    status:     'done',
+  };
+  if (hasLocation) {
+    updateData.checkout_lat = currentLat;
+    updateData.checkout_lng = currentLng;
+  }
+  const { error } = await sb2.from('shifts').update(updateData).eq('id', activeShift.id);
 
   btn.disabled = false;
   btn.innerHTML = '<span>⏹</span> Vardiyayı Bitir';
