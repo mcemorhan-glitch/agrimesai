@@ -506,22 +506,50 @@ async function checkDevice(userId) {
   if (!deviceId || deviceId === 'unknown') return;
 
   const { data: profile } = await sb2.from('user_profiles')
-    .select('device_id')
+    .select('device_id, current_device_id, device_alerts')
     .eq('id', userId)
     .single();
 
   if (!profile) return;
 
-  if (!profile.device_id) {
-    // İlk giriş — cihazı kaydet (sadece admin/manager yapabilir, inspector atla)
+  if (!profile.current_device_id) {
+    // İlk giriş — cihazı kaydet
     try {
-      await sb2.from('user_profiles').update({ device_id: deviceId }).eq('id', userId);
-    } catch(e) { console.log('device_id kayıt atlandı:', e.message); }
-  } else if (profile.device_id !== deviceId) {
-    // Farklı cihaz — uyarı toast (engellemiyoruz, sadece log)
-    toast('⚠ Farklı cihazdan giriş tespit edildi', true);
-    // Sadece console log — DB'ye kaydetme
-    console.warn('DEVICE_WARNING: farklı cihaz tespit edildi', deviceId);
+      await sb2.from('user_profiles').update({
+        current_device_id: deviceId,
+        device_id: deviceId
+      }).eq('id', userId);
+    } catch(e) { console.log('device kayıt atlandı:', e.message); }
+
+  } else if (profile.current_device_id !== deviceId) {
+    // Farklı cihaz — alert logla ve oturumu sonlandır
+    const alerts = profile.device_alerts || [];
+    alerts.push({
+      ts: new Date().toISOString(),
+      new_device: deviceId,
+      old_device: profile.current_device_id
+    });
+    // Son 20 alert tut
+    if (alerts.length > 20) alerts.splice(0, alerts.length - 20);
+
+    try {
+      await sb2.from('user_profiles').update({
+        device_alerts: alerts,
+        current_device_id: deviceId // yeni cihazı aktif yap
+      }).eq('id', userId);
+    } catch(e) { console.log('alert log atlandı:', e.message); }
+
+    // Uyarı göster — önceki cihaz otomatik çıkış yapacak (session geçersiz olur)
+    toast('⚠ Farklı cihazdan giriş — önceki oturum sonlandırıldı', true);
+    console.warn('DEVICE_WARNING:', deviceId, 'vs', profile.current_device_id);
+
+  } else {
+    // Aynı cihaz — current_device_id güncelle (session yenile)
+    try {
+      await sb2.from('user_profiles').update({
+        current_device_id: deviceId
+      }).eq('id', userId);
+    } catch(e) {}
   }
 }
 
