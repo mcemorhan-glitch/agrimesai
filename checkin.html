@@ -402,7 +402,7 @@ let deviceId     = null;
 //  INIT
 // ══════════════════════════════════
 async function init() {
-  // Device fingerprint
+  // Device fingerprint (FingerprintJS)
   try {
     const fp = await FingerprintJS.load();
     const result = await fp.get();
@@ -439,23 +439,27 @@ async function init() {
 }
 
 
+
+
 function getUASummary() {
   const ua = navigator.userAgent;
   let browser = 'Bilinmeyen';
   let os = 'Bilinmeyen';
 
-  // Tarayıcı
-  if (ua.includes('Chrome') && !ua.includes('Edg')) browser = 'Chrome';
-  else if (ua.includes('Safari') && !ua.includes('Chrome')) browser = 'Safari';
-  else if (ua.includes('Firefox')) browser = 'Firefox';
-  else if (ua.includes('Edg')) browser = 'Edge';
-
-  // OS/Cihaz
+  // OS/Cihaz (önce belirle)
   if (ua.includes('iPhone')) os = 'iPhone';
   else if (ua.includes('iPad')) os = 'iPad';
   else if (ua.includes('Android')) os = 'Android';
   else if (ua.includes('Windows')) os = 'Windows';
   else if (ua.includes('Mac')) os = 'Mac';
+
+  // Tarayıcı — iOS'ta Chrome/Edge WebKit kullanır ama kendini belli eder
+  if (ua.includes('Edg/') || ua.includes('EdgA/')) browser = 'Edge';
+  else if (ua.includes('FxiOS')) browser = 'Firefox';
+  else if (ua.includes('CriOS')) browser = 'Chrome'; // iOS Chrome
+  else if (ua.includes('Chrome') && !ua.includes('Edg')) browser = 'Chrome';
+  else if (ua.includes('Safari')) browser = 'Safari';
+  else if (ua.includes('Firefox')) browser = 'Firefox';
 
   return `${browser} / ${os}`;
 }
