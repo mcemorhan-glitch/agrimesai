@@ -438,6 +438,28 @@ async function init() {
   getLocation();
 }
 
+
+function getUASummary() {
+  const ua = navigator.userAgent;
+  let browser = 'Bilinmeyen';
+  let os = 'Bilinmeyen';
+
+  // Tarayıcı
+  if (ua.includes('Chrome') && !ua.includes('Edg')) browser = 'Chrome';
+  else if (ua.includes('Safari') && !ua.includes('Chrome')) browser = 'Safari';
+  else if (ua.includes('Firefox')) browser = 'Firefox';
+  else if (ua.includes('Edg')) browser = 'Edge';
+
+  // OS/Cihaz
+  if (ua.includes('iPhone')) os = 'iPhone';
+  else if (ua.includes('iPad')) os = 'iPad';
+  else if (ua.includes('Android')) os = 'Android';
+  else if (ua.includes('Windows')) os = 'Windows';
+  else if (ua.includes('Mac')) os = 'Mac';
+
+  return `${browser} / ${os}`;
+}
+
 // ══════════════════════════════════
 //  AUTH
 // ══════════════════════════════════
@@ -555,50 +577,61 @@ async function checkDevice(userId) {
   if (!deviceId || deviceId === 'unknown') return;
 
   const { data: profile } = await sb2.from('user_profiles')
-    .select('device_id, current_device_id, device_alerts')
+    .select('trusted_device_id, trusted_user_agent, trusted_at, current_device_id, device_alerts, role')
     .eq('id', userId)
     .single();
 
   if (!profile) return;
+  const uaSummary = getUASummary();
 
-  if (!profile.current_device_id) {
-    // İlk giriş — cihazı kaydet
+  // Admin/manager için cihaz kısıtlaması yok
+  if (profile.role === 'admin' || profile.role === 'manager') {
+    await sb2.from('user_profiles').update({ current_device_id: deviceId }).eq('id', userId).then();
+    return;
+  }
+
+  if (!profile.trusted_device_id) {
+    // İlk giriş — bu cihazı güvenilir olarak kaydet
     try {
       await sb2.from('user_profiles').update({
-        current_device_id: deviceId,
-        device_id: deviceId
+        trusted_device_id: deviceId,
+        trusted_user_agent: uaSummary,
+        trusted_at: new Date().toISOString(),
+        current_device_id: deviceId
       }).eq('id', userId);
-    } catch(e) { console.log('device kayıt atlandı:', e.message); }
+      toast('✓ Cihazınız kayıt edildi');
+    } catch(e) { console.log('trusted device kayıt hatası:', e.message); }
 
-  } else if (profile.current_device_id !== deviceId) {
-    // Farklı cihaz — alert logla ve oturumu sonlandır
+  } else if (profile.trusted_device_id !== deviceId) {
+    // Farklı cihaz — giriş reddet
     const alerts = profile.device_alerts || [];
     alerts.push({
       ts: new Date().toISOString(),
       new_device: deviceId,
-      old_device: profile.current_device_id
+      new_ua: uaSummary,
+      old_device: profile.trusted_device_id,
+      old_ua: profile.trusted_user_agent
     });
-    // Son 20 alert tut
     if (alerts.length > 20) alerts.splice(0, alerts.length - 20);
 
     try {
-      await sb2.from('user_profiles').update({
-        device_alerts: alerts,
-        current_device_id: deviceId // yeni cihazı aktif yap
-      }).eq('id', userId);
-    } catch(e) { console.log('alert log atlandı:', e.message); }
+      await sb2.from('user_profiles').update({ device_alerts: alerts }).eq('id', userId);
+    } catch(e) {}
 
-    // Uyarı göster — önceki cihaz otomatik çıkış yapacak (session geçersiz olur)
-    toast('⚠ Farklı cihazdan giriş — önceki oturum sonlandırıldı', true);
-    console.warn('DEVICE_WARNING:', deviceId, 'vs', profile.current_device_id);
+    // Zorla çıkış yap
+    await sb2.auth.signOut();
+    showScreen('auth');
+
+    const msg = document.getElementById('auth-msg');
+    if (msg) {
+      msg.innerHTML = '⚠ Farklı cihazla giriş yapıyorsunuz.<br>Yöneticinizle iletişime geçin.';
+      msg.className = 'auth-msg err';
+      msg.style.lineHeight = '1.6';
+    }
 
   } else {
-    // Aynı cihaz — current_device_id güncelle (session yenile)
-    try {
-      await sb2.from('user_profiles').update({
-        current_device_id: deviceId
-      }).eq('id', userId);
-    } catch(e) {}
+    // Aynı güvenilir cihaz — güncelle
+    await sb2.from('user_profiles').update({ current_device_id: deviceId }).eq('id', userId).then();
   }
 }
 
