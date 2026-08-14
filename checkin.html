@@ -497,6 +497,55 @@ async function enterApp(user) {
   showScreen('app');
   await loadActiveShift();
   await loadHistory();
+
+  // Her 30 saniyede cihaz kontrolü — başka cihazdan giriş olduysa logout
+  startDeviceWatcher();
+}
+
+function startDeviceWatcher() {
+  async function checkCurrentDevice() {
+    if (!currentUser) return;
+    const { data } = await sb2.from('user_profiles')
+      .select('current_device_id')
+      .eq('id', currentUser.id)
+      .single();
+    if (data && data.current_device_id && data.current_device_id !== deviceId) {
+      clearInterval(elapsedTimer);
+      await sb2.auth.signOut();
+      showScreen('auth');
+      const msg = document.getElementById('auth-msg');
+      if (msg) {
+        msg.textContent = '⚠ Başka bir cihazdan giriş yapıldı. Tekrar giriş yapın.';
+        msg.className = 'auth-msg err';
+      }
+    }
+  }
+
+  // Sadece sayfa görünürken periyodik kontrol (arka planda data tüketmesin)
+  let deviceWatcherInterval = null;
+
+  function startWatcher() {
+    if (deviceWatcherInterval) return;
+    deviceWatcherInterval = setInterval(checkCurrentDevice, 10000);
+  }
+  function stopWatcher() {
+    clearInterval(deviceWatcherInterval);
+    deviceWatcherInterval = null;
+  }
+
+  // Sayfa görünürlüğüne göre başlat/durdur
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      checkCurrentDevice(); // Anında kontrol
+      startWatcher();
+    } else {
+      stopWatcher();
+    }
+  });
+  window.addEventListener('focus', checkCurrentDevice);
+
+  // Başlangıçta çalıştır
+  startWatcher();
 }
 
 // ══════════════════════════════════
