@@ -480,15 +480,15 @@ function showAuthMsg(msg, isErr=false) {
 async function enterApp(user) {
   currentUser = user;
 
-  // Kullanıcı adını profile'dan al
+  // Profile yükle ve state'e kaydet
   const { data: profile } = await sb2.from('user_profiles')
     .select('full_name, role')
     .eq('id', user.id)
     .single();
 
-  // Sadece enspektör rolü buraya girebilir (admin yönetim ekranını kullansın)
-  // role = 'inspector' veya 'region_manager' veya 'admin' hepsi girebilir
-  const name = profile?.full_name || user.email;
+  currentUser.fullName = profile?.full_name || user.email;
+  currentUser.role = profile?.role;
+  const name = currentUser.fullName;
   document.getElementById('user-name-display').textContent = name;
 
   // Cihaz kontrolü
@@ -568,7 +568,7 @@ function setLocStatus(ok, text) {
 async function loadActiveShift() {
   const { data } = await sb2.from('shifts')
     .select('*')
-    .eq('person', currentUser.email)
+    .or(`person.eq.${currentUser.email},person.eq.${currentUser.fullName || currentUser.email}`)
     .eq('status', 'open')
     .eq('source', 'app')
     .order('start_dt', { ascending: false })
@@ -642,8 +642,12 @@ async function startShift() {
   btn.innerHTML = '<span>⏳</span> Kaydediliyor…';
 
   const now = new Date();
+  // Kişi adı olarak full_name kullan (email değil)
+  const { data: prof } = await sb2.from('user_profiles').select('full_name').eq('id', currentUser.id).single();
+  const personName = prof?.full_name || currentUser.email;
+
   const { data, error } = await sb2.from('shifts').insert({
-    person:       currentUser.email,
+    person:       personName,
     job:          job,
     start_dt:     now.toISOString(),
     status:       'open',
@@ -721,7 +725,7 @@ async function endShift() {
 async function loadHistory() {
   const { data } = await sb2.from('shifts')
     .select('*')
-    .eq('person', currentUser.email)
+    .or(`person.eq.${currentUser.email},person.eq.${currentUser.fullName || currentUser.email}`)
     .neq('source', 'device_alert')
     .order('start_dt', { ascending: false })
     .limit(10);
