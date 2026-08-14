@@ -513,8 +513,10 @@ async function checkDevice(userId) {
   if (!profile) return;
 
   if (!profile.device_id) {
-    // İlk giriş — cihazı kaydet
-    await sb2.from('user_profiles').update({ device_id: deviceId }).eq('id', userId);
+    // İlk giriş — cihazı kaydet (sadece admin/manager yapabilir, inspector atla)
+    try {
+      await sb2.from('user_profiles').update({ device_id: deviceId }).eq('id', userId);
+    } catch(e) { console.log('device_id kayıt atlandı:', e.message); }
   } else if (profile.device_id !== deviceId) {
     // Farklı cihaz — uyarı toast (engellemiyoruz, sadece log)
     toast('⚠ Farklı cihazdan giriş tespit edildi', true);
