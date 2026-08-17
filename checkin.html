@@ -784,20 +784,18 @@ async function endShift() {
   const btn = document.getElementById('btn-end');
 
   try {
-  // Konum yoksa yeniden almayı dene
-  if (!currentLat) {
-    toast('Konum alınıyor…');
-    await new Promise((resolve) => {
-      navigator.geolocation.getCurrentPosition(
-        pos => { currentLat = pos.coords.latitude; currentLng = pos.coords.longitude; resolve(); },
-        () => resolve(),
-        { enableHighAccuracy: true, timeout: 10000 }
-      );
-    });
-  }
+  // Bitiş için her zaman yeni konum al
+  let checkoutLat = null, checkoutLng = null;
+  toast('Konum alınıyor…');
+  await new Promise((resolve) => {
+    navigator.geolocation.getCurrentPosition(
+      pos => { checkoutLat = pos.coords.latitude; checkoutLng = pos.coords.longitude; resolve(); },
+      () => resolve(),
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  });
 
-  // Konum hâlâ yoksa konum olmadan kaydet
-  const hasLocation = !!currentLat;
+  const hasLocation = !!checkoutLat;
 
   const btn = document.getElementById('btn-end');
   btn.disabled = true;
