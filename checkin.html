@@ -581,7 +581,7 @@ async function checkDevice(userId) {
   if (!deviceId || deviceId === 'unknown') return;
 
   const { data: profile } = await sb2.from('user_profiles')
-    .select('trusted_device_id, trusted_user_agent, trusted_at, current_device_id, device_alerts, role')
+    .select('trusted_device_id, trusted_user_agent, trusted_at, current_device_id, device_alerts, role, enforce_device_lock')
     .eq('id', userId)
     .single();
 
@@ -607,7 +607,7 @@ async function checkDevice(userId) {
     } catch(e) { console.log('trusted device kayıt hatası:', e.message); }
 
   } else if (profile.trusted_device_id !== deviceId) {
-    // Farklı cihaz — giriş reddet
+    // Farklı cihaz — alert logla
     const alerts = profile.device_alerts || [];
     alerts.push({
       ts: new Date().toISOString(),
@@ -622,15 +622,19 @@ async function checkDevice(userId) {
       await sb2.from('user_profiles').update({ device_alerts: alerts }).eq('id', userId);
     } catch(e) {}
 
-    // Zorla çıkış yap
-    await sb2.auth.signOut();
-    showScreen('auth');
-
-    const msg = document.getElementById('auth-msg');
-    if (msg) {
-      msg.innerHTML = '⚠ Farklı cihazla giriş yapıyorsunuz.<br>Yöneticinizle iletişime geçin.';
-      msg.className = 'auth-msg err';
-      msg.style.lineHeight = '1.6';
+    if (profile.enforce_device_lock) {
+      // Katı mod: giriş reddet
+      await sb2.auth.signOut();
+      showScreen('auth');
+      const msg = document.getElementById('auth-msg');
+      if (msg) {
+        msg.innerHTML = '⚠ Farklı cihazla giriş yapıyorsunuz.<br>Yöneticinizle iletişime geçin.';
+        msg.className = 'auth-msg err';
+        msg.style.lineHeight = '1.6';
+      }
+    } else {
+      // Normal mod: uyarı ver, girişe izin ver
+      toast('⚠ Farklı cihaz tespit edildi — kayıt altına alındı', true);
     }
 
   } else {
