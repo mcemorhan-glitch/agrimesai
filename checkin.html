@@ -506,19 +506,19 @@ function showAuthMsg(msg, isErr=false) {
 async function enterApp(user) {
   currentUser = user;
 
-  // Profile yükle ve state'e kaydet
+  // Profile yükle
   const { data: profile } = await sb2.from('user_profiles')
-    .select('full_name, role')
+    .select('full_name, role, trusted_device_id, trusted_user_agent, trusted_at, current_device_id, device_alerts, enforce_device_lock')
     .eq('id', user.id)
     .single();
 
+  // Cihaz kontrolü — giriş ekranına dönebilir, devam etme
+  const deviceOk = await checkDevice(user.id, profile);
+  if (!deviceOk) return; // checkDevice logout yaptıysa dur
+
   currentUser.fullName = profile?.full_name || user.email;
   currentUser.role = profile?.role;
-  const name = currentUser.fullName;
-  document.getElementById('user-name-display').textContent = name;
-
-  // Cihaz kontrolü
-  await checkDevice(user.id);
+  document.getElementById('user-name-display').textContent = currentUser.fullName;
 
   showScreen('app');
   await loadActiveShift();
@@ -577,21 +577,25 @@ function startDeviceWatcher() {
 // ══════════════════════════════════
 //  CİHAZ KONTROLÜ
 // ══════════════════════════════════
-async function checkDevice(userId) {
-  if (!deviceId || deviceId === 'unknown') return;
+async function checkDevice(userId, profile) {
+  if (!deviceId || deviceId === 'unknown') return true;
 
-  const { data: profile } = await sb2.from('user_profiles')
-    .select('trusted_device_id, trusted_user_agent, trusted_at, current_device_id, device_alerts, role, enforce_device_lock')
-    .eq('id', userId)
-    .single();
+  // Profile dışarıdan gelmemişse yükle
+  if (!profile) {
+    const { data } = await sb2.from('user_profiles')
+      .select('trusted_device_id, trusted_user_agent, trusted_at, current_device_id, device_alerts, role, enforce_device_lock')
+      .eq('id', userId)
+      .single();
+    profile = data;
+  }
 
-  if (!profile) return;
+  if (!profile) return true;
   const uaSummary = getUASummary();
 
   // Admin/manager için cihaz kısıtlaması yok
   if (profile.role === 'admin' || profile.role === 'manager') {
     await sb2.from('user_profiles').update({ current_device_id: deviceId }).eq('id', userId).then();
-    return;
+    return true;
   }
 
   if (!profile.trusted_device_id) {
@@ -605,6 +609,7 @@ async function checkDevice(userId) {
       }).eq('id', userId);
       toast('✓ Cihazınız kayıt edildi');
     } catch(e) { console.log('trusted device kayıt hatası:', e.message); }
+    return true;
 
   } else if (profile.trusted_device_id !== deviceId) {
     // Farklı cihaz — alert logla
@@ -632,6 +637,7 @@ async function checkDevice(userId) {
         msg.className = 'auth-msg err';
         msg.style.lineHeight = '1.6';
       }
+      return false; // Dur
     } else {
       // Normal mod: uyarı ver, girişe izin ver
       toast('⚠ Farklı cihaz tespit edildi — kayıt altına alındı', true);
@@ -641,6 +647,7 @@ async function checkDevice(userId) {
     // Aynı güvenilir cihaz — güncelle
     await sb2.from('user_profiles').update({ current_device_id: deviceId }).eq('id', userId).then();
   }
+  return true;
 }
 
 // ══════════════════════════════════
@@ -793,7 +800,9 @@ async function startShift() {
 
 async function endShift() {
   if (!activeShift) return;
+  const btn = document.getElementById('btn-end');
 
+  try {
   // Konum yoksa yeniden almayı dene
   if (!currentLat) {
     toast('Konum alınıyor…');
@@ -831,12 +840,19 @@ async function endShift() {
   btn.disabled = false;
   btn.innerHTML = '<span>⏹</span> Vardiyayı Bitir';
 
-  if (error) { toast('Hata: ' + error.message, true); return; }
+  if (error) {
+    toast('Hata: ' + error.message, true);
+    return;
+  }
 
-  activeShift = null;
-  renderShiftView();
-  loadHistory();
-  toast('✓ Vardiya tamamlandı!');
+    activeShift = null;
+    renderShiftView();
+    loadHistory();
+    toast('✓ Vardiya tamamlandı!');
+  } catch(e) {
+    if (btn) { btn.disabled = false; btn.innerHTML = '<span>⏹</span> Vardiyayı Bitir'; }
+    toast('Hata: ' + e.message, true);
+  }
 }
 
 // ══════════════════════════════════
