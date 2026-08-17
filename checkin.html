@@ -430,8 +430,12 @@ async function init() {
   }
 
   sb2.auth.onAuthStateChange(async (event, session) => {
-    if (event === 'SIGNED_IN' && session) await enterApp(session.user);
-    else if (event === 'SIGNED_OUT') showScreen('auth');
+    if (event === 'SIGNED_IN' && session && !window._deviceRejected) {
+      await enterApp(session.user);
+    } else if (event === 'SIGNED_OUT') {
+      if (!window._deviceRejected) showScreen('auth');
+      window._deviceRejected = false;
+    }
   });
 
   // Konum al
@@ -629,6 +633,7 @@ async function checkDevice(userId, profile) {
 
     if (profile.enforce_device_lock) {
       // Katı mod: giriş reddet
+      window._deviceRejected = true;
       await sb2.auth.signOut();
       showScreen('auth');
       const msg = document.getElementById('auth-msg');
