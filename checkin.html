@@ -572,8 +572,8 @@ async function checkDevice(userId, profile) {
   if (!profile) return true;
   const uaSummary = getUASummary();
 
-  // Admin/manager için cihaz kısıtlaması yok
-  if (profile.role === 'admin' || profile.role === 'manager') {
+  // Sadece admin için cihaz kısıtlaması yok
+  if (profile.role === 'admin') {
     await sb2.from('user_profiles').update({ current_device_id: deviceId }).eq('id', userId).then();
     return true;
   }
