@@ -2894,10 +2894,23 @@ async function loadUsers() {
         tdRegions.innerHTML = '<span style="font-size:12px;color:var(--text3)">Tüm bölgeler</span>';
       }
 
-      // Son giriş
+      // Cihaz bilgisi
       const tdLogin = document.createElement('td');
-      tdLogin.style.cssText = 'font-size:12px;color:var(--text3)';
-      tdLogin.textContent = u.last_sign_in ? fmtD(u.last_sign_in) : '—';
+      tdLogin.style.cssText = 'font-size:12px';
+      if (u.trusted_device_id) {
+        tdLogin.innerHTML = `<span style="color:var(--green)">✓ ${esc(u.trusted_user_agent||'Kayıtlı')}</span>`
+          + (u.device_alerts?.length > 0
+              ? ` <span onclick="openDeviceAlertLog('${u.id}')" style="color:var(--red);font-weight:600;cursor:pointer;text-decoration:underline">⚠${u.device_alerts.length}</span>`
+              : '')
+          + (u.enforce_device_lock
+              ? ` <span onclick="toggleDeviceLock('${u.id}', false)" style="font-size:10px;padding:1px 5px;border-radius:4px;background:var(--red-bg);color:var(--red);border:1px solid var(--red-border);cursor:pointer" title="Kilit açık — tıkla kapatmak için">🔒</span>`
+              : ` <span onclick="toggleDeviceLock('${u.id}', true)" style="font-size:10px;padding:1px 5px;border-radius:4px;background:var(--surface2);color:var(--text3);border:1px solid var(--border);cursor:pointer" title="Kilit kapalı — tıkla açmak için">🔓</span>`);
+      } else {
+        tdLogin.innerHTML = '<span style="color:var(--text3)">Kayıtsız</span>'
+          + (u.enforce_device_lock
+              ? ` <span style="font-size:10px;padding:1px 5px;border-radius:4px;background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)">🔒</span>`
+              : '');
+      }
 
       // Aksiyonlar
       const tdAct = document.createElement('td');
