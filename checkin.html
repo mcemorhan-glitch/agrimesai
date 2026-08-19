@@ -346,6 +346,31 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
       <div class="history-title">Son Vardiyalar</div>
       <div id="history-list"><div style="color:var(--text3);font-size:14px;text-align:center;padding:20px">Yükleniyor…</div></div>
     </div>
+
+    <!-- Şifre değiştir -->
+    <div class="history-card" style="margin-top:16px">
+      <div class="history-title" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center"
+           onclick="togglePassChange()">
+        🔑 Şifre Değiştir
+        <span id="pass-toggle-icon" style="font-size:12px;color:var(--text3)">▼</span>
+      </div>
+      <div id="pass-change-section" style="display:none;margin-top:14px">
+        <div class="field" style="margin-bottom:12px">
+          <label style="font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.04em">Yeni Şifre</label>
+          <input type="password" id="new-pass" placeholder="En az 8 karakter"
+            style="width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:var(--radius);font-size:16px;margin-top:6px">
+        </div>
+        <div class="field" style="margin-bottom:12px">
+          <label style="font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.04em">Yeni Şifre (Tekrar)</label>
+          <input type="password" id="new-pass2" placeholder="Şifreyi tekrar girin"
+            style="width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:var(--radius);font-size:16px;margin-top:6px">
+        </div>
+        <div id="pass-err" style="color:var(--red);font-size:13px;margin-bottom:10px;display:none"></div>
+        <button class="btn-full" id="btn-change-pass" onclick="changePassword()" style="padding:12px">
+          Şifreyi Güncelle
+        </button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -442,6 +467,55 @@ function getUASummary() {
   else if (ua.includes('Firefox')) browser = 'Firefox';
 
   return `${browser} / ${os}`;
+}
+
+
+// ── Şifre Değiştir ──
+function togglePassChange() {
+  const section = document.getElementById('pass-change-section');
+  const icon = document.getElementById('pass-toggle-icon');
+  const visible = section.style.display !== 'none';
+  section.style.display = visible ? 'none' : 'block';
+  icon.textContent = visible ? '▼' : '▲';
+}
+
+async function changePassword() {
+  const p1 = document.getElementById('new-pass').value;
+  const p2 = document.getElementById('new-pass2').value;
+  const errEl = document.getElementById('pass-err');
+  const btn = document.getElementById('btn-change-pass');
+
+  errEl.style.display = 'none';
+
+  if (p1.length < 8) {
+    errEl.textContent = 'Şifre en az 8 karakter olmalı';
+    errEl.style.display = 'block';
+    return;
+  }
+  if (p1 !== p2) {
+    errEl.textContent = 'Şifreler eşleşmiyor';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Güncelleniyor…';
+
+  const { error } = await sb2.auth.updateUser({ password: p1 });
+
+  btn.disabled = false;
+  btn.textContent = 'Şifreyi Güncelle';
+
+  if (error) {
+    errEl.textContent = 'Hata: ' + error.message;
+    errEl.style.display = 'block';
+    return;
+  }
+
+  document.getElementById('new-pass').value = '';
+  document.getElementById('new-pass2').value = '';
+  togglePassChange();
+  toast('✓ Şifre güncellendi!');
 }
 
 // ══════════════════════════════════
@@ -652,7 +726,23 @@ function getLocation() {
       document.getElementById('btn-start').disabled = false;
     },
     err => {
-      setLocStatus(false, 'Konum alınamadı — izin ver');
+      const browser = getUASummary().split(' / ')[0];
+      const os = getUASummary().split(' / ')[1] || '';
+      let msg = 'Konum alınamadı — ';
+      if (err.code === 1) { // PERMISSION_DENIED
+        if (os.includes('iPhone') || os.includes('iPad')) {
+          msg = `Konum izni reddedildi. Ayarlar → Gizlilik → Konum Servisleri → ${browser} → "Uygulamayı Kullanırken" seçin.`;
+        } else if (os.includes('Android')) {
+          msg = `Konum izni reddedildi. Ayarlar → Uygulama İzinleri → ${browser} → Konum → İzin ver.`;
+        } else {
+          msg = `Konum izni reddedildi. Tarayıcı ayarlarından ${browser} için konum iznini açın.`;
+        }
+      } else if (err.code === 2) {
+        msg = 'Konum alınamadı — GPS sinyali zayıf, dışarı çıkıp tekrar deneyin.';
+      } else {
+        msg = 'Konum zaman aşımına uğradı — tekrar deneyin.';
+      }
+      setLocStatus(false, msg);
       document.getElementById('btn-start').disabled = true;
     },
     { enableHighAccuracy: true, timeout: 15000 }
@@ -784,50 +874,55 @@ async function endShift() {
   const btn = document.getElementById('btn-end');
 
   try {
-  // Bitiş için her zaman yeni konum al
-  let checkoutLat = null, checkoutLng = null;
-  toast('Konum alınıyor…');
-  await new Promise((resolve) => {
-    navigator.geolocation.getCurrentPosition(
-      pos => { checkoutLat = pos.coords.latitude; checkoutLng = pos.coords.longitude; resolve(); },
-      () => resolve(),
-      { enableHighAccuracy: true, timeout: 10000 }
-    );
-  });
+    // Bitiş için her zaman YENİ konum al (check-in konumu kullanılmaz)
+    let checkoutLat = null, checkoutLng = null;
+    toast('Konum alınıyor…');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<span>📍</span> Konum alınıyor…'; }
 
-  const hasLocation = !!checkoutLat;
+    await new Promise((resolve) => {
+      if (!navigator.geolocation) { resolve(); return; }
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          checkoutLat = pos.coords.latitude;
+          checkoutLng = pos.coords.longitude;
+          resolve();
+        },
+        () => resolve(),   // izin yok / hata → konumsuz devam et
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    });
 
-  const btn = document.getElementById('btn-end');
-  btn.disabled = true;
-  btn.innerHTML = '<span>⏳</span> Kaydediliyor…';
+    const hasLocation = checkoutLat !== null && checkoutLng !== null;
 
-  const now = new Date();
-  const startDt = new Date(activeShift.start_dt);
-  const dur = (now - startDt) / 3600000;
+    if (btn) btn.innerHTML = '<span>⏳</span> Kaydediliyor…';
 
-  const updateData = {
-    end_dt:     now.toISOString(),
-    duration_h: parseFloat(dur.toFixed(2)),
-    status:     'done',
-  };
-  if (hasLocation) {
-    updateData.checkout_lat = currentLat;
-    updateData.checkout_lng = currentLng;
-  }
-  const { error } = await sb2.from('shifts').update(updateData).eq('id', activeShift.id);
+    const now = new Date();
+    const startDt = new Date(activeShift.start_dt);
+    const dur = (now - startDt) / 3600000;
 
-  btn.disabled = false;
-  btn.innerHTML = '<span>⏹</span> Vardiyayı Bitir';
+    const updateData = {
+      end_dt:     now.toISOString(),
+      duration_h: parseFloat(dur.toFixed(2)),
+      status:     'done',
+    };
+    if (hasLocation) {
+      updateData.checkout_lat = checkoutLat;
+      updateData.checkout_lng = checkoutLng;
+    }
 
-  if (error) {
-    toast('Hata: ' + error.message, true);
-    return;
-  }
+    const { error } = await sb2.from('shifts').update(updateData).eq('id', activeShift.id);
+
+    if (btn) { btn.disabled = false; btn.innerHTML = '<span>⏹</span> Vardiyayı Bitir'; }
+
+    if (error) {
+      toast('Hata: ' + error.message, true);
+      return;
+    }
 
     activeShift = null;
     renderShiftView();
     loadHistory();
-    toast('✓ Vardiya tamamlandı!');
+    toast(hasLocation ? '✓ Vardiya tamamlandı!' : '✓ Vardiya tamamlandı (konum alınamadı)');
   } catch(e) {
     if (btn) { btn.disabled = false; btn.innerHTML = '<span>⏹</span> Vardiyayı Bitir'; }
     toast('Hata: ' + e.message, true);
