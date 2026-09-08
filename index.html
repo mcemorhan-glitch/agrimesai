@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AGRI Mesai Takip v1.64</title>
+<title>AGRI Mesai Takip v1.65</title>
 <script>/* Supabase v2 inline */
 var supabase=(function(e){function t(e,t){var n={};for(var r in e)Object.prototype.hasOwnProperty.call(e,r)&&t.indexOf(r)<0&&(n[r]=e[r]);if(e!=null&&typeof Object.getOwnPropertySymbols==`function`)for(var i=0,r=Object.getOwnPropertySymbols(e);i<r.length;i++)t.indexOf(r[i])<0&&Object.prototype.propertyIsEnumerable.call(e,r[i])&&(n[r[i]]=e[r[i]]);return n}function n(e,t,n,r){function i(e){return e instanceof n?e:new n(function(t){t(e)})}return new(n||=Promise)(function(n,a){function o(e){try{c(r.next(e))}catch(e){a(e)}}function s(e){try{c(r.throw(e))}catch(e){a(e)}}function c(e){e.done?n(e.value):i(e.value).then(o,s)}c((r=r.apply(e,t||[])).next())})}let r=e=>e?(...t)=>e(...t):(...e)=>fetch(...e);var i=class extends Error{constructor(e,t=`FunctionsError`,n){super(e),this.name=t,this.context=n}toJSON(){return{name:this.name,message:this.message,context:this.context}}},a=class extends i{constructor(e){super(`Failed to send a request to the Edge Function`,`FunctionsFetchError`,e)}},o=class extends i{constructor(e){super(`Relay Error invoking the Edge Function`,`FunctionsRelayError`,e)}},s=class extends i{constructor(e){super(`Edge Function returned a non-2xx status code`,`FunctionsHttpError`,e)}},c;(function(e){e.Any=`any`,e.ApNortheast1=`ap-northeast-1`,e.ApNortheast2=`ap-northeast-2`,e.ApSouth1=`ap-south-1`,e.ApSoutheast1=`ap-southeast-1`,e.ApSoutheast2=`ap-southeast-2`,e.CaCentral1=`ca-central-1`,e.EuCentral1=`eu-central-1`,e.EuWest1=`eu-west-1`,e.EuWest2=`eu-west-2`,e.EuWest3=`eu-west-3`,e.SaEast1=`sa-east-1`,e.UsEast1=`us-east-1`,e.UsWest1=`us-west-1`,e.UsWest2=`us-west-2`})(c||={});var l=class{constructor(e,{headers:t={},customFetch:n,region:i=c.Any}={}){this.url=e,this.headers=t,this.region=i,this.fetch=r(n)}setAuth(e){this.headers.Authorization=`Bearer ${e}`}invoke(e){return n(this,arguments,void 0,function*(e,t={}){let n,r;try{let{headers:i,method:c,body:l,signal:u,timeout:d}=t,f={},{region:p}=t;p||=this.region;let m=new URL(`${this.url}/${e}`);p&&p!==`any`&&(f[`x-region`]=p,m.searchParams.set(`forceFunctionRegion`,p));let h;l&&(i&&!Object.prototype.hasOwnProperty.call(i,`Content-Type`)||!i)?typeof Blob<`u`&&l instanceof Blob||l instanceof ArrayBuffer?(f[`Content-Type`]=`application/octet-stream`,h=l):typeof l==`string`?(f[`Content-Type`]=`text/plain`,h=l):typeof FormData<`u`&&l instanceof FormData?h=l:(f[`Content-Type`]=`application/json`,h=JSON.stringify(l)):h=l&&typeof l!=`string`&&!(typeof Blob<`u`&&l instanceof Blob)&&!(l instanceof ArrayBuffer)&&!(typeof FormData<`u`&&l instanceof FormData)?JSON.stringify(l):l;let ee=u;d&&(r=new AbortController,n=setTimeout(()=>r.abort(),d),u?(ee=r.signal,u.addEventListener(`abort`,()=>r.abort())):ee=r.signal);let g=yield this.fetch(m.toString(),{method:c||`POST`,headers:Object.assign(Object.assign(Object.assign({},f),this.headers),i),body:h,signal:ee}).catch(e=>{throw new a(e)}),te=g.headers.get(`x-relay-error`);if(te&&te===`true`)throw new o(g);if(!g.ok)throw new s(g);let _=(g.headers.get(`Content-Type`)??`text/plain`).split(`;`)[0].trim(),ne;return ne=_===`application/json`?yield g.json():_===`application/octet-stream`||_===`application/pdf`?yield g.blob():_===`text/event-stream`?g:_===`multipart/form-data`?yield g.formData():yield g.text(),{data:ne,error:null,response:g}}catch(e){return{data:null,error:e,response:e instanceof s||e instanceof o?e.context:void 0}}finally{n&&clearTimeout(n)}})}};let u=e=>Math.min(1e3*2**e,3e4),d=[520,503],f=[`GET`,`HEAD`,`OPTIONS`];var p=class extends Error{constructor(e){super(e.message),this.name=`PostgrestError`,this.details=e.details,this.hint=e.hint,this.code=e.code}toJSON(){return{name:this.name,message:this.message,details:this.details,hint:this.hint,code:this.code}}};function m(e,t){return new Promise(n=>{if(t?.aborted){n();return}let r=setTimeout(()=>{t?.removeEventListener(`abort`,i),n()},e);function i(){clearTimeout(r),n()}t?.addEventListener(`abort`,i)})}function h(e,t,n,r){return!(!r||n>=3||!f.includes(e)||!d.includes(t))}var ee=class{constructor(e){this.shouldThrowOnError=!1,this.retryEnabled=!0,this.method=e.method,this.url=e.url,this.headers=new Headers(e.headers),this.schema=e.schema,this.body=e.body,this.shouldThrowOnError=e.shouldThrowOnError??!1,this.signal=e.signal,this.isMaybeSingle=e.isMaybeSingle??!1,this.shouldStripNulls=e.shouldStripNulls??!1,this.urlLengthLimit=e.urlLengthLimit??8e3,this.retryEnabled=e.retry??!0,e.fetch?this.fetch=e.fetch:this.fetch=fetch}throwOnError(){return this.shouldThrowOnError=!0,this}stripNulls(){if(this.headers.get(`Accept`)===`text/csv`)throw Error(`stripNulls() cannot be used with csv()`);return this.shouldStripNulls=!0,this}setHeader(e,t){return this.headers=new Headers(this.headers),this.headers.set(e,t),this}retry(e){return this.retryEnabled=e,this}then(e,t){var n=this;if(this.schema===void 0||([`GET`,`HEAD`].includes(this.method)?this.headers.set(`Accept-Profile`,this.schema):this.headers.set(`Content-Profile`,this.schema)),this.method!==`GET`&&this.method!==`HEAD`&&this.headers.set(`Content-Type`,`application/json`),this.shouldStripNulls){let e=this.headers.get(`Accept`);e===`application/vnd.pgrst.object+json`?this.headers.set(`Accept`,`application/vnd.pgrst.object+json;nulls=stripped`):(!e||e===`application/json`)&&this.headers.set(`Accept`,`application/vnd.pgrst.array+json;nulls=stripped`)}let r=this.fetch,i=(async()=>{let e=0;for(;;){let t=new Headers(n.headers);e>0&&t.set(`X-Retry-Count`,String(e));let i;try{i=await r(n.url.toString(),{method:n.method,headers:t,body:JSON.stringify(n.body,(e,t)=>typeof t==`bigint`?t.toString():t),signal:n.signal})}catch(t){if(t instanceof Error&&(t.name===`AbortError`||`code`in t&&t.code===`ABORT_ERR`)||!f.includes(n.method))throw t;if(n.retryEnabled&&e<3){let t=u(e);e++,await m(t,n.signal);continue}throw t}if(h(n.method,i.status,e,n.retryEnabled)){let t=i.headers?.get(`Retry-After`)??null,r=t===null?u(e):Math.max(0,parseInt(t,10)||0)*1e3;await i.text(),e++,await m(r,n.signal);continue}return await n.processResponse(i)}})();return this.shouldThrowOnError||(i=i.catch(e=>{let t=``,n=``,r=``,i=e?.cause;if(i){let n=i?.message??``,r=i?.code??``;t=`${e?.name??`FetchError`}: ${e?.message}`,t+=`\n\nCaused by: ${i?.name??`Error`}: ${n}`,r&&(t+=` (${r})`),i?.stack&&(t+=`\n${i.stack}`)}else t=e?.stack??``;let a=this.url.toString().length;return e?.name===`AbortError`||e?.code===`ABORT_ERR`?(r=``,n=`Request was aborted (timeout or manual cancellation)`,a>this.urlLengthLimit&&(n+=`. Note: Your request URL is ${a} characters, which may exceed server limits. If selecting many fields, consider using views. If filtering with large arrays (e.g., .in('id', [many IDs])), consider using an RPC function to pass values server-side.`)):(i?.name===`HeadersOverflowError`||i?.code===`UND_ERR_HEADERS_OVERFLOW`)&&(r=``,n=`HTTP headers exceeded server limits (typically 16KB)`,a>this.urlLengthLimit&&(n+=`. Your request URL is ${a} characters. If selecting many fields, consider using views. If filtering with large arrays (e.g., .in('id', [200+ IDs])), consider using an RPC function instead.`)),{success:!1,error:{message:`${e?.name??`FetchError`}: ${e?.message}`,details:t,hint:n,code:r},data:null,count:null,status:0,statusText:``}})),i.then(e,t)}async processResponse(e){var t=this;let n=null,r=null,i=null,a=e.status,o=e.statusText;if(e.ok){if(t.method!==`HEAD`){let n=await e.text();n===``||(r=t.headers.get(`Accept`)===`text/csv`||t.headers.get(`Accept`)&&t.headers.get(`Accept`)?.includes(`application/vnd.pgrst.plan+text`)?n:JSON.parse(n))}let s=t.headers.get(`Prefer`)?.match(/count=(exact|planned|estimated)/),c=e.headers.get(`content-range`)?.split(`/`);s&&c&&c.length>1&&(i=parseInt(c[1])),t.isMaybeSingle&&Array.isArray(r)&&(r.length>1?(n={code:`PGRST116`,details:`Results contain ${r.length} rows, application/vnd.pgrst.object+json requires 1 row`,hint:null,message:`JSON object requested, multiple (or no) rows returned`},r=null,i=null,a=406,o=`Not Acceptable`):r=r.length===1?r[0]:null)}else{let i=await e.text();try{n=JSON.parse(i),Array.isArray(n)&&e.status===404&&(r=[],n=null,a=200,o=`OK`)}catch{e.status===404&&i===``?(a=204,o=`No Content`):n={message:i}}if(n&&t.shouldThrowOnError)throw new p(n)}return{success:n===null,error:n,data:r,count:i,status:a,statusText:o}}returns(){return this}overrideTypes(){return this}},g=class extends ee{select(e){let t=!1,n=(e??`*`).split(``).map(e=>/\s/.test(e)&&!t?``:(e===`"`&&(t=!t),e)).join(``);return this.url.searchParams.set(`select`,n),this.headers.append(`Prefer`,`return=representation`),this}order(e,{ascending:t=!0,nullsFirst:n,foreignTable:r,referencedTable:i=r}={}){let a=i?`${i}.order`:`order`,o=this.url.searchParams.get(a);return this.url.searchParams.set(a,`${o?`${o},`:``}${e}.${t?`asc`:`desc`}${n===void 0?``:n?`.nullsfirst`:`.nullslast`}`),this}limit(e,{foreignTable:t,referencedTable:n=t}={}){let r=n===void 0?`limit`:`${n}.limit`;return this.url.searchParams.set(r,`${e}`),this}range(e,t,{foreignTable:n,referencedTable:r=n}={}){let i=r===void 0?`offset`:`${r}.offset`,a=r===void 0?`limit`:`${r}.limit`;return this.url.searchParams.set(i,`${e}`),this.url.searchParams.set(a,`${t-e+1}`),this}abortSignal(e){return this.signal=e,this}single(){return this.headers.set(`Accept`,`application/vnd.pgrst.object+json`),this}maybeSingle(){return this.isMaybeSingle=!0,this}csv(){return this.headers.set(`Accept`,`text/csv`),this}geojson(){return this.headers.set(`Accept`,`application/geo+json`),this}explain({analyze:e=!1,verbose:t=!1,settings:n=!1,buffers:r=!1,wal:i=!1,format:a=`text`}={}){let o=[e?`analyze`:null,t?`verbose`:null,n?`settings`:null,r?`buffers`:null,i?`wal`:null].filter(Boolean).join(`|`),s=this.headers.get(`Accept`)??`application/json`;return this.headers.set(`Accept`,`application/vnd.pgrst.plan+${a}; for="${s}"; options=${o};`),this}rollback(){return this.headers.append(`Prefer`,`tx=rollback`),this}returns(){return this}maxAffected(e){return this.headers.append(`Prefer`,`handling=strict`),this.headers.append(`Prefer`,`max-affected=${e}`),this}};let te=RegExp(`[,()]`);var _=class extends g{eq(e,t){return this.url.searchParams.append(e,`eq.${t}`),this}neq(e,t){return this.url.searchParams.append(e,`neq.${t}`),this}gt(e,t){return this.url.searchParams.append(e,`gt.${t}`),this}gte(e,t){return this.url.searchParams.append(e,`gte.${t}`),this}lt(e,t){return this.url.searchParams.append(e,`lt.${t}`),this}lte(e,t){return this.url.searchParams.append(e,`lte.${t}`),this}like(e,t){return this.url.searchParams.append(e,`like.${t}`),this}likeAllOf(e,t){return this.url.searchParams.append(e,`like(all).{${t.join(`,`)}}`),this}likeAnyOf(e,t){return this.url.searchParams.append(e,`like(any).{${t.join(`,`)}}`),this}ilike(e,t){return this.url.searchParams.append(e,`ilike.${t}`),this}ilikeAllOf(e,t){return this.url.searchParams.append(e,`ilike(all).{${t.join(`,`)}}`),this}ilikeAnyOf(e,t){return this.url.searchParams.append(e,`ilike(any).{${t.join(`,`)}}`),this}regexMatch(e,t){return this.url.searchParams.append(e,`match.${t}`),this}regexIMatch(e,t){return this.url.searchParams.append(e,`imatch.${t}`),this}is(e,t){return this.url.searchParams.append(e,`is.${t}`),this}isDistinct(e,t){return this.url.searchParams.append(e,`isdistinct.${t}`),this}in(e,t){let n=Array.from(new Set(t)).map(e=>typeof e==`string`&&te.test(e)?`"${e}"`:`${e}`).join(`,`);return this.url.searchParams.append(e,`in.(${n})`),this}notIn(e,t){let n=Array.from(new Set(t)).map(e=>typeof e==`string`&&te.test(e)?`"${e}"`:`${e}`).join(`,`);return this.url.searchParams.append(e,`not.in.(${n})`),this}contains(e,t){return typeof t==`string`?this.url.searchParams.append(e,`cs.${t}`):Array.isArray(t)?this.url.searchParams.append(e,`cs.{${t.join(`,`)}}`):this.url.searchParams.append(e,`cs.${JSON.stringify(t)}`),this}containedBy(e,t){return typeof t==`string`?this.url.searchParams.append(e,`cd.${t}`):Array.isArray(t)?this.url.searchParams.append(e,`cd.{${t.join(`,`)}}`):this.url.searchParams.append(e,`cd.${JSON.stringify(t)}`),this}rangeGt(e,t){return this.url.searchParams.append(e,`sr.${t}`),this}rangeGte(e,t){return this.url.searchParams.append(e,`nxl.${t}`),this}rangeLt(e,t){return this.url.searchParams.append(e,`sl.${t}`),this}rangeLte(e,t){return this.url.searchParams.append(e,`nxr.${t}`),this}rangeAdjacent(e,t){return this.url.searchParams.append(e,`adj.${t}`),this}overlaps(e,t){return typeof t==`string`?this.url.searchParams.append(e,`ov.${t}`):this.url.searchParams.append(e,`ov.{${t.join(`,`)}}`),this}textSearch(e,t,{config:n,type:r}={}){let i=``;r===`plain`?i=`pl`:r===`phrase`?i=`ph`:r===`websearch`&&(i=`w`);let a=n===void 0?``:`(${n})`;return this.url.searchParams.append(e,`${i}fts${a}.${t}`),this}match(e){return Object.entries(e).filter(([e,t])=>t!==void 0).forEach(([e,t])=>{this.url.searchParams.append(e,`eq.${t}`)}),this}not(e,t,n){return this.url.searchParams.append(e,`not.${t}.${n}`),this}or(e,{foreignTable:t,referencedTable:n=t}={}){let r=n?`${n}.or`:`or`;return this.url.searchParams.append(r,`(${e})`),this}filter(e,t,n){return this.url.searchParams.append(e,`${t}.${n}`),this}},ne=class{constructor(e,{headers:t={},schema:n,fetch:r,urlLengthLimit:i=8e3,retry:a}){this.url=e,this.headers=new Headers(t),this.schema=n,this.fetch=r,this.urlLengthLimit=i,this.retry=a}cloneRequestState(){return{url:new URL(this.url.toString()),headers:new Headers(this.headers)}}select(e,t){let{head:n=!1,count:r}=t??{},i=n?`HEAD`:`GET`,a=!1,o=(e??`*`).split(``).map(e=>/\s/.test(e)&&!a?``:(e===`"`&&(a=!a),e)).join(``),{url:s,headers:c}=this.cloneRequestState();return s.searchParams.set(`select`,o),r&&c.append(`Prefer`,`count=${r}`),new _({method:i,url:s,headers:c,schema:this.schema,fetch:this.fetch,urlLengthLimit:this.urlLengthLimit,retry:this.retry})}insert(e,{count:t,defaultToNull:n=!0}={}){let{url:r,headers:i}=this.cloneRequestState();if(t&&i.append(`Prefer`,`count=${t}`),n||i.append(`Prefer`,`missing=default`),Array.isArray(e)){let t=e.reduce((e,t)=>e.concat(Object.keys(t)),[]);if(t.length>0){let e=[...new Set(t)].map(e=>`"${e}"`);r.searchParams.set(`columns`,e.join(`,`))}}return new _({method:`POST`,url:r,headers:i,schema:this.schema,body:e,fetch:this.fetch??fetch,urlLengthLimit:this.urlLengthLimit,retry:this.retry})}upsert(e,{onConflict:t,ignoreDuplicates:n=!1,count:r,defaultToNull:i=!0}={}){let{url:a,headers:o}=this.cloneRequestState();if(o.append(`Prefer`,`resolution=${n?`ignore`:`merge`}-duplicates`),t!==void 0&&a.searchParams.set(`on_conflict`,t),r&&o.append(`Prefer`,`count=${r}`),i||o.append(`Prefer`,`missing=default`),Array.isArray(e)){let t=e.reduce((e,t)=>e.concat(Object.keys(t)),[]);if(t.length>0){let e=[...new Set(t)].map(e=>`"${e}"`);a.searchParams.set(`columns`,e.join(`,`))}}return new _({method:`POST`,url:a,headers:o,schema:this.schema,body:e,fetch:this.fetch??fetch,urlLengthLimit:this.urlLengthLimit,retry:this.retry})}update(e,{count:t}={}){let{url:n,headers:r}=this.cloneRequestState();return t&&r.append(`Prefer`,`count=${t}`),new _({method:`PATCH`,url:n,headers:r,schema:this.schema,body:e,fetch:this.fetch??fetch,urlLengthLimit:this.urlLengthLimit,retry:this.retry})}delete({count:e}={}){let{url:t,headers:n}=this.cloneRequestState();return e&&n.append(`Prefer`,`count=${e}`),new _({method:`DELETE`,url:t,headers:n,schema:this.schema,fetch:this.fetch??fetch,urlLengthLimit:this.urlLengthLimit,retry:this.retry})}};function re(e){"@babel/helpers - typeof";return re=typeof Symbol==`function`&&typeof Symbol.iterator==`symbol`?function(e){return typeof e}:function(e){return e&&typeof Symbol==`function`&&e.constructor===Symbol&&e!==Symbol.prototype?`symbol`:typeof e},re(e)}function ie(e,t){if(re(e)!=`object`||!e)return e;var n=e[Symbol.toPrimitive];if(n!==void 0){var r=n.call(e,t||`default`);if(re(r)!=`object`)return r;throw TypeError(`@@toPrimitive must return a primitive value.`)}return(t===`string`?String:Number)(e)}function ae(e){var t=ie(e,`string`);return re(t)==`symbol`?t:t+``}function oe(e,t,n){return(t=ae(t))in e?Object.defineProperty(e,t,{value:n,enumerable:!0,configurable:!0,writable:!0}):e[t]=n,e}function se(e,t){var n=Object.keys(e);if(Object.getOwnPropertySymbols){var r=Object.getOwnPropertySymbols(e);t&&(r=r.filter(function(t){return Object.getOwnPropertyDescriptor(e,t).enumerable})),n.push.apply(n,r)}return n}function ce(e){for(var t=1;t<arguments.length;t++){var n=arguments[t]==null?{}:arguments[t];t%2?se(Object(n),!0).forEach(function(t){oe(e,t,n[t])}):Object.getOwnPropertyDescriptors?Object.defineProperties(e,Object.getOwnPropertyDescriptors(n)):se(Object(n)).forEach(function(t){Object.defineProperty(e,t,Object.getOwnPropertyDescriptor(n,t))})}return e}var le=class e{constructor(e,{headers:t={},schema:n,fetch:r,timeout:i,urlLengthLimit:a=8e3,retry:o}={}){this.url=e,this.headers=new Headers(t),this.schemaName=n,this.urlLengthLimit=a;let s=r??globalThis.fetch;i!==void 0&&i>0?this.fetch=(e,t)=>{let n=new AbortController,r=setTimeout(()=>n.abort(),i),a=t?.signal;if(a){if(a.aborted)return clearTimeout(r),s(e,t);let i=()=>{clearTimeout(r),n.abort()};return a.addEventListener(`abort`,i,{once:!0}),s(e,ce(ce({},t),{},{signal:n.signal})).finally(()=>{clearTimeout(r),a.removeEventListener(`abort`,i)})}return s(e,ce(ce({},t),{},{signal:n.signal})).finally(()=>clearTimeout(r))}:this.fetch=s,this.retry=o}from(e){if(!e||typeof e!=`string`||e.trim()===``)throw Error(`Invalid relation name: relation must be a non-empty string.`);return new ne(new URL(`${this.url}/${e}`),{headers:new Headers(this.headers),schema:this.schemaName,fetch:this.fetch,urlLengthLimit:this.urlLengthLimit,retry:this.retry})}schema(t){return new e(this.url,{headers:this.headers,schema:t,fetch:this.fetch,urlLengthLimit:this.urlLengthLimit,retry:this.retry})}rpc(e,t={},{head:n=!1,get:r=!1,count:i}={}){let a,o=new URL(`${this.url}/rpc/${e}`),s,c=e=>typeof e==`object`&&!!e&&(!Array.isArray(e)||e.some(c)),l=n&&Object.values(t).some(c);l?(a=`POST`,s=t):n||r?(a=n?`HEAD`:`GET`,Object.entries(t).filter(([e,t])=>t!==void 0).map(([e,t])=>[e,Array.isArray(t)?`{${t.join(`,`)}}`:`${t}`]).forEach(([e,t])=>{o.searchParams.append(e,t)})):(a=`POST`,s=t);let u=new Headers(this.headers);return l?u.set(`Prefer`,i?`count=${i},return=minimal`:`return=minimal`):i&&u.set(`Prefer`,`count=${i}`),new _({method:a,url:o,headers:u,schema:this.schemaName,body:s,fetch:this.fetch??fetch,urlLengthLimit:this.urlLengthLimit,retry:this.retry})}},ue=class{constructor(){}static detectEnvironment(){if(typeof WebSocket<`u`)return{type:`native`,wsConstructor:WebSocket};let e=globalThis;if(typeof globalThis<`u`&&e.WebSocket!==void 0)return{type:`native`,wsConstructor:e.WebSocket};let t=typeof global<`u`?global:void 0;if(t&&t.WebSocket!==void 0)return{type:`native`,wsConstructor:t.WebSocket};if(typeof globalThis<`u`&&e.WebSocketPair!==void 0&&globalThis.WebSocket===void 0)return{type:`cloudflare`,error:`Cloudflare Workers detected. WebSocket clients are not supported in Cloudflare Workers.`,workaround:`Use Cloudflare Workers WebSocket API for server-side WebSocket handling, or deploy to a different runtime.`};if(typeof globalThis<`u`&&e.EdgeRuntime||typeof navigator<`u`&&navigator.userAgent?.includes(`Vercel-Edge`))return{type:`unsupported`,error:`Edge runtime detected (Vercel Edge/Netlify Edge). WebSockets are not supported in edge functions.`,workaround:`Use serverless functions or a different deployment target for WebSocket functionality.`};let n=globalThis.process;if(n){let e=n.versions;if(e&&e.node){let t=e.node,n=parseInt(t.replace(/^v/,``).split(`.`)[0]);return n>=22?globalThis.WebSocket===void 0?{type:`unsupported`,error:`Node.js ${n} detected but native WebSocket not found.`,workaround:`Provide a WebSocket implementation via the transport option.`}:{type:`native`,wsConstructor:globalThis.WebSocket}:{type:`unsupported`,error:`Node.js ${n} detected without native WebSocket support.`,workaround:`For Node.js < 22, install "ws" package and provide it via the transport option:
 import ws from "ws"
@@ -300,7 +300,7 @@ body.col-resizing, body.col-resizing * { cursor:col-resize !important; user-sele
 <!-- ══ AUTH ══ -->
 <div id="screen-auth" class="center-screen" style="display:none">
   <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);padding:36px 40px;width:100%;max-width:380px;box-shadow:var(--shadow)">
-    <div style="font-size:20px;font-weight:700;letter-spacing:-.4px;margin-bottom:4px">AGRI Mesai Takip <span style="font-size:11px;font-weight:400;color:var(--text3)">v1.64</span></div>
+    <div style="font-size:20px;font-weight:700;letter-spacing:-.4px;margin-bottom:4px">AGRI Mesai Takip <span style="font-size:11px;font-weight:400;color:var(--text3)">v1.65</span></div>
     <div style="font-size:13px;color:var(--text2);margin-bottom:26px">Devam etmek için giriş yapın</div>
     <div id="auth-err" style="background:var(--red-bg);border:1px solid var(--red-border);color:var(--red);border-radius:var(--radius);padding:10px 12px;font-size:13px;margin-bottom:14px;display:none"></div>
     <div class="field"><label>E-posta</label><input id="a-email" type="email" placeholder="ornek@sirket.com" autocomplete="email"></div>
@@ -311,7 +311,7 @@ body.col-resizing, body.col-resizing * { cursor:col-resize !important; user-sele
 
 <div id="app" style="display:none">
   <header>
-    <div class="logo">AGRI Mesai Takip <span style="font-size:11px;font-weight:400;color:var(--text3)">v1.64</span></div>
+    <div class="logo">AGRI Mesai Takip <span style="font-size:11px;font-weight:400;color:var(--text3)">v1.65</span></div>
     <div class="hdr-right">
       <span id="db-dot"><span class="dot dy"></span></span>
       <span id="user-role-badge" style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:10px;display:none"></span>
@@ -957,6 +957,25 @@ body.col-resizing, body.col-resizing * { cursor:col-resize !important; user-sele
     </div>
   </div>
 </div>
+<!-- Vardiya detay modalı -->
+<div id="detay-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:400;align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--surface);border-radius:var(--radius-xl);width:100%;max-width:560px;max-height:88vh;overflow:auto;box-shadow:0 12px 44px rgba(0,0,0,.22)">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--surface)">
+      <div style="font-size:16px;font-weight:700" id="detay-baslik">Vardiya Detayı</div>
+      <button onclick="detayKapat()" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text3);line-height:1;padding:0 4px">×</button>
+    </div>
+    <div style="padding:20px 24px" id="detay-govde"></div>
+    <div style="padding:12px 24px 18px;display:flex;gap:8px;flex-wrap:wrap;border-top:1px solid var(--border)">
+      <button class="btn btn-sm" id="detay-duzenle">✏ Düzenle</button>
+      <button class="btn btn-sm" id="detay-goster">→ Vardiyalarda göster</button>
+      <button class="btn btn-sm" onclick="detayKapat()" style="margin-left:auto">Kapat</button>
+    </div>
+  </div>
+</div>
+
+<!-- Sağ tık menüsü -->
+<div id="ctx-menu" style="display:none;position:fixed;z-index:450;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 6px 22px rgba(0,0,0,.16);padding:4px;min-width:180px"></div>
+
 <div id="toast"></div>
 
 <script>
@@ -1257,7 +1276,7 @@ function shiftRows(tbId, data, del, showApprovalBtns=false) {
     const holBadge = isHol
       ? `<span class="badge" style="background:#fef3c7;color:#92400e;border:1px solid #fde68a;margin-left:3px" title="${holName}">🏖 Tatil</span>`
       : '';
-    return `<tr id="srow-${s.id}"${rowBg}>
+    return `<tr id="srow-${s.id}"${rowBg} oncontextmenu="return shiftMenu(event, ${s.id})">
       <td><div class="pc"><div class="av" style="background:${col}22;color:${col}">${ini(s.person)}</div>${cn(s.person)}</div></td>
       <td>${regionTagHtml(s.region||'')}</td>
       <td class="mono">${esc(s.job||'?')}</td>${impCell}
@@ -1271,7 +1290,7 @@ function shiftRows(tbId, data, del, showApprovalBtns=false) {
           ? `<div style="font-size:10px;color:var(--text3)">${fmtD(s.end_dt||s.endDt)}</div><div>${fmtT(s.end_dt||s.endDt)}</div>`
           : '—'}
       </td>
-      <td style="min-width:110px">${ocBarHtml(s)}${siteMapHtml(s)}</td>
+      <td style="min-width:110px">${ocBarHtml(s)}</td>
       <td>${fmtH(s.duration_h||s.dur)}</td>
       <td class="mono" style="color:var(--amber)">${oh!=null&&oh>0?fmtH(oh):'—'}</td>
       <td>${statusBadge}${otBadge}${holBadge}${apBadge}</td>${delBtn}${apBtns}
@@ -3055,7 +3074,7 @@ async function clearAllDeviceAlerts() {
   }
   toast('Tüm cihaz uyarıları temizlendi');
   document.getElementById('device-alert-modal').style.display = 'none';
-  updateDeviceAlertBadge();
+  await updateDeviceAlertBadge();
   loadUsers();
 }
 
@@ -3100,7 +3119,9 @@ async function clearDeviceAlerts(userId) {
   }).eq('id', userId);
   if (error) { toast('Hata: ' + error.message, true); return; }
   toast('Cihaz uyarıları temizlendi');
+  await updateDeviceAlertBadge();
   loadUsers();
+  openDeviceAlertLog();   // modal açıksa listeyi tazele
 }
 
 
@@ -4003,7 +4024,7 @@ function renderApprovalTable(data) {
     const note = (s.approval_note || s.approved_by)
       ? `<div style="font-size:11px;color:var(--text3);margin-top:2px">${s.approval_note ? esc(s.approval_note) : ''}${s.approved_by ? ` <span style="color:var(--text3)">— ${esc(s.approved_by)}</span>` : ''}</div>` : '';
 
-    return `<tr style="${rowBg}" id="arow-${s.id}">
+    return `<tr style="${rowBg}" id="arow-${s.id}" oncontextmenu="return shiftMenu(event, ${s.id})">
       <td><input type="checkbox" class="ap-chk" data-id="${s.id}" onchange="toggleShiftSel(${s.id},this.checked)"></td>
       <td><div class="pc"><div class="av" style="background:${col}22;color:${col}">${ini(s.person)}</div>${cn(s.person)}</div></td>
       <td>${regionTagHtml(s.region||'')}</td>
@@ -4017,7 +4038,7 @@ function renderApprovalTable(data) {
           ? `<div style="font-size:10px;color:var(--text3)">${fmtD(s.end_dt)}</div><div>${fmtT(s.end_dt)}</div>`
           : '—'}
       </td>
-      <td style="min-width:110px">${ocBarHtml(s)}${siteMapHtml(s)}</td>
+      <td style="min-width:110px">${ocBarHtml(s)}</td>
       <td>${fmtH(s.duration_h)}</td>
       <td class="mono" style="color:var(--amber)">${s.overtime_h && parseFloat(s.overtime_h)>0 ? fmtH(s.overtime_h) : '—'}</td>
       <td id="cmp-cell-${s.id}"
@@ -4098,6 +4119,127 @@ function ocBarHtml(s) {
 }
 
 // Saha konumu Maps linki
+// ════════════════════════════════════════════
+//  VARDİYA DETAY MODALI + SAĞ TIK
+// ════════════════════════════════════════════
+
+function vardiyaBul(id) {
+  return (typeof apAllData !== 'undefined' && apAllData?.find(x => x.id === id))
+      || allShifts.find(x => x.id === id)
+      || liveData.find(x => x.id === id)
+      || null;
+}
+
+// Sağ tık menüsü
+function shiftMenu(ev, id) {
+  ev.preventDefault();
+  const m = document.getElementById('ctx-menu');
+  const s = vardiyaBul(id);
+  if (!s) return false;
+
+  const dm = (etiket, fn) =>
+    `<div onclick="ctxKapat();${fn}" style="padding:8px 12px;font-size:13px;cursor:pointer;border-radius:5px"
+       onmouseover="this.style.background='var(--surface2)'"
+       onmouseout="this.style.background='none'">${etiket}</div>`;
+
+  m.innerHTML =
+    dm('🔍 Detayları göster', `detayAc(${id})`) +
+    dm('✏ Düzenle',          `openEditShiftModal(${id})`) +
+    (s.status === 'open' ? dm('⏹ Vardiyayı kapat', `quickClose(${id})`) : '') +
+    `<div style="height:1px;background:var(--border);margin:4px 6px"></div>` +
+    dm('🗑 Sil', `delShift(${id})`);
+
+  m.style.display = 'block';
+  // Ekran dışına taşmasın
+  const g = m.offsetWidth, y = m.offsetHeight;
+  m.style.left = Math.min(ev.clientX, window.innerWidth  - g - 8) + 'px';
+  m.style.top  = Math.min(ev.clientY, window.innerHeight - y - 8) + 'px';
+  return false;
+}
+
+function ctxKapat() { document.getElementById('ctx-menu').style.display = 'none'; }
+document.addEventListener('click', ctxKapat);
+document.addEventListener('scroll', ctxKapat, true);
+
+// Detay modalı
+function detayAc(id) {
+  const s = vardiyaBul(id);
+  if (!s) { toast('Kayıt bulunamadı', true); return; }
+
+  const b   = ocBreakdown(s);
+  const ot  = { normal: s.normal_h, fm: s.overtime_h };
+  const hol = s.start_dt && isHoliday(new Date(s.start_dt));
+  const hs  = s.start_dt && isWeekend(new Date(s.start_dt));
+
+  const sat = (k, v) => v == null || v === '' ? '' :
+    `<div style="display:flex;gap:14px;padding:7px 0;border-bottom:1px solid var(--border);font-size:13.5px">
+       <span style="width:132px;flex-shrink:0;color:var(--text3)">${k}</span>
+       <span style="flex:1">${v}</span></div>`;
+
+  const harita = (lat, lng) => lat
+    ? `<a href="https://maps.google.com/?q=${lat},${lng}" target="_blank" style="color:var(--accent);text-decoration:none">
+         📍 ${(+lat).toFixed(5)}, ${(+lng).toFixed(5)}</a>`
+    : '<span style="color:var(--text3)">kaydedilmemiş</span>';
+
+  const apDurum = { approved:'✓ Onaylandı', rejected:'✗ Reddedildi', pending:'⏳ Bekliyor' }[s.approval_status || 'pending'];
+
+  // Aşama çizelgesi
+  let asama = '';
+  if (b && !b.missing) {
+    const r = (ad, bas, bit, sure, renk) => `
+      <div style="display:flex;align-items:center;gap:9px;padding:6px 0;font-size:13px">
+        <span style="width:9px;height:9px;border-radius:50%;background:${renk};flex-shrink:0"></span>
+        <span style="width:56px;flex-shrink:0">${ad}</span>
+        <span class="mono" style="flex:1;color:var(--text2);font-size:12px">${bas} → ${bit}</span>
+        <span style="font-weight:600">${fmtH(sure)}</span>
+      </div>`;
+    asama = `<div style="margin-top:16px">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:6px">Aşamalar</div>
+      ${b.out  > 0 ? r('Yol',   fmtT(s.start_dt),      fmtT(s.work_start_dt), b.out,  '#EF9F27') : ''}
+      ${r('Saha', fmtT(s.work_start_dt || s.start_dt), fmtT(s.work_end_dt || s.end_dt), b.work, '#5DCAA5')}
+      ${b.back > 0 ? r('Dönüş', fmtT(s.work_end_dt),   fmtT(s.end_dt),        b.back, '#EF9F27') : ''}
+    </div>`;
+  } else if (s.is_out_of_city) {
+    asama = `<div style="margin-top:14px;padding:10px 12px;background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:var(--radius);font-size:13px;color:var(--amber)">
+      ⚠ İl dışı görev işaretli ancak aşama saatleri girilmemiş. Düzenle ile tamamlayabilirsiniz.</div>`;
+  }
+
+  document.getElementById('detay-baslik').textContent = cn(s.person) + ' — ' + (s.job || 'iş no yok');
+  document.getElementById('detay-govde').innerHTML =
+    sat('Çalışan',      cn(s.person)) +
+    sat('İş No',        s.job ? `<span class="mono">${esc(s.job)}</span>` : '<span style="color:var(--amber);font-style:italic">girilmedi</span>') +
+    sat('Bölge',        regionTagHtml(s.region || '')) +
+    sat('Tarih',        fmtD(s.start_dt) + (hol ? ` <span class="badge ba">${holidayName(new Date(s.start_dt))}</span>` : hs ? ' <span class="badge ba">hafta sonu</span>' : '')) +
+    sat('Başlangıç',    `<span class="mono">${fmtT(s.start_dt)}</span>`) +
+    sat('Bitiş',        s.end_dt ? `<span class="mono">${fmtT(s.end_dt)}</span>` : '<span class="badge ba">açık</span>') +
+    sat('Toplam süre',  fmtH(s.duration_h)) +
+    sat('Normal mesai', ot.normal != null ? `<span style="color:var(--green)">${fmtH(ot.normal)}</span>` : '') +
+    sat('Fazla mesai',  ot.fm != null && +ot.fm > 0 ? `<span style="color:var(--amber)">${fmtH(ot.fm)}</span>` : '—') +
+    sat('Görev tipi',   s.is_out_of_city ? '🚗 İl dışı' : 'Şehir içi') +
+    asama +
+    `<div style="margin-top:16px">
+       <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:6px">Konumlar</div>` +
+    sat('Başlangıç konumu', harita(s.checkin_lat,  s.checkin_lng)) +
+    sat('Saha konumu',      harita(s.site_lat,     s.site_lng)) +
+    sat('Bitiş konumu',     harita(s.checkout_lat, s.checkout_lng)) +
+    `</div>
+     <div style="margin-top:16px">
+       <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:6px">Kayıt bilgisi</div>` +
+    sat('Onay durumu', apDurum + (s.approved_by ? ` <span style="color:var(--text3);font-size:12px">— ${esc(s.approved_by)}</span>` : '')) +
+    sat('Onay notu',   s.approval_note ? esc(s.approval_note) : '') +
+    sat('Kaynak',      s.source === 'app' ? 'Check-in uygulaması' : s.source === 'wa' ? 'WhatsApp aktarımı' : esc(s.source || '—')) +
+    sat('Import',      s.import_id ? `<span class="mono" style="font-size:11px">${s.import_id.slice(0,8)}…</span>` : '') +
+    sat('Kayıt no',    `<span class="mono">#${s.id}</span>`) +
+    `</div>`;
+
+  document.getElementById('detay-duzenle').onclick = () => { detayKapat(); openEditShiftModal(id); };
+  document.getElementById('detay-goster').onclick  = () => { detayKapat(); gotoShift(id); };
+  document.getElementById('detay-modal').style.display = 'flex';
+}
+
+function detayKapat() { document.getElementById('detay-modal').style.display = 'none'; }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { detayKapat(); ctxKapat(); } });
+
 function siteMapHtml(s) {
   if (!s.site_lat || !s.site_lng) return '';
   return `<a href="https://maps.google.com/?q=${s.site_lat},${s.site_lng}" target="_blank"
