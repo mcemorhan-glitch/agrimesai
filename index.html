@@ -213,15 +213,58 @@ hr.div{border:none;border-top:1px solid var(--border);margin:24px 0;}
 
 .live-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:11px; }
 
-/* İş numarasına göre gruplama */
-.is-grup { margin-bottom:16px; }
-.is-grup:last-child { margin-bottom:0; }
-.is-grup-head { display:flex; align-items:baseline; gap:8px; margin:0 0 7px 2px; }
-.is-grup-head .is-no { font-size:13px; font-weight:700; letter-spacing:.02em; }
-.is-grup-head .is-yok { font-size:13px; font-weight:600; color:var(--amber); }
-.is-grup-head .is-adet { font-size:11px; font-weight:700; padding:1px 7px; border-radius:9px; white-space:nowrap;
-                         background:var(--surface2); color:var(--text2); border:1px solid var(--border); }
-.is-grup-head .is-cizgi { flex:1; height:1px; background:var(--border); }
+/* Güncel sekmesi — kompakt tablo */
+.gun-kutu { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); }
+.gun-tbl { width:100%; border-collapse:collapse; }
+.gun-tbl th { font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:var(--text3);
+              font-weight:700; text-align:left; padding:7px 12px; background:var(--surface2);
+              border-bottom:1px solid var(--border); white-space:nowrap; }
+.gun-tbl th:first-child { border-top-left-radius:var(--radius-lg); }
+.gun-tbl th:last-child  { border-top-right-radius:var(--radius-lg); }
+.gun-tbl td { padding:6px 12px; border-bottom:1px solid var(--border); font-size:12.5px;
+              white-space:nowrap; vertical-align:middle; }
+.gun-tbl tbody tr:last-child td { border-bottom:none; }
+.gun-tbl tbody tr:hover td { background:var(--surface3, var(--surface2)); }
+.gun-tbl tr.grp-alt td { background:rgba(127,127,127,.06); }
+.gun-tbl tr.grp-ilk td { border-top:1px solid var(--border2); }
+.gun-is { font-family:var(--mono); font-weight:700; font-size:12.5px; }
+.gun-is.yok { font-family:var(--font); font-weight:600; color:var(--amber); font-size:12px; }
+.gun-adet { font-size:10px; font-weight:700; color:var(--text3); margin-left:5px; }
+.gun-kisi { display:flex; align-items:center; gap:8px; min-width:0; }
+.gun-kisi .ad { overflow:hidden; text-overflow:ellipsis; }
+.gun-av { width:22px; height:22px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center;
+          font-size:9px; font-weight:700; flex-shrink:0; }
+.gun-faz { font-size:10px; font-weight:700; padding:1px 7px; border-radius:9px; white-space:nowrap; }
+.gun-faz.work   { background:var(--green-bg); color:var(--green); border:1px solid var(--green-border); }
+.gun-faz.travel { background:var(--amber-bg); color:var(--amber); border:1px solid var(--amber-border); }
+.gun-sure { font-variant-numeric:tabular-nums; font-weight:600; }
+.gun-sure.uzun { color:var(--red); }
+.gun-btn { background:none; border:1px solid transparent; border-radius:5px; padding:2px 5px;
+           font-size:12px; font-family:inherit; color:var(--text3); cursor:pointer; line-height:1.2; }
+.gun-btn:hover { background:var(--surface2); color:var(--text); border-color:var(--border); }
+.gun-btn.danger:hover { background:var(--red-bg); color:var(--red); border-color:var(--red-border); }
+
+/* Satır üzerinde açılan detay paneli */
+#live-detay { position:fixed; z-index:400; width:360px; display:none;
+              background:var(--surface); border:1px solid var(--border2); border-radius:var(--radius-lg);
+              box-shadow:0 6px 24px rgba(0,0,0,.16); padding:12px 14px; pointer-events:none; }
+#live-detay .d-bas { display:flex; align-items:baseline; gap:8px; margin-bottom:2px; }
+#live-detay .d-ad { font-size:13px; font-weight:700; }
+#live-detay .d-is { font-family:var(--mono); font-size:11.5px; color:var(--text3); margin-left:auto; }
+#live-detay .d-tip { font-size:11px; color:var(--text3); margin-bottom:9px; }
+#live-detay .asama { display:flex; align-items:center; gap:8px; font-size:11.5px; padding:3px 0; }
+#live-detay .asama .nokta { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+#live-detay .asama .ad  { width:44px; flex-shrink:0; color:var(--text2); }
+#live-detay .asama .ara { flex:1; font-family:var(--mono); color:var(--text2); }
+#live-detay .asama .sur { font-variant-numeric:tabular-nums; font-weight:600; width:74px; text-align:right; }
+#live-detay .asama .pin { width:18px; text-align:right; }
+#live-detay .d-sat { display:flex; font-size:11.5px; padding:3px 0; gap:10px; }
+#live-detay .d-sat .k { color:var(--text3); width:84px; flex-shrink:0; }
+#live-detay .d-sat .v { font-family:var(--mono); }
+#live-detay .d-uyari { margin-top:8px; font-size:11.5px; color:var(--amber); background:var(--amber-bg);
+                       border:1px solid var(--amber-border); border-radius:var(--radius); padding:5px 8px; }
+#live-detay .d-alt { margin-top:9px; padding-top:8px; border-top:1px dashed var(--border);
+                     font-size:11px; color:var(--text3); }
 .live-card {
   background:var(--surface); border:1px solid var(--border);
   border-left:4px solid var(--border2);
@@ -4616,6 +4659,7 @@ function livePhase(s) {
 }
 
 function renderLive() {
+  liveDetayKapat();
   const wrap  = document.getElementById('live-cards');
   const empty = document.getElementById('live-empty');
   const met   = document.getElementById('live-metrics');
@@ -4669,79 +4713,176 @@ function renderLive() {
     return enErken(a[1]) - enErken(b[1]);
   });
 
-  const kart = (s) => {
-    const ph   = livePhase(s);
-    const isWa = s.source !== 'app';   // null / 'wa' / eski kayitlar -> WhatsApp tarafi
-    const col  = pColor(s.person);
+  // ── Tek satırlık kayıt ──
+  const satir = (s, grup, alt, ilk) => {
+    const ph    = livePhase(s);
+    const isWa  = s.source !== 'app';
+    const col   = pColor(s.person);
     const gecen = (Date.now() - new Date(s.start_dt)) / 3600000;
     const uzunMu = gecen > 14;
 
-    const phLbl = ph === 'work' ? 'Sahada'
-                : ph === 'travel_out' ? 'Yolda' : 'Dönüşte';
+    const phLbl = ph === 'work' ? 'Sahada' : ph === 'travel_out' ? 'Yolda' : 'Dönüşte';
     const phCls = ph === 'work' ? 'work' : 'travel';
 
-    // Aşama başlangıcı
-    let fazBas = new Date(s.start_dt);
-    if (ph === 'work' && s.work_start_dt) fazBas = new Date(s.work_start_dt);
-    if (ph === 'travel_back')             fazBas = new Date(s.work_end_dt);
-
-    // Konum linki
     const lat = s.site_lat || s.checkin_lat;
     const lng = s.site_lng || s.checkin_lng;
     const konum = lat
-      ? `<a href="https://maps.google.com/?q=${lat},${lng}" target="_blank" style="color:var(--accent);text-decoration:none">📍 haritada</a>`
-      : '<span style="color:var(--text3)">konum yok</span>';
+      ? `<a href="https://maps.google.com/?q=${lat},${lng}" target="_blank" title="Haritada aç">📍</a>`
+      : '<span style="color:var(--text3)">—</span>';
 
-    // Uyarılar
-    let uyari = '';
-    if (uzunMu) uyari = `⚠ ${Math.floor(gecen)} saattir açık — bitirilmemiş olabilir`;
-    else if (ph !== 'work') {
-      const fazSaat = (Date.now() - fazBas) / 3600000;
-      if (fazSaat > 6) uyari = `⚠ ${Math.floor(fazSaat)} saattir ${phLbl.toLowerCase()} — aşama işaretlenmemiş olabilir`;
-    }
+    const isHucre = grup
+      ? (grup.isNo
+          ? `<td class="gun-is" rowspan="${grup.adet}" style="vertical-align:top;padding-top:9px">${esc(grup.isNo)}${grup.adet > 1 ? `<span class="gun-adet">${grup.adet}</span>` : ''}</td>`
+          : `<td class="gun-is yok" rowspan="${grup.adet}" style="vertical-align:top;padding-top:9px">iş no yok${grup.adet > 1 ? `<span class="gun-adet">${grup.adet}</span>` : ''}</td>`)
+      : '';
 
-    return `<div class="live-card${isWa ? ' wa' : ''} ${uzunMu ? 'uzun' : (ph === 'work' ? 'ph-work' : 'ph-travel')}">
-      <div class="live-head">
-        <div class="av" style="background:${col}22;color:${col}">${ini(s.person)}</div>
-        <div class="live-name">${cn(s.person)}</div>
-        ${isWa ? '<span class="live-src" title="WhatsApp aktarımı — check-in uygulamasından gelmedi">WA</span>' : ''}
-        <span class="live-phase ${phCls}">${phLbl}</span>
-      </div>
+    const sinif = (alt ? ' grp-alt' : '') + (ilk ? ' grp-ilk' : '');
 
-      <div class="live-elapsed ${uzunMu ? 'uzun' : ''}" data-start="${s.start_dt}">${fmtGecen(gecen)}</div>
-      <div style="font-size:11px;color:var(--text3);margin-bottom:9px">vardiya süresi</div>
-
-      <div class="live-row"><span class="k">Başlangıç</span><span class="v mono">${fmtT(s.start_dt)} · ${fmtD(s.start_dt)}</span></div>
-      ${s.is_out_of_city
-        ? liveTimeline(s)
-        : `<div class="live-row"><span class="k">Konum</span><span class="v">${konum}</span></div>`}
-
-      ${uyari ? `<div class="live-warn">${uyari}</div>` : ''}
-
-      <div class="live-actions">
-        <button onclick="openEditShiftModal(${s.id})">✏ Düzenle</button>
-        <button onclick="gotoShift(${s.id})">→ Vardiyalarda göster</button>
-        <button class="danger" onclick="quickClose(${s.id})">⏹ Kapat</button>
-      </div>
-    </div>`;
+    return `<tr class="${sinif.trim()}" onmouseenter="liveDetayAc(event, ${s.id})" onmouseleave="liveDetayKapat()">
+      ${isHucre}
+      <td>
+        <div class="gun-kisi">
+          <span class="gun-av" style="background:${col}22;color:${col}">${ini(s.person)}</span>
+          <span class="ad">${cn(s.person)}</span>
+          ${isWa ? '<span class="live-src" title="WhatsApp aktarımı">WA</span>' : ''}
+        </div>
+      </td>
+      <td><span class="gun-faz ${phCls}">${phLbl}</span></td>
+      <td class="gun-sure${uzunMu ? ' uzun' : ''}" data-start="${s.start_dt}">${uzunMu ? '⚠ ' : ''}${fmtGecen(gecen)}</td>
+      <td class="mono" style="color:var(--text2)">${fmtT(s.start_dt)}${yeniGunMu(s.start_dt) ? '' : ' · ' + fmtD(s.start_dt)}</td>
+      <td>${konum}</td>
+      <td style="text-align:right">
+        <button class="gun-btn" onclick="openEditShiftModal(${s.id})" title="Düzenle">✏</button>
+        <button class="gun-btn" onclick="gotoShift(${s.id})" title="Vardiyalarda göster">→</button>
+        <button class="gun-btn danger" onclick="quickClose(${s.id})" title="Vardiyayı kapat">⏹</button>
+      </td>
+    </tr>`;
   };
 
-  wrap.className = '';
-  wrap.innerHTML = sirali.map(([anahtar, liste]) => {
-    // Grup içinde başlangıca göre
+  let altGrup = false;
+  const satirlar = [];
+  sirali.forEach(([anahtar, liste]) => {
     liste.sort((a, b) => new Date(a.start_dt) - new Date(b.start_dt));
     const isNo = anahtar === '__yok__' ? null : (liste[0].job || '').trim();
-    return `<div class="is-grup">
-      <div class="is-grup-head">
-        ${isNo
-          ? `<span class="is-no mono">${esc(isNo)}</span>`
-          : '<span class="is-yok">İş no girilmemiş</span>'}
-        ${liste.length > 1 ? `<span class="is-adet">${liste.length} kişi</span>` : ''}
-        <span class="is-cizgi"></span>
-      </div>
-      <div class="live-grid">${liste.map(kart).join('')}</div>
+    liste.forEach((s, i) => {
+      satirlar.push(satir(s, i === 0 ? { isNo, adet: liste.length } : null, altGrup, i === 0));
+    });
+    altGrup = !altGrup;
+  });
+
+  wrap.className = '';
+  wrap.innerHTML = `<div class="gun-kutu"><table class="gun-tbl">
+    <thead><tr>
+      <th style="width:110px">İş No</th>
+      <th>Çalışan</th>
+      <th style="width:90px">Durum</th>
+      <th style="width:110px">Süre</th>
+      <th style="width:120px">Başlangıç</th>
+      <th style="width:60px">Konum</th>
+      <th style="width:106px"></th>
+    </tr></thead>
+    <tbody>${satirlar.join('')}</tbody>
+  </table></div>`;
+}
+
+// Vardiya bugün mü başladı
+function yeniGunMu(dt) {
+  const d = new Date(dt), n = new Date();
+  return d.getFullYear() === n.getFullYear() && d.getMonth() === n.getMonth() && d.getDate() === n.getDate();
+}
+
+// ════════════════════════════════════════════
+//  SATIR ÜZERİNDE DETAY PANELİ
+//  Satıra sığmayanlar burada: aşama çizelgesi, konumlar, uyarılar.
+// ════════════════════════════════════════════
+function liveDetayAc(ev, id) {
+  const s = liveData.find(x => x.id === id);
+  if (!s) return;
+
+  let el = document.getElementById('live-detay');
+  if (!el) { el = document.createElement('div'); el.id = 'live-detay'; document.body.appendChild(el); }
+  el.innerHTML = liveDetayHtml(s);
+  el.style.display = 'block';
+
+  const r = ev.currentTarget.getBoundingClientRect();
+  const h = el.offsetHeight, w = el.offsetWidth;
+  let ust = r.bottom + 6;
+  if (ust + h > window.innerHeight - 8) ust = Math.max(8, r.top - h - 6);
+  let sol = r.left + 130;
+  if (sol + w > window.innerWidth - 8) sol = Math.max(8, window.innerWidth - w - 8);
+  el.style.top = ust + 'px';
+  el.style.left = sol + 'px';
+}
+
+function liveDetayKapat() {
+  const el = document.getElementById('live-detay');
+  if (el) el.style.display = 'none';
+}
+
+function liveDetayHtml(s) {
+  const ph    = livePhase(s);
+  const phLbl = ph === 'work' ? 'sahada' : ph === 'travel_out' ? 'yolda' : 'dönüş yolunda';
+  const gecen = (Date.now() - new Date(s.start_dt)) / 3600000;
+
+  const pin = (lat, lng, baslik) => lat
+    ? `<a href="https://maps.google.com/?q=${lat},${lng}" target="_blank" title="${baslik}">📍</a>`
+    : '<span style="color:var(--text3)" title="' + baslik + ': kaydedilmemiş">—</span>';
+
+  let govde = '';
+  if (s.is_out_of_city) {
+    const simdi = new Date();
+    const H = (a, b) => (new Date(b) - new Date(a)) / 3600000;
+    const asama = (ad, renk, bas, bit, p) => `<div class="asama">
+      <span class="nokta" style="background:${renk}"></span>
+      <span class="ad">${ad}</span>
+      <span class="ara">${fmtT(bas)} → ${bit ? fmtT(bit) : 'devam'}</span>
+      <span class="sur">${fmtGecen(H(bas, bit || simdi))}</span>
+      <span class="pin">${p}</span>
     </div>`;
-  }).join('');
+
+    if (s.work_start_dt)
+      govde += asama('Yol', '#EF9F27', s.start_dt, s.work_start_dt, pin(s.checkin_lat, s.checkin_lng, 'Yola çıkış konumu'));
+    else if (ph === 'travel_out')
+      govde += asama('Yol', '#EF9F27', s.start_dt, null, pin(s.checkin_lat, s.checkin_lng, 'Yola çıkış konumu'));
+
+    if (s.work_start_dt && s.work_end_dt)
+      govde += asama('Saha', '#5DCAA5', s.work_start_dt, s.work_end_dt, pin(s.site_lat, s.site_lng, 'Sahaya varış konumu'));
+    else if (ph === 'work')
+      govde += asama('Saha', '#5DCAA5', s.work_start_dt || s.start_dt, null, pin(s.site_lat, s.site_lng, 'Sahaya varış konumu'));
+
+    if (ph === 'travel_back')
+      govde += asama('Dönüş', '#EF9F27', s.work_end_dt, null, pin(s.site_out_lat, s.site_out_lng, 'Sahadan ayrılış konumu'));
+  } else {
+    govde += `<div class="d-sat"><span class="k">Başlangıç</span><span class="v">${fmtT(s.start_dt)} · ${fmtD(s.start_dt)}</span></div>`;
+    govde += `<div class="d-sat"><span class="k">Giriş konumu</span><span class="v">${
+      s.checkin_lat
+        ? `<a href="https://maps.google.com/?q=${s.checkin_lat},${s.checkin_lng}" target="_blank">📍 ${(+s.checkin_lat).toFixed(5)}, ${(+s.checkin_lng).toFixed(5)}</a>`
+        : '<span style="color:var(--text3)">kaydedilmemiş</span>'}</span></div>`;
+  }
+
+  // Uyarılar
+  const uyarilar = [];
+  if (gecen > 14) uyarilar.push(`${Math.floor(gecen)} saattir açık — bitirilmemiş olabilir`);
+  if (s.is_out_of_city && !s.work_start_dt && ph === 'travel_out') {
+    const yolSaat = gecen;
+    if (yolSaat > 6) uyarilar.push(`${Math.floor(yolSaat)} saattir yolda — sahaya varış işaretlenmemiş olabilir`);
+  }
+  locFails(s).forEach(f => {
+    const t = new Date(f.ts);
+    uyarilar.push(`${LOC_ADIM[f.step] || f.step} konumu alınamadı — ${isNaN(t) ? '?' : fmtD(f.ts) + ' ' + fmtT(f.ts)}`);
+  });
+
+  const apDurum = { approved:'Onaylandı', rejected:'Reddedildi', pending:'Onay bekliyor' }[s.approval_status || 'pending'];
+  const kaynak  = s.source === 'app' ? 'Check-in uygulaması' : s.source === 'wa' ? 'WhatsApp aktarımı' : (s.source || '—');
+
+  return `<div class="d-bas">
+      <span class="d-ad">${cn(s.person)}</span>
+      <span class="d-is">${s.job ? esc(s.job) : 'iş no yok'}</span>
+    </div>
+    <div class="d-tip">${s.is_out_of_city ? 'İl dışı görev · ' + phLbl : 'Şehir içi görev'}</div>
+    ${govde}
+    ${uyarilar.map(u => `<div class="d-uyari">${esc(u)}</div>`).join('')}
+    <div class="d-alt">${apDurum} · ${esc(kaynak)} · #${s.id}</div>`;
 }
 
 // Vardiyalar sekmesine geç ve ilgili satırı vurgula
@@ -4968,11 +5109,11 @@ function fmtGecen(saat) {
 function startLiveTick() {
   clearInterval(liveTick);
   liveTick = setInterval(() => {
-    document.querySelectorAll('.live-elapsed').forEach(el => {
+    document.querySelectorAll('[data-start]').forEach(el => {
       const st = el.dataset.start;
       if (!st) return;
       const g = (Date.now() - new Date(st)) / 3600000;
-      el.textContent = fmtGecen(g);
+      el.textContent = (g > 14 ? '⚠ ' : '') + fmtGecen(g);
       el.classList.toggle('uzun', g > 14);
     });
   }, 60000);
@@ -4993,6 +5134,7 @@ function enterLiveTab() {
 function leaveLiveTab() {
   clearInterval(liveTimer);
   clearInterval(liveTick);
+  liveDetayKapat();
 }
 
 // ════════════════════════════════════════════
