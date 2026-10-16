@@ -244,10 +244,14 @@ hr.div{border:none;border-top:1px solid var(--border);margin:24px 0;}
 .gun-btn:hover { background:var(--surface2); color:var(--text); border-color:var(--border); }
 .gun-btn.danger:hover { background:var(--red-bg); color:var(--red); border-color:var(--red-border); }
 
+/* Detayı açan hücreler — kırılım (durum) ve konum */
+.gun-ipucu { cursor:help; }
+.gun-tbl tbody tr:hover td.gun-ipucu { box-shadow:inset 0 -2px 0 var(--border2); }
+
 /* Satır üzerinde açılan detay paneli */
 #live-detay { position:fixed; z-index:400; width:360px; display:none;
               background:var(--surface); border:1px solid var(--border2); border-radius:var(--radius-lg);
-              box-shadow:0 6px 24px rgba(0,0,0,.16); padding:12px 14px; pointer-events:none; }
+              box-shadow:0 6px 24px rgba(0,0,0,.16); padding:12px 14px; }
 #live-detay .d-bas { display:flex; align-items:baseline; gap:8px; margin-bottom:2px; }
 #live-detay .d-ad { font-size:13px; font-weight:700; }
 #live-detay .d-is { font-family:var(--mono); font-size:11.5px; color:var(--text3); margin-left:auto; }
@@ -4659,7 +4663,7 @@ function livePhase(s) {
 }
 
 function renderLive() {
-  liveDetayKapat();
+  if (!detayUzerinde) liveDetayKapat(true);   // fare paneldeyse elini çekme
   const wrap  = document.getElementById('live-cards');
   const empty = document.getElementById('live-empty');
   const met   = document.getElementById('live-metrics');
@@ -4738,7 +4742,10 @@ function renderLive() {
 
     const sinif = (alt ? ' grp-alt' : '') + (ilk ? ' grp-ilk' : '');
 
-    return `<tr class="${sinif.trim()}" onmouseenter="liveDetayAc(event, ${s.id})" onmouseleave="liveDetayKapat()">
+    // Kırılım ve konum satıra sığmıyor; detayı bu iki hücre açar
+    const tetik = `class="gun-ipucu" onmouseenter="liveDetayAc(event, ${s.id})" onmouseleave="liveDetayKapat()"`;
+
+    return `<tr class="${sinif.trim()}">
       ${isHucre}
       <td>
         <div class="gun-kisi">
@@ -4747,10 +4754,10 @@ function renderLive() {
           ${isWa ? '<span class="live-src" title="WhatsApp aktarımı">WA</span>' : ''}
         </div>
       </td>
-      <td><span class="gun-faz ${phCls}">${phLbl}</span></td>
+      <td ${tetik}><span class="gun-faz ${phCls}">${phLbl}</span></td>
       <td class="gun-sure${uzunMu ? ' uzun' : ''}" data-start="${s.start_dt}">${uzunMu ? '⚠ ' : ''}${fmtGecen(gecen)}</td>
       <td class="mono" style="color:var(--text2)">${fmtT(s.start_dt)}${yeniGunMu(s.start_dt) ? '' : ' · ' + fmtD(s.start_dt)}</td>
-      <td>${konum}</td>
+      <td ${tetik}>${konum}</td>
       <td style="text-align:right">
         <button class="gun-btn" onclick="openEditShiftModal(${s.id})" title="Düzenle">✏</button>
         <button class="gun-btn" onclick="gotoShift(${s.id})" title="Vardiyalarda göster">→</button>
@@ -4795,28 +4802,58 @@ function yeniGunMu(dt) {
 //  SATIR ÜZERİNDE DETAY PANELİ
 //  Satıra sığmayanlar burada: aşama çizelgesi, konumlar, uyarılar.
 // ════════════════════════════════════════════
+const DETAY_GECIKME = 3000;   // satır üzerinde bu kadar beklenince açılır
+const DETAY_TOLERANS = 300;   // satırdan panele geçerken kapanmasın diye
+
+let detayAcTimer = null, detayKapatTimer = null, detayUzerinde = false;
+
+// Satıra girince sayaç başlar; 3 sn dolmadan çıkılırsa açılmaz.
 function liveDetayAc(ev, id) {
+  clearTimeout(detayKapatTimer);
+  clearTimeout(detayAcTimer);
+  const satir = ev.currentTarget;          // setTimeout içinde currentTarget boşalır
+  detayAcTimer = setTimeout(() => liveDetayGoster(satir, id), DETAY_GECIKME);
+}
+
+function liveDetayGoster(satir, id) {
   const s = liveData.find(x => x.id === id);
-  if (!s) return;
+  if (!s || !satir.isConnected) return;
 
   let el = document.getElementById('live-detay');
-  if (!el) { el = document.createElement('div'); el.id = 'live-detay'; document.body.appendChild(el); }
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'live-detay';
+    // Panelin üzerine gelince açık kalsın, linklere tıklanabilsin
+    el.addEventListener('mouseenter', () => { detayUzerinde = true; clearTimeout(detayKapatTimer); });
+    el.addEventListener('mouseleave', () => { detayUzerinde = false; liveDetayKapat(); });
+    document.body.appendChild(el);
+  }
   el.innerHTML = liveDetayHtml(s);
   el.style.display = 'block';
 
-  const r = ev.currentTarget.getBoundingClientRect();
+  const r = satir.getBoundingClientRect();
   const h = el.offsetHeight, w = el.offsetWidth;
-  let ust = r.bottom + 6;
-  if (ust + h > window.innerHeight - 8) ust = Math.max(8, r.top - h - 6);
-  let sol = r.left + 130;
+  // Hücreyle panel arasında boşluk bırakma — fare aradan geçerken kapanmasın
+  let ust = r.bottom + 2;
+  if (ust + h > window.innerHeight - 8) ust = Math.max(8, r.top - h - 2);
+  let sol = r.left - 60;
   if (sol + w > window.innerWidth - 8) sol = Math.max(8, window.innerWidth - w - 8);
+  if (sol < 8) sol = 8;
   el.style.top = ust + 'px';
   el.style.left = sol + 'px';
 }
 
-function liveDetayKapat() {
-  const el = document.getElementById('live-detay');
-  if (el) el.style.display = 'none';
+// hemen=true: anında kapat (sekme değişimi, tablo yenilenmesi)
+// hemen yok: kısa tolerans tanı — fare panele geçiyor olabilir
+function liveDetayKapat(hemen) {
+  clearTimeout(detayAcTimer);
+  clearTimeout(detayKapatTimer);
+  const gizle = () => {
+    const el = document.getElementById('live-detay');
+    if (el) el.style.display = 'none';
+  };
+  if (hemen === true) { detayUzerinde = false; gizle(); return; }
+  detayKapatTimer = setTimeout(() => { if (!detayUzerinde) gizle(); }, DETAY_TOLERANS);
 }
 
 function liveDetayHtml(s) {
@@ -5134,7 +5171,7 @@ function enterLiveTab() {
 function leaveLiveTab() {
   clearInterval(liveTimer);
   clearInterval(liveTick);
-  liveDetayKapat();
+  liveDetayKapat(true);
 }
 
 // ════════════════════════════════════════════
