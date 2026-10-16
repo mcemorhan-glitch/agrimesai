@@ -4510,7 +4510,14 @@ async function loadLive() {
 //  SAHADA OLMAYANLAR (dinlenmede / boşta)
 // ════════════════════════════════════════════
 
-const DINLENME_SN = 8 * 3600000;   // 8 saat
+// ── Dinlenme kuralı ──
+// Dinlenme hakkı, ne zaman bittiğine değil NE KADAR çalışıldığına bağlı.
+// Bir saat çalışmış biriyle on bir saat çalışmış biri aynı kefeye girmesin.
+const MESAI_BAS   = 8;    // normal mesai başlangıcı
+const MESAI_BIT   = 17;   // normal mesai bitişi
+const TAM_GUN     = 9;    // bugünkü toplam bunun altındaysa mesai içinde müsait sayılır
+const DINLENME_UZUN = 11; // 11 saati aşan günden sonra 11 saat dinlenme
+const DINLENME_NORM = 8;  // aksi halde 8 saat
 
 // Metrik kutusu için: 8 saatten uzun süredir müsait enspektör sayısı.
 // Ofis + saha çalışanları sayıma girmez — sayı "kaç saha enspektörü müsait"
@@ -4519,16 +4526,19 @@ const DINLENME_SN = 8 * 3600000;   // 8 saat
 function bostaSayisi() {
   if (!bostaKadro) return null;
   const mesgul = new Set(liveData.map(s => s.user_id).filter(Boolean));
-  const simdi = Date.now();
+  const simdi = Date.now(), simdiDt = new Date(simdi);
   return bostaKadro.filter(k => {
     if (k.hibrit === true) return false;
     if (mesgul.has(k.id)) return false;
     const son = bostaSonVardiya[k.id];
-    return !son || (simdi - new Date(son.end_dt).getTime()) >= DINLENME_SN;
+    if (!son) return true;
+    const gecen = simdi - new Date(son.end_dt).getTime();
+    return !dinlenmeDurumu(k, son, gecen, simdiDt).dinlenmede;
   }).length;
 }
 let bostaKadro = null;             // aktif enspektör + bölge yöneticisi listesi
-let bostaSonVardiya = {};          // user_id -> { end_dt, duration_h }
+let bostaSonVardiya = {};          // user_id -> { end_dt, duration_h, start_dt }
+let bostaBugunToplam = {};         // user_id -> bugün çalışılan toplam saat
 let bostaHata = null;
 
 async function loadBosta() {
@@ -4553,15 +4563,57 @@ async function loadBosta() {
       .limit(2000);
     if (sErr) throw sErr;
 
+    // Kişi başına: en son kapanan vardiya + bugünkü toplam çalışma
     bostaSonVardiya = {};
+    bostaBugunToplam = {};
+    const bugun = dateKey(new Date());
     (son || []).forEach(r => {
       if (!r.user_id) return;                    // isimle eşleştirme yok — user_id şart
       if (!bostaSonVardiya[r.user_id]) bostaSonVardiya[r.user_id] = r;
+      // Bugün başlayan vardiyaların süreleri toplanır — kişi gün içinde
+      // birkaç kısa iş yapmış olabilir, son vardiyaya bakmak yanıltır.
+      if (r.start_dt && dateKey(new Date(r.start_dt)) === bugun) {
+        bostaBugunToplam[r.user_id] = (bostaBugunToplam[r.user_id] || 0) + parseFloat(r.duration_h || 0);
+      }
     });
   } catch(e) {
     bostaKadro = null;
     bostaHata = e.message || 'bilinmeyen hata';
   }
+}
+
+// Bir kişinin dinlenme durumu.
+// { dinlenmede, gerekli (saat), kalan (saat), bugunToplam }
+function dinlenmeDurumu(k, son, gecenMs, simdi) {
+  const bugunToplam = bostaBugunToplam[k.id] || 0;
+  if (!son) return { dinlenmede: false, gerekli: 0, kalan: 0, bugunToplam: 0 };
+
+  // Gece vardiyası dün başlamış olabilir; o zaman bugünkü toplam yanıltır,
+  // vardiyanın kendi süresi devreye girer.
+  const sonSure  = parseFloat(son.duration_h || 0);
+  const esasSure = Math.max(bugunToplam, sonSure);
+  const gerekli  = esasSure >= DINLENME_UZUN ? DINLENME_UZUN : DINLENME_NORM;
+
+  const gecenSaat = gecenMs / 3600000;
+
+  // 1) Normal mesai içinde, vardiyası bugün mesai saatinde başlamış,
+  //    tam gün dolmamış → müsait. (Gece vardiyası bu şarta takılır.)
+  const saat = simdi.getHours() + simdi.getMinutes() / 60;
+  const haftaSonu = simdi.getDay() === 0 || simdi.getDay() === 6;
+  const mesaiIcinde = saat >= MESAI_BAS && saat < MESAI_BIT && !haftaSonu && !isHoliday(simdi);
+
+  const bas = new Date(son.start_dt);
+  const bugunBasladi = son.start_dt
+    && dateKey(bas) === dateKey(simdi)
+    && bas.getHours() + bas.getMinutes() / 60 >= MESAI_BAS;
+
+  if (mesaiIcinde && bugunBasladi && bugunToplam < TAM_GUN) {
+    return { dinlenmede: false, gerekli, kalan: 0, bugunToplam };
+  }
+
+  // 2) Hak edilen dinlenme dolmuş mu
+  const kalan = Math.max(0, gerekli - gecenSaat);
+  return { dinlenmede: kalan > 0, gerekli, kalan, bugunToplam };
 }
 
 // "3 sa 20 dk" / "2 gün"
@@ -4590,14 +4642,15 @@ function renderBosta() {
   const mesgul = new Set(liveData.map(s => s.user_id).filter(Boolean));
   const simdi = Date.now();
 
+  const simdiDt = new Date(simdi);
   const dinlenen = [], bosta = [];
   bostaKadro.forEach(k => {
     if (mesgul.has(k.id)) return;
     const son   = bostaSonVardiya[k.id];
     const gecen = son ? simdi - new Date(son.end_dt).getTime() : null;
-    const kayit = { k, son, gecen, hib: k.hibrit === true };
-    // Hiç vardiyası olmayan da boşta sayılır
-    ((gecen !== null && gecen < DINLENME_SN) ? dinlenen : bosta).push(kayit);
+    const dd    = dinlenmeDurumu(k, son, gecen, simdiDt);
+    const kayit = { k, son, gecen, hib: k.hibrit === true, dd };
+    (dd.dinlenmede ? dinlenen : bosta).push(kayit);
   });
 
   // Önce sadece-saha çalışanları, sonra ofis+saha olanlar.
@@ -4616,9 +4669,12 @@ function renderBosta() {
     const alt = r.son
       ? `${fmtH(parseFloat(r.son.duration_h || 0))} çalıştı · ${fmtD(r.son.end_dt)} ${fmtT(r.son.end_dt)}`
       : 'hiç check-in yapmadı';
-    const sag = r.son
-      ? `${fmtGecenKisa(r.gecen)}<br><span class="u">önce bitti</span>`
-      : '<span class="u">—</span>';
+    // Dinlenmedeyse: ne kadar dinlendi + ne kadar kaldı
+    const sag = !r.son
+      ? '<span class="u">—</span>'
+      : (r.dd && r.dd.dinlenmede
+          ? `${fmtGecenKisa(r.gecen)}<br><span class="u">${fmtGecenKisa(r.dd.kalan * 3600000)} kaldı</span>`
+          : `${fmtGecenKisa(r.gecen)}<br><span class="u">önce bitti</span>`);
     // Hibrit grubunun ilk satırına ayırıcı çizgi
     const ilkHib = r.hib && (i === 0 || !arr[i - 1].hib);
     const sinif = 'idle-row' + (r.hib ? ' hib' : '') + (ilkHib ? ' hib-ilk' : '');
