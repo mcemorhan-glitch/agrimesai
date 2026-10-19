@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AGRI Mesai Takip v2.9</title>
+<title>AGRI Mesai Takip v3.0</title>
 <script>/* Supabase v2 inline */
 var supabase=(function(e){function t(e,t){var n={};for(var r in e)Object.prototype.hasOwnProperty.call(e,r)&&t.indexOf(r)<0&&(n[r]=e[r]);if(e!=null&&typeof Object.getOwnPropertySymbols==`function`)for(var i=0,r=Object.getOwnPropertySymbols(e);i<r.length;i++)t.indexOf(r[i])<0&&Object.prototype.propertyIsEnumerable.call(e,r[i])&&(n[r[i]]=e[r[i]]);return n}function n(e,t,n,r){function i(e){return e instanceof n?e:new n(function(t){t(e)})}return new(n||=Promise)(function(n,a){function o(e){try{c(r.next(e))}catch(e){a(e)}}function s(e){try{c(r.throw(e))}catch(e){a(e)}}function c(e){e.done?n(e.value):i(e.value).then(o,s)}c((r=r.apply(e,t||[])).next())})}let r=e=>e?(...t)=>e(...t):(...e)=>fetch(...e);var i=class extends Error{constructor(e,t=`FunctionsError`,n){super(e),this.name=t,this.context=n}toJSON(){return{name:this.name,message:this.message,context:this.context}}},a=class extends i{constructor(e){super(`Failed to send a request to the Edge Function`,`FunctionsFetchError`,e)}},o=class extends i{constructor(e){super(`Relay Error invoking the Edge Function`,`FunctionsRelayError`,e)}},s=class extends i{constructor(e){super(`Edge Function returned a non-2xx status code`,`FunctionsHttpError`,e)}},c;(function(e){e.Any=`any`,e.ApNortheast1=`ap-northeast-1`,e.ApNortheast2=`ap-northeast-2`,e.ApSouth1=`ap-south-1`,e.ApSoutheast1=`ap-southeast-1`,e.ApSoutheast2=`ap-southeast-2`,e.CaCentral1=`ca-central-1`,e.EuCentral1=`eu-central-1`,e.EuWest1=`eu-west-1`,e.EuWest2=`eu-west-2`,e.EuWest3=`eu-west-3`,e.SaEast1=`sa-east-1`,e.UsEast1=`us-east-1`,e.UsWest1=`us-west-1`,e.UsWest2=`us-west-2`})(c||={});var l=class{constructor(e,{headers:t={},customFetch:n,region:i=c.Any}={}){this.url=e,this.headers=t,this.region=i,this.fetch=r(n)}setAuth(e){this.headers.Authorization=`Bearer ${e}`}invoke(e){return n(this,arguments,void 0,function*(e,t={}){let n,r;try{let{headers:i,method:c,body:l,signal:u,timeout:d}=t,f={},{region:p}=t;p||=this.region;let m=new URL(`${this.url}/${e}`);p&&p!==`any`&&(f[`x-region`]=p,m.searchParams.set(`forceFunctionRegion`,p));let h;l&&(i&&!Object.prototype.hasOwnProperty.call(i,`Content-Type`)||!i)?typeof Blob<`u`&&l instanceof Blob||l instanceof ArrayBuffer?(f[`Content-Type`]=`application/octet-stream`,h=l):typeof l==`string`?(f[`Content-Type`]=`text/plain`,h=l):typeof FormData<`u`&&l instanceof FormData?h=l:(f[`Content-Type`]=`application/json`,h=JSON.stringify(l)):h=l&&typeof l!=`string`&&!(typeof Blob<`u`&&l instanceof Blob)&&!(l instanceof ArrayBuffer)&&!(typeof FormData<`u`&&l instanceof FormData)?JSON.stringify(l):l;let ee=u;d&&(r=new AbortController,n=setTimeout(()=>r.abort(),d),u?(ee=r.signal,u.addEventListener(`abort`,()=>r.abort())):ee=r.signal);let g=yield this.fetch(m.toString(),{method:c||`POST`,headers:Object.assign(Object.assign(Object.assign({},f),this.headers),i),body:h,signal:ee}).catch(e=>{throw new a(e)}),te=g.headers.get(`x-relay-error`);if(te&&te===`true`)throw new o(g);if(!g.ok)throw new s(g);let _=(g.headers.get(`Content-Type`)??`text/plain`).split(`;`)[0].trim(),ne;return ne=_===`application/json`?yield g.json():_===`application/octet-stream`||_===`application/pdf`?yield g.blob():_===`text/event-stream`?g:_===`multipart/form-data`?yield g.formData():yield g.text(),{data:ne,error:null,response:g}}catch(e){return{data:null,error:e,response:e instanceof s||e instanceof o?e.context:void 0}}finally{n&&clearTimeout(n)}})}};let u=e=>Math.min(1e3*2**e,3e4),d=[520,503],f=[`GET`,`HEAD`,`OPTIONS`];var p=class extends Error{constructor(e){super(e.message),this.name=`PostgrestError`,this.details=e.details,this.hint=e.hint,this.code=e.code}toJSON(){return{name:this.name,message:this.message,details:this.details,hint:this.hint,code:this.code}}};function m(e,t){return new Promise(n=>{if(t?.aborted){n();return}let r=setTimeout(()=>{t?.removeEventListener(`abort`,i),n()},e);function i(){clearTimeout(r),n()}t?.addEventListener(`abort`,i)})}function h(e,t,n,r){return!(!r||n>=3||!f.includes(e)||!d.includes(t))}var ee=class{constructor(e){this.shouldThrowOnError=!1,this.retryEnabled=!0,this.method=e.method,this.url=e.url,this.headers=new Headers(e.headers),this.schema=e.schema,this.body=e.body,this.shouldThrowOnError=e.shouldThrowOnError??!1,this.signal=e.signal,this.isMaybeSingle=e.isMaybeSingle??!1,this.shouldStripNulls=e.shouldStripNulls??!1,this.urlLengthLimit=e.urlLengthLimit??8e3,this.retryEnabled=e.retry??!0,e.fetch?this.fetch=e.fetch:this.fetch=fetch}throwOnError(){return this.shouldThrowOnError=!0,this}stripNulls(){if(this.headers.get(`Accept`)===`text/csv`)throw Error(`stripNulls() cannot be used with csv()`);return this.shouldStripNulls=!0,this}setHeader(e,t){return this.headers=new Headers(this.headers),this.headers.set(e,t),this}retry(e){return this.retryEnabled=e,this}then(e,t){var n=this;if(this.schema===void 0||([`GET`,`HEAD`].includes(this.method)?this.headers.set(`Accept-Profile`,this.schema):this.headers.set(`Content-Profile`,this.schema)),this.method!==`GET`&&this.method!==`HEAD`&&this.headers.set(`Content-Type`,`application/json`),this.shouldStripNulls){let e=this.headers.get(`Accept`);e===`application/vnd.pgrst.object+json`?this.headers.set(`Accept`,`application/vnd.pgrst.object+json;nulls=stripped`):(!e||e===`application/json`)&&this.headers.set(`Accept`,`application/vnd.pgrst.array+json;nulls=stripped`)}let r=this.fetch,i=(async()=>{let e=0;for(;;){let t=new Headers(n.headers);e>0&&t.set(`X-Retry-Count`,String(e));let i;try{i=await r(n.url.toString(),{method:n.method,headers:t,body:JSON.stringify(n.body,(e,t)=>typeof t==`bigint`?t.toString():t),signal:n.signal})}catch(t){if(t instanceof Error&&(t.name===`AbortError`||`code`in t&&t.code===`ABORT_ERR`)||!f.includes(n.method))throw t;if(n.retryEnabled&&e<3){let t=u(e);e++,await m(t,n.signal);continue}throw t}if(h(n.method,i.status,e,n.retryEnabled)){let t=i.headers?.get(`Retry-After`)??null,r=t===null?u(e):Math.max(0,parseInt(t,10)||0)*1e3;await i.text(),e++,await m(r,n.signal);continue}return await n.processResponse(i)}})();return this.shouldThrowOnError||(i=i.catch(e=>{let t=``,n=``,r=``,i=e?.cause;if(i){let n=i?.message??``,r=i?.code??``;t=`${e?.name??`FetchError`}: ${e?.message}`,t+=`\n\nCaused by: ${i?.name??`Error`}: ${n}`,r&&(t+=` (${r})`),i?.stack&&(t+=`\n${i.stack}`)}else t=e?.stack??``;let a=this.url.toString().length;return e?.name===`AbortError`||e?.code===`ABORT_ERR`?(r=``,n=`Request was aborted (timeout or manual cancellation)`,a>this.urlLengthLimit&&(n+=`. Note: Your request URL is ${a} characters, which may exceed server limits. If selecting many fields, consider using views. If filtering with large arrays (e.g., .in('id', [many IDs])), consider using an RPC function to pass values server-side.`)):(i?.name===`HeadersOverflowError`||i?.code===`UND_ERR_HEADERS_OVERFLOW`)&&(r=``,n=`HTTP headers exceeded server limits (typically 16KB)`,a>this.urlLengthLimit&&(n+=`. Your request URL is ${a} characters. If selecting many fields, consider using views. If filtering with large arrays (e.g., .in('id', [200+ IDs])), consider using an RPC function instead.`)),{success:!1,error:{message:`${e?.name??`FetchError`}: ${e?.message}`,details:t,hint:n,code:r},data:null,count:null,status:0,statusText:``}})),i.then(e,t)}async processResponse(e){var t=this;let n=null,r=null,i=null,a=e.status,o=e.statusText;if(e.ok){if(t.method!==`HEAD`){let n=await e.text();n===``||(r=t.headers.get(`Accept`)===`text/csv`||t.headers.get(`Accept`)&&t.headers.get(`Accept`)?.includes(`application/vnd.pgrst.plan+text`)?n:JSON.parse(n))}let s=t.headers.get(`Prefer`)?.match(/count=(exact|planned|estimated)/),c=e.headers.get(`content-range`)?.split(`/`);s&&c&&c.length>1&&(i=parseInt(c[1])),t.isMaybeSingle&&Array.isArray(r)&&(r.length>1?(n={code:`PGRST116`,details:`Results contain ${r.length} rows, application/vnd.pgrst.object+json requires 1 row`,hint:null,message:`JSON object requested, multiple (or no) rows returned`},r=null,i=null,a=406,o=`Not Acceptable`):r=r.length===1?r[0]:null)}else{let i=await e.text();try{n=JSON.parse(i),Array.isArray(n)&&e.status===404&&(r=[],n=null,a=200,o=`OK`)}catch{e.status===404&&i===``?(a=204,o=`No Content`):n={message:i}}if(n&&t.shouldThrowOnError)throw new p(n)}return{success:n===null,error:n,data:r,count:i,status:a,statusText:o}}returns(){return this}overrideTypes(){return this}},g=class extends ee{select(e){let t=!1,n=(e??`*`).split(``).map(e=>/\s/.test(e)&&!t?``:(e===`"`&&(t=!t),e)).join(``);return this.url.searchParams.set(`select`,n),this.headers.append(`Prefer`,`return=representation`),this}order(e,{ascending:t=!0,nullsFirst:n,foreignTable:r,referencedTable:i=r}={}){let a=i?`${i}.order`:`order`,o=this.url.searchParams.get(a);return this.url.searchParams.set(a,`${o?`${o},`:``}${e}.${t?`asc`:`desc`}${n===void 0?``:n?`.nullsfirst`:`.nullslast`}`),this}limit(e,{foreignTable:t,referencedTable:n=t}={}){let r=n===void 0?`limit`:`${n}.limit`;return this.url.searchParams.set(r,`${e}`),this}range(e,t,{foreignTable:n,referencedTable:r=n}={}){let i=r===void 0?`offset`:`${r}.offset`,a=r===void 0?`limit`:`${r}.limit`;return this.url.searchParams.set(i,`${e}`),this.url.searchParams.set(a,`${t-e+1}`),this}abortSignal(e){return this.signal=e,this}single(){return this.headers.set(`Accept`,`application/vnd.pgrst.object+json`),this}maybeSingle(){return this.isMaybeSingle=!0,this}csv(){return this.headers.set(`Accept`,`text/csv`),this}geojson(){return this.headers.set(`Accept`,`application/geo+json`),this}explain({analyze:e=!1,verbose:t=!1,settings:n=!1,buffers:r=!1,wal:i=!1,format:a=`text`}={}){let o=[e?`analyze`:null,t?`verbose`:null,n?`settings`:null,r?`buffers`:null,i?`wal`:null].filter(Boolean).join(`|`),s=this.headers.get(`Accept`)??`application/json`;return this.headers.set(`Accept`,`application/vnd.pgrst.plan+${a}; for="${s}"; options=${o};`),this}rollback(){return this.headers.append(`Prefer`,`tx=rollback`),this}returns(){return this}maxAffected(e){return this.headers.append(`Prefer`,`handling=strict`),this.headers.append(`Prefer`,`max-affected=${e}`),this}};let te=RegExp(`[,()]`);var _=class extends g{eq(e,t){return this.url.searchParams.append(e,`eq.${t}`),this}neq(e,t){return this.url.searchParams.append(e,`neq.${t}`),this}gt(e,t){return this.url.searchParams.append(e,`gt.${t}`),this}gte(e,t){return this.url.searchParams.append(e,`gte.${t}`),this}lt(e,t){return this.url.searchParams.append(e,`lt.${t}`),this}lte(e,t){return this.url.searchParams.append(e,`lte.${t}`),this}like(e,t){return this.url.searchParams.append(e,`like.${t}`),this}likeAllOf(e,t){return this.url.searchParams.append(e,`like(all).{${t.join(`,`)}}`),this}likeAnyOf(e,t){return this.url.searchParams.append(e,`like(any).{${t.join(`,`)}}`),this}ilike(e,t){return this.url.searchParams.append(e,`ilike.${t}`),this}ilikeAllOf(e,t){return this.url.searchParams.append(e,`ilike(all).{${t.join(`,`)}}`),this}ilikeAnyOf(e,t){return this.url.searchParams.append(e,`ilike(any).{${t.join(`,`)}}`),this}regexMatch(e,t){return this.url.searchParams.append(e,`match.${t}`),this}regexIMatch(e,t){return this.url.searchParams.append(e,`imatch.${t}`),this}is(e,t){return this.url.searchParams.append(e,`is.${t}`),this}isDistinct(e,t){return this.url.searchParams.append(e,`isdistinct.${t}`),this}in(e,t){let n=Array.from(new Set(t)).map(e=>typeof e==`string`&&te.test(e)?`"${e}"`:`${e}`).join(`,`);return this.url.searchParams.append(e,`in.(${n})`),this}notIn(e,t){let n=Array.from(new Set(t)).map(e=>typeof e==`string`&&te.test(e)?`"${e}"`:`${e}`).join(`,`);return this.url.searchParams.append(e,`not.in.(${n})`),this}contains(e,t){return typeof t==`string`?this.url.searchParams.append(e,`cs.${t}`):Array.isArray(t)?this.url.searchParams.append(e,`cs.{${t.join(`,`)}}`):this.url.searchParams.append(e,`cs.${JSON.stringify(t)}`),this}containedBy(e,t){return typeof t==`string`?this.url.searchParams.append(e,`cd.${t}`):Array.isArray(t)?this.url.searchParams.append(e,`cd.{${t.join(`,`)}}`):this.url.searchParams.append(e,`cd.${JSON.stringify(t)}`),this}rangeGt(e,t){return this.url.searchParams.append(e,`sr.${t}`),this}rangeGte(e,t){return this.url.searchParams.append(e,`nxl.${t}`),this}rangeLt(e,t){return this.url.searchParams.append(e,`sl.${t}`),this}rangeLte(e,t){return this.url.searchParams.append(e,`nxr.${t}`),this}rangeAdjacent(e,t){return this.url.searchParams.append(e,`adj.${t}`),this}overlaps(e,t){return typeof t==`string`?this.url.searchParams.append(e,`ov.${t}`):this.url.searchParams.append(e,`ov.{${t.join(`,`)}}`),this}textSearch(e,t,{config:n,type:r}={}){let i=``;r===`plain`?i=`pl`:r===`phrase`?i=`ph`:r===`websearch`&&(i=`w`);let a=n===void 0?``:`(${n})`;return this.url.searchParams.append(e,`${i}fts${a}.${t}`),this}match(e){return Object.entries(e).filter(([e,t])=>t!==void 0).forEach(([e,t])=>{this.url.searchParams.append(e,`eq.${t}`)}),this}not(e,t,n){return this.url.searchParams.append(e,`not.${t}.${n}`),this}or(e,{foreignTable:t,referencedTable:n=t}={}){let r=n?`${n}.or`:`or`;return this.url.searchParams.append(r,`(${e})`),this}filter(e,t,n){return this.url.searchParams.append(e,`${t}.${n}`),this}},ne=class{constructor(e,{headers:t={},schema:n,fetch:r,urlLengthLimit:i=8e3,retry:a}){this.url=e,this.headers=new Headers(t),this.schema=n,this.fetch=r,this.urlLengthLimit=i,this.retry=a}cloneRequestState(){return{url:new URL(this.url.toString()),headers:new Headers(this.headers)}}select(e,t){let{head:n=!1,count:r}=t??{},i=n?`HEAD`:`GET`,a=!1,o=(e??`*`).split(``).map(e=>/\s/.test(e)&&!a?``:(e===`"`&&(a=!a),e)).join(``),{url:s,headers:c}=this.cloneRequestState();return s.searchParams.set(`select`,o),r&&c.append(`Prefer`,`count=${r}`),new _({method:i,url:s,headers:c,schema:this.schema,fetch:this.fetch,urlLengthLimit:this.urlLengthLimit,retry:this.retry})}insert(e,{count:t,defaultToNull:n=!0}={}){let{url:r,headers:i}=this.cloneRequestState();if(t&&i.append(`Prefer`,`count=${t}`),n||i.append(`Prefer`,`missing=default`),Array.isArray(e)){let t=e.reduce((e,t)=>e.concat(Object.keys(t)),[]);if(t.length>0){let e=[...new Set(t)].map(e=>`"${e}"`);r.searchParams.set(`columns`,e.join(`,`))}}return new _({method:`POST`,url:r,headers:i,schema:this.schema,body:e,fetch:this.fetch??fetch,urlLengthLimit:this.urlLengthLimit,retry:this.retry})}upsert(e,{onConflict:t,ignoreDuplicates:n=!1,count:r,defaultToNull:i=!0}={}){let{url:a,headers:o}=this.cloneRequestState();if(o.append(`Prefer`,`resolution=${n?`ignore`:`merge`}-duplicates`),t!==void 0&&a.searchParams.set(`on_conflict`,t),r&&o.append(`Prefer`,`count=${r}`),i||o.append(`Prefer`,`missing=default`),Array.isArray(e)){let t=e.reduce((e,t)=>e.concat(Object.keys(t)),[]);if(t.length>0){let e=[...new Set(t)].map(e=>`"${e}"`);a.searchParams.set(`columns`,e.join(`,`))}}return new _({method:`POST`,url:a,headers:o,schema:this.schema,body:e,fetch:this.fetch??fetch,urlLengthLimit:this.urlLengthLimit,retry:this.retry})}update(e,{count:t}={}){let{url:n,headers:r}=this.cloneRequestState();return t&&r.append(`Prefer`,`count=${t}`),new _({method:`PATCH`,url:n,headers:r,schema:this.schema,body:e,fetch:this.fetch??fetch,urlLengthLimit:this.urlLengthLimit,retry:this.retry})}delete({count:e}={}){let{url:t,headers:n}=this.cloneRequestState();return e&&n.append(`Prefer`,`count=${e}`),new _({method:`DELETE`,url:t,headers:n,schema:this.schema,fetch:this.fetch??fetch,urlLengthLimit:this.urlLengthLimit,retry:this.retry})}};function re(e){"@babel/helpers - typeof";return re=typeof Symbol==`function`&&typeof Symbol.iterator==`symbol`?function(e){return typeof e}:function(e){return e&&typeof Symbol==`function`&&e.constructor===Symbol&&e!==Symbol.prototype?`symbol`:typeof e},re(e)}function ie(e,t){if(re(e)!=`object`||!e)return e;var n=e[Symbol.toPrimitive];if(n!==void 0){var r=n.call(e,t||`default`);if(re(r)!=`object`)return r;throw TypeError(`@@toPrimitive must return a primitive value.`)}return(t===`string`?String:Number)(e)}function ae(e){var t=ie(e,`string`);return re(t)==`symbol`?t:t+``}function oe(e,t,n){return(t=ae(t))in e?Object.defineProperty(e,t,{value:n,enumerable:!0,configurable:!0,writable:!0}):e[t]=n,e}function se(e,t){var n=Object.keys(e);if(Object.getOwnPropertySymbols){var r=Object.getOwnPropertySymbols(e);t&&(r=r.filter(function(t){return Object.getOwnPropertyDescriptor(e,t).enumerable})),n.push.apply(n,r)}return n}function ce(e){for(var t=1;t<arguments.length;t++){var n=arguments[t]==null?{}:arguments[t];t%2?se(Object(n),!0).forEach(function(t){oe(e,t,n[t])}):Object.getOwnPropertyDescriptors?Object.defineProperties(e,Object.getOwnPropertyDescriptors(n)):se(Object(n)).forEach(function(t){Object.defineProperty(e,t,Object.getOwnPropertyDescriptor(n,t))})}return e}var le=class e{constructor(e,{headers:t={},schema:n,fetch:r,timeout:i,urlLengthLimit:a=8e3,retry:o}={}){this.url=e,this.headers=new Headers(t),this.schemaName=n,this.urlLengthLimit=a;let s=r??globalThis.fetch;i!==void 0&&i>0?this.fetch=(e,t)=>{let n=new AbortController,r=setTimeout(()=>n.abort(),i),a=t?.signal;if(a){if(a.aborted)return clearTimeout(r),s(e,t);let i=()=>{clearTimeout(r),n.abort()};return a.addEventListener(`abort`,i,{once:!0}),s(e,ce(ce({},t),{},{signal:n.signal})).finally(()=>{clearTimeout(r),a.removeEventListener(`abort`,i)})}return s(e,ce(ce({},t),{},{signal:n.signal})).finally(()=>clearTimeout(r))}:this.fetch=s,this.retry=o}from(e){if(!e||typeof e!=`string`||e.trim()===``)throw Error(`Invalid relation name: relation must be a non-empty string.`);return new ne(new URL(`${this.url}/${e}`),{headers:new Headers(this.headers),schema:this.schemaName,fetch:this.fetch,urlLengthLimit:this.urlLengthLimit,retry:this.retry})}schema(t){return new e(this.url,{headers:this.headers,schema:t,fetch:this.fetch,urlLengthLimit:this.urlLengthLimit,retry:this.retry})}rpc(e,t={},{head:n=!1,get:r=!1,count:i}={}){let a,o=new URL(`${this.url}/rpc/${e}`),s,c=e=>typeof e==`object`&&!!e&&(!Array.isArray(e)||e.some(c)),l=n&&Object.values(t).some(c);l?(a=`POST`,s=t):n||r?(a=n?`HEAD`:`GET`,Object.entries(t).filter(([e,t])=>t!==void 0).map(([e,t])=>[e,Array.isArray(t)?`{${t.join(`,`)}}`:`${t}`]).forEach(([e,t])=>{o.searchParams.append(e,t)})):(a=`POST`,s=t);let u=new Headers(this.headers);return l?u.set(`Prefer`,i?`count=${i},return=minimal`:`return=minimal`):i&&u.set(`Prefer`,`count=${i}`),new _({method:a,url:o,headers:u,schema:this.schemaName,body:s,fetch:this.fetch??fetch,urlLengthLimit:this.urlLengthLimit,retry:this.retry})}},ue=class{constructor(){}static detectEnvironment(){if(typeof WebSocket<`u`)return{type:`native`,wsConstructor:WebSocket};let e=globalThis;if(typeof globalThis<`u`&&e.WebSocket!==void 0)return{type:`native`,wsConstructor:e.WebSocket};let t=typeof global<`u`?global:void 0;if(t&&t.WebSocket!==void 0)return{type:`native`,wsConstructor:t.WebSocket};if(typeof globalThis<`u`&&e.WebSocketPair!==void 0&&globalThis.WebSocket===void 0)return{type:`cloudflare`,error:`Cloudflare Workers detected. WebSocket clients are not supported in Cloudflare Workers.`,workaround:`Use Cloudflare Workers WebSocket API for server-side WebSocket handling, or deploy to a different runtime.`};if(typeof globalThis<`u`&&e.EdgeRuntime||typeof navigator<`u`&&navigator.userAgent?.includes(`Vercel-Edge`))return{type:`unsupported`,error:`Edge runtime detected (Vercel Edge/Netlify Edge). WebSockets are not supported in edge functions.`,workaround:`Use serverless functions or a different deployment target for WebSocket functionality.`};let n=globalThis.process;if(n){let e=n.versions;if(e&&e.node){let t=e.node,n=parseInt(t.replace(/^v/,``).split(`.`)[0]);return n>=22?globalThis.WebSocket===void 0?{type:`unsupported`,error:`Node.js ${n} detected but native WebSocket not found.`,workaround:`Provide a WebSocket implementation via the transport option.`}:{type:`native`,wsConstructor:globalThis.WebSocket}:{type:`unsupported`,error:`Node.js ${n} detected without native WebSocket support.`,workaround:`For Node.js < 22, install "ws" package and provide it via the transport option:
 import ws from "ws"
@@ -384,7 +384,7 @@ body.col-resizing, body.col-resizing * { cursor:col-resize !important; user-sele
 <!-- ══ AUTH ══ -->
 <div id="screen-auth" class="center-screen" style="display:none">
   <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);padding:36px 40px;width:100%;max-width:380px;box-shadow:var(--shadow)">
-    <div style="font-size:20px;font-weight:700;letter-spacing:-.4px;margin-bottom:4px">AGRI Mesai Takip <span style="font-size:11px;font-weight:400;color:var(--text3)">v2.9</span></div>
+    <div style="font-size:20px;font-weight:700;letter-spacing:-.4px;margin-bottom:4px">AGRI Mesai Takip <span style="font-size:11px;font-weight:400;color:var(--text3)">v3.0</span></div>
     <div style="font-size:13px;color:var(--text2);margin-bottom:26px">Devam etmek için giriş yapın</div>
     <div id="auth-err" style="background:var(--red-bg);border:1px solid var(--red-border);color:var(--red);border-radius:var(--radius);padding:10px 12px;font-size:13px;margin-bottom:14px;display:none"></div>
     <div class="field"><label>E-posta</label><input id="a-email" type="email" placeholder="ornek@sirket.com" autocomplete="email"></div>
@@ -395,7 +395,7 @@ body.col-resizing, body.col-resizing * { cursor:col-resize !important; user-sele
 
 <div id="app" style="display:none">
   <header>
-    <div class="logo">AGRI Mesai Takip <span style="font-size:11px;font-weight:400;color:var(--text3)">v2.9</span></div>
+    <div class="logo">AGRI Mesai Takip <span style="font-size:11px;font-weight:400;color:var(--text3)">v3.0</span></div>
     <div class="hdr-right">
       <span id="db-dot"><span class="dot dy"></span></span>
       <span id="user-role-badge" style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:10px;display:none"></span>
@@ -646,6 +646,76 @@ body.col-resizing, body.col-resizing * { cursor:col-resize !important; user-sele
         <div style="padding:14px 16px;border:1px solid var(--border);border-radius:var(--radius-lg)">
           <div style="font-weight:600;font-size:13.5px;margin-bottom:10px">Check-in uygulamasını güncelle</div>
           <button class="btn btn-sm" onclick="forceCheckinReload()" title="Açık check-in oturumlarına yenilenme sinyali gönderir — yeni dosyayı GitHub'a yükledikten sonra kullan">⟳ Uygulamayı Güncelle</button>
+        </div>
+
+        <!-- ── Bordro parametreleri ── -->
+        <div id="set-bordro" style="padding:14px 16px;border:1px solid var(--border);border-radius:var(--radius-lg);margin-top:16px">
+          <div style="font-weight:600;font-size:13.5px;margin-bottom:12px">Bordro parametreleri</div>
+          <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end">
+            <div class="field" style="margin:0">
+              <label>Aylık çalışma saati</label>
+              <input id="set-mh" type="number" min="1" step="1" style="width:110px" oninput="bordroOrnek()">
+            </div>
+            <div class="field" style="margin:0">
+              <label>SGK işveren payı (%)</label>
+              <input id="set-sgk" type="number" min="0" step="0.01" style="width:110px" oninput="bordroOrnek()">
+            </div>
+            <button class="btn btn-p btn-sm" onclick="saveBordroAyar()">Kaydet</button>
+            <span id="set-bordro-durum" style="font-size:12px;color:var(--text3)"></span>
+          </div>
+          <div id="set-bordro-ornek" style="font-size:12px;color:var(--text2);margin-top:10px"></div>
+        </div>
+
+        <!-- ── Dönemler ── -->
+        <div style="padding:14px 16px;border:1px solid var(--border);border-radius:var(--radius-lg);margin-top:16px">
+          <div style="font-weight:600;font-size:13.5px;margin-bottom:12px">Dönemler</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px">
+            <div class="field" style="margin:0">
+              <label>Bitiş tarihi</label>
+              <input id="per-end" type="date" oninput="periodAdOner()" style="width:150px">
+            </div>
+            <div class="field" style="margin:0">
+              <label>Başlangıç</label>
+              <input id="per-start" type="date" style="width:150px" oninput="this.dataset.elle=1">
+            </div>
+            <div class="field" style="margin:0">
+              <label>Dönem adı</label>
+              <input id="per-name" type="text" style="width:160px" oninput="this.dataset.elle=1">
+            </div>
+            <button class="btn btn-p btn-sm" onclick="addPeriod()">Ekle</button>
+          </div>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Dönem</th><th>Başlangıç</th><th>Bitiş</th><th>Gün</th><th></th></tr></thead>
+              <tbody id="per-tb"><tr class="empty"><td colspan="5">Yükleniyor…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ── Personel ücretleri (yalnızca admin) ── -->
+        <div id="set-ucret" style="padding:14px 16px;border:1px solid var(--border);border-radius:var(--radius-lg);margin-top:16px;display:none">
+          <div style="font-weight:600;font-size:13.5px;margin-bottom:12px">Personel ücretleri</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px">
+            <div class="field" style="margin:0">
+              <label>Personel</label>
+              <select id="sal-user" style="width:190px"></select>
+            </div>
+            <div class="field" style="margin:0">
+              <label>Aylık brüt</label>
+              <input id="sal-gross" type="number" min="1" step="0.01" style="width:140px">
+            </div>
+            <div class="field" style="margin:0">
+              <label>Geçerlilik başlangıcı</label>
+              <input id="sal-from" type="date" style="width:150px">
+            </div>
+            <button class="btn btn-p btn-sm" onclick="addSalary()">Ekle</button>
+          </div>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Personel</th><th>Aylık brüt</th><th>Saatlik</th><th>Geçerlilik</th><th></th></tr></thead>
+              <tbody id="sal-tb"><tr class="empty"><td colspan="5">Yükleniyor…</td></tr></tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -1297,7 +1367,7 @@ function renderDashboard() {
   const wd = s.filter(x => x.duration_h);
   const th = wd.reduce((a,x) => a + parseFloat(x.duration_h||0), 0);
   const tn = s.reduce((a,x) => a + parseFloat(x.normal_h||0), 0);
-  const to = s.reduce((a,x) => a + parseFloat(x.overtime_h||0), 0);
+  const to = s.reduce((a,x) => a + fmToplam(x), 0);
   set('m-total', s.length);
   set('m-hours', th.toFixed(0) + 's');
   set('m-hsub', wd.length + ' tamamlanan');
@@ -1371,8 +1441,8 @@ function shiftRows(tbId, data, del, showApprovalBtns=false) {
     const startDt = s.start_dt ? new Date(s.start_dt) : s.startDt;
     const endDt   = s.end_dt   ? new Date(s.end_dt)   : s.endDt;
     // Eğer DB'den geliyorsa normal_h/overtime_h var, yoksa anlık hesapla
-    let nh = s.normal_h != null   ? parseFloat(s.normal_h)   : null;
-    let oh = s.overtime_h != null ? parseFloat(s.overtime_h) : null;
+    let nh = s.normal_h != null   ? parseFloat(s.normal_h) : null;
+    let oh = s.overtime_h != null ? fmToplam(s)             : null;
     if (nh === null && startDt && endDt) {
       const ot = calcOvertime(startDt, endDt);
       nh = ot.normal_h; oh = ot.overtime_h;
@@ -1581,7 +1651,7 @@ function renderSummary() {
   for (const s of d) {
     if(!byP[s.person]) byP[s.person]={h:0,ot:0,n:0};
     byP[s.person].h  += parseFloat(s.duration_h||0);
-    byP[s.person].ot += parseFloat(s.overtime_h||0);
+    byP[s.person].ot += fmToplam(s);
     byP[s.person].n++;
   }
   renderSumBars(byP, COLS);
@@ -1755,6 +1825,15 @@ function isWeekend(dt) {
 
 function isPublicHolidayOrWeekend(dt) {
   return isWeekend(dt) || isHoliday(dt);
+}
+
+// Mesai dışı toplam: hafta içi fazla mesai + hafta sonu/tatil.
+// Veritabanı ikisini ayrı kolonda tutar (çarpanları farklı),
+// ekranda tek "fazla mesai" rakamı olarak toplanır.
+function fmToplam(s) {
+  const o = parseFloat(s.overtime_h || 0);
+  const h = parseFloat(s.holiday_h  || 0);
+  return o + h;
 }
 
 // Bir vardiyayı dakika dakika bölerek normal/fazla mesai hesaplar
@@ -2607,6 +2686,10 @@ async function loadUsers() {
       const tdRegions = document.createElement('td');
       if ((u.regions || []).length) {
         tdRegions.innerHTML = (u.regions || []).map(r => regionTagHtml(r)).join(' ');
+      } else if (u.role === 'inspector' || u.role === 'region_manager') {
+        // Saha rolünde bölge boşsa vardiyaları hiçbir bölgeye düşmez —
+        // filtrelerde ve raporlarda görünmez.
+        tdRegions.innerHTML = '<span class="badge br" title="Bölge girilmediği için vardiyaları raporlarda bölgesiz kalır">⚠ Bölge girilmemiş</span>';
       } else {
         tdRegions.innerHTML = '<span style="font-size:12px;color:var(--text3)">Tüm bölgeler</span>';
       }
@@ -4197,7 +4280,7 @@ function renderApprovalTable(data) {
       </td>
       <td style="min-width:110px">${ocBarHtml(s)}</td>
       <td>${fmtH(s.duration_h)}</td>
-      <td class="mono" style="color:var(--amber)">${s.overtime_h && parseFloat(s.overtime_h)>0 ? fmtH(s.overtime_h) : '—'}</td>
+      <td class="mono" style="color:var(--amber)">${fmToplam(s) > 0 ? fmtH(fmToplam(s)) : '—'}</td>
       <td id="cmp-cell-${s.id}"
         data-lat="${s.checkin_lat||''}" data-lng="${s.checkin_lng||''}"
         data-outlat="${s.checkout_lat||''}" data-outlng="${s.checkout_lng||''}"><span class="muted" style="font-size:11px">—</span></td>
@@ -4994,6 +5077,283 @@ function renderSettings() {
   if (cb) cb.checked = showWaLegacy;
   const d = document.getElementById('set-wa-durum');
   if (d) d.textContent = '';
+
+  // Ücretler yalnızca admin — manager dahil kimse göremez
+  const ucretKutu = document.getElementById('set-ucret');
+  if (ucretKutu) ucretKutu.style.display = currentProfile?.role === 'admin' ? '' : 'none';
+
+  loadBordroAyar();
+  loadPeriods();
+  if (currentProfile?.role === 'admin') loadSalaries();
+}
+
+
+// ═════════════════════════════════════════════
+//  BORDRO PARAMETRELERİ
+//  app_config'de tutulur, tüm yöneticiler için ortak.
+// ═════════════════════════════════════════════
+let bordroAyar = { monthly_hours: 225, sgk_rate: 0.2275 };
+
+async function loadBordroAyar() {
+  try {
+    const { data } = await sb.from('app_config')
+      .select('key, value').in('key', ['monthly_hours', 'sgk_employer_rate']);
+    (data || []).forEach(r => {
+      if (r.key === 'monthly_hours')      bordroAyar.monthly_hours = parseFloat(r.value) || 225;
+      if (r.key === 'sgk_employer_rate')  bordroAyar.sgk_rate      = parseFloat(r.value) || 0;
+    });
+  } catch(e) {}
+  const mh = document.getElementById('set-mh');
+  const sg = document.getElementById('set-sgk');
+  if (mh) mh.value = bordroAyar.monthly_hours;
+  if (sg) sg.value = (bordroAyar.sgk_rate * 100).toFixed(2);
+  bordroOrnek();
+}
+
+function bordroOrnek() {
+  const el = document.getElementById('set-bordro-ornek');
+  if (!el) return;
+  const mh  = parseFloat(document.getElementById('set-mh')?.value) || bordroAyar.monthly_hours;
+  const sgk = (parseFloat(document.getElementById('set-sgk')?.value) || 0) / 100;
+  const ornek = 60000;
+  const saatlik = ornek / mh;
+  el.innerHTML = `${fmtPara(ornek)} brüt → saatlik ${fmtPara(saatlik)}`
+    + ` · fazla mesai ${fmtPara(saatlik * 1.5)} · tatil ${fmtPara(saatlik * 2)}`
+    + ` · işveren maliyeti ×${(1 + sgk).toFixed(4)}`;
+}
+
+async function saveBordroAyar() {
+  const mh  = parseFloat(document.getElementById('set-mh').value);
+  const sgk = parseFloat(document.getElementById('set-sgk').value);
+  if (!(mh > 0))            { toast('Aylık çalışma saati sıfırdan büyük olmalı', true); return; }
+  if (!(sgk >= 0))          { toast('SGK oranı negatif olamaz', true); return; }
+
+  const simdi = new Date().toISOString();
+  const [a, b] = await Promise.all([
+    sb.from('app_config').update({ value: String(mh),        updated_at: simdi }).eq('key', 'monthly_hours'),
+    sb.from('app_config').update({ value: String(sgk / 100), updated_at: simdi }).eq('key', 'sgk_employer_rate'),
+  ]);
+  if (a.error || b.error) { toast('Kaydedilemedi: ' + (a.error || b.error).message, true); return; }
+
+  bordroAyar.monthly_hours = mh;
+  bordroAyar.sgk_rate      = sgk / 100;
+  bordroOrnek();
+  toast('✓ Bordro parametreleri kaydedildi');
+}
+
+function fmtPara(n) {
+  return new Intl.NumberFormat('tr-TR', { style:'currency', currency:'TRY', maximumFractionDigits:2 }).format(n || 0);
+}
+
+
+// ═════════════════════════════════════════════
+//  DÖNEMLER
+//  Bordro ayı takvim ayıyla aynı değil. Bitiş tarihi girilir,
+//  başlangıç bir önceki dönemin bitişinden ertesi gündür.
+//  Vardiya KAPANIŞ tarihine göre döneme düşer.
+// ═════════════════════════════════════════════
+let periodsData = [];
+
+const AY_ADI = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran',
+                'Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+
+async function loadPeriods() {
+  try {
+    const { data, error } = await sb.from('periods')
+      .select('*').order('end_date', { ascending: false });
+    if (error) throw error;
+    periodsData = data || [];
+  } catch(e) {
+    periodsData = [];
+    const tb = document.getElementById('per-tb');
+    if (tb) tb.innerHTML = `<tr class="empty"><td colspan="5">Dönemler yüklenemedi: ${esc(e.message)}</td></tr>`;
+    return;
+  }
+  renderPeriods();
+  periodAdOner();
+}
+
+function renderPeriods() {
+  const tb = document.getElementById('per-tb');
+  if (!tb) return;
+  if (!periodsData.length) {
+    tb.innerHTML = '<tr class="empty"><td colspan="5">Henüz dönem tanımlanmadı</td></tr>';
+    return;
+  }
+  const admin = currentProfile?.role === 'admin';
+  tb.innerHTML = periodsData.map(p => {
+    const gun = Math.round((new Date(p.end_date) - new Date(p.start_date)) / 86400000) + 1;
+    return `<tr>
+      <td><strong>${esc(p.name)}</strong></td>
+      <td class="mono">${fmtDStr(p.start_date)}</td>
+      <td class="mono">${fmtDStr(p.end_date)}</td>
+      <td>${gun}</td>
+      <td style="text-align:right">${admin
+        ? `<button class="btn btn-sm btn-d" onclick="deletePeriod(${p.id})">Sil</button>` : ''}</td>
+    </tr>`;
+  }).join('');
+}
+
+function fmtDStr(d) {
+  if (!d) return '—';
+  const [y, m, g] = String(d).slice(0, 10).split('-');
+  return `${g}.${m}.${y}`;
+}
+
+// Bitiş tarihi girilince başlangıcı ve adı öner
+function periodAdOner() {
+  const endEl = document.getElementById('per-end');
+  if (!endEl || !endEl.value) return;
+  const end = endEl.value;
+
+  // Başlangıç: bitişi bu tarihten önce olan en yakın dönemin ertesi günü
+  const oncekiler = periodsData.filter(p => p.end_date < end);
+  const startEl = document.getElementById('per-start');
+  if (startEl && !startEl.dataset.elle) {
+    // dateKey() yerel tarihi verir — toISOString() UTC'ye çevirip günü kaydırır
+    if (oncekiler.length) {
+      const onceki = oncekiler.reduce((a, b) => a.end_date > b.end_date ? a : b);
+      const d = new Date(onceki.end_date + 'T00:00:00');
+      d.setDate(d.getDate() + 1);
+      startEl.value = dateKey(d);
+    } else {
+      // İlk dönem: bitişten bir ay geri
+      const d = new Date(end + 'T00:00:00');
+      d.setMonth(d.getMonth() - 1);
+      d.setDate(d.getDate() + 1);
+      startEl.value = dateKey(d);
+    }
+  }
+
+  const nameEl = document.getElementById('per-name');
+  if (nameEl && !nameEl.dataset.elle) {
+    const d = new Date(end + 'T00:00:00');
+    nameEl.value = `${AY_ADI[d.getMonth()]} ${d.getFullYear()}`;
+  }
+}
+
+async function addPeriod() {
+  const name  = document.getElementById('per-name').value.trim();
+  const start = document.getElementById('per-start').value;
+  const end   = document.getElementById('per-end').value;
+  if (!name || !start || !end) { toast('Dönem adı, başlangıç ve bitiş gerekli', true); return; }
+  if (start > end)             { toast('Başlangıç bitişten sonra olamaz', true); return; }
+
+  // Üst üste binme kontrolü
+  const cakisan = periodsData.find(p => !(end < p.start_date || start > p.end_date));
+  if (cakisan) {
+    toast(`"${cakisan.name}" dönemiyle çakışıyor (${fmtDStr(cakisan.start_date)}–${fmtDStr(cakisan.end_date)})`, true);
+    return;
+  }
+
+  const { error } = await sb.from('periods').insert({ name, start_date: start, end_date: end });
+  if (error) { toast('Eklenemedi: ' + error.message, true); return; }
+
+  ['per-name','per-start','per-end'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.value = ''; delete el.dataset.elle; }
+  });
+  toast('✓ Dönem eklendi');
+  loadPeriods();
+}
+
+async function deletePeriod(id) {
+  const p = periodsData.find(x => x.id === id);
+  if (!confirm(`"${p?.name || id}" dönemi silinsin mi?\n\nVardiya kayıtları etkilenmez.`)) return;
+  const { error } = await sb.from('periods').delete().eq('id', id);
+  if (error) { toast('Silinemedi: ' + error.message, true); return; }
+  toast('✓ Dönem silindi');
+  loadPeriods();
+}
+
+
+// ═════════════════════════════════════════════
+//  PERSONEL ÜCRETLERİ
+//  Geçerlilik tarihli — zam yapılınca yeni satır eklenir,
+//  eski dönemlerin raporu geriye dönük değişmez.
+//  Tablo RLS ile admin dışına kapalı.
+// ═════════════════════════════════════════════
+let salariesData = [];
+let salaryKadro  = [];
+
+async function loadSalaries() {
+  try {
+    const [{ data: sal, error: e1 }, { data: kadro, error: e2 }] = await Promise.all([
+      sb.from('salaries').select('*').order('valid_from', { ascending: false }),
+      sb.from('user_profiles').select('id, full_name, email, aktif').order('full_name'),
+    ]);
+    if (e1) throw e1;
+    if (e2) throw e2;
+    salariesData = sal   || [];
+    salaryKadro  = kadro || [];
+  } catch(e) {
+    salariesData = [];
+    const tb = document.getElementById('sal-tb');
+    if (tb) tb.innerHTML = `<tr class="empty"><td colspan="5">Ücretler yüklenemedi: ${esc(e.message)}</td></tr>`;
+    return;
+  }
+
+  const sel = document.getElementById('sal-user');
+  if (sel) {
+    const mevcut = sel.value;
+    sel.innerHTML = '<option value="">Seçin…</option>' + salaryKadro
+      .filter(u => u.aktif !== false)
+      .map(u => `<option value="${u.id}">${esc(u.full_name || u.email || u.id)}</option>`).join('');
+    if (mevcut) sel.value = mevcut;
+  }
+  renderSalaries();
+}
+
+function renderSalaries() {
+  const tb = document.getElementById('sal-tb');
+  if (!tb) return;
+  if (!salariesData.length) {
+    tb.innerHTML = '<tr class="empty"><td colspan="5">Henüz ücret girilmedi</td></tr>';
+    return;
+  }
+  const ad = id => salaryKadro.find(u => u.id === id)?.full_name || '—';
+  // Kişi adına, sonra tarihe göre
+  const sirali = [...salariesData].sort((a, b) =>
+    ad(a.user_id).localeCompare(ad(b.user_id), 'tr') || (b.valid_from > a.valid_from ? 1 : -1));
+
+  tb.innerHTML = sirali.map((s, i, arr) => {
+    const ilk = i === 0 || ad(arr[i-1].user_id) !== ad(s.user_id);
+    const guncel = ilk;   // en yeni tarih ilk sırada
+    const saatlik = parseFloat(s.gross_monthly) / bordroAyar.monthly_hours;
+    return `<tr${ilk ? ' style="border-top:2px solid var(--border2)"' : ''}>
+      <td>${ilk ? '<strong>' + esc(ad(s.user_id)) + '</strong>' : ''}</td>
+      <td class="mono">${fmtPara(s.gross_monthly)}</td>
+      <td class="mono" style="color:var(--text2)">${fmtPara(saatlik)}</td>
+      <td class="mono">${fmtDStr(s.valid_from)}${guncel ? ' <span class="badge bg">güncel</span>' : ''}</td>
+      <td style="text-align:right"><button class="btn btn-sm btn-d" onclick="deleteSalary(${s.id})">Sil</button></td>
+    </tr>`;
+  }).join('');
+}
+
+async function addSalary() {
+  const user  = document.getElementById('sal-user').value;
+  const gross = parseFloat(document.getElementById('sal-gross').value);
+  const from  = document.getElementById('sal-from').value;
+  if (!user)        { toast('Personel seçin', true); return; }
+  if (!(gross > 0)) { toast('Brüt tutar sıfırdan büyük olmalı', true); return; }
+  if (!from)        { toast('Geçerlilik tarihi gerekli', true); return; }
+
+  const { error } = await sb.from('salaries')
+    .upsert({ user_id: user, gross_monthly: gross, valid_from: from },
+            { onConflict: 'user_id,valid_from' });
+  if (error) { toast('Kaydedilemedi: ' + error.message, true); return; }
+
+  document.getElementById('sal-gross').value = '';
+  toast('✓ Ücret kaydedildi');
+  loadSalaries();
+}
+
+async function deleteSalary(id) {
+  if (!confirm('Bu ücret kaydı silinsin mi?')) return;
+  const { error } = await sb.from('salaries').delete().eq('id', id);
+  if (error) { toast('Silinemedi: ' + error.message, true); return; }
+  toast('✓ Silindi');
+  loadSalaries();
 }
 
 // WA'ya özel sekmeleri ayara göre göster/gizle
@@ -5552,7 +5912,7 @@ async function updateApprovalBadge() {
 //  EXPORT
 // ─────────────────────────────────────────────
 function exportCSV() {
-  const hdr=['Çalışan','Bölge','İş No','Import ID','Tarih','Başlama','Bitiş','Toplam Saat','Normal Saat','Fazla Mesai Saati','İl Dışı','Yol Saat','Saha Saat','Dönüş Saat','Saha Konum','Resmi Tatil','Durum'];
+  const hdr=['Çalışan','Bölge','İş No','Import ID','Tarih','Başlama','Bitiş','Toplam Saat','Normal Saat','Fazla Mesai','Tatil/Hafta Sonu','İl Dışı','Yol Saat','Saha Saat','Dönüş Saat','Saha Konum','Resmi Tatil','Durum'];
   const rows=allShifts.map(s=>{
     const b = ocBreakdown(s);
     return [
@@ -5561,6 +5921,7 @@ function exportCSV() {
       s.duration_h?parseFloat(s.duration_h).toFixed(2):'',
       s.normal_h!=null?parseFloat(s.normal_h).toFixed(2):'',
       s.overtime_h!=null?parseFloat(s.overtime_h).toFixed(2):'',
+      s.holiday_h!=null?parseFloat(s.holiday_h).toFixed(2):'',
       s.is_out_of_city?'Evet':'',
       b&&b.out>0?b.out.toFixed(2):'',
       b?b.work.toFixed(2):'',
