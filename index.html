@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AGRI Mesai Takip v3.1</title>
+<title>AGRI Mesai Takip v3.2</title>
 <script>/* Supabase v2 inline */
 var supabase=(function(e){function t(e,t){var n={};for(var r in e)Object.prototype.hasOwnProperty.call(e,r)&&t.indexOf(r)<0&&(n[r]=e[r]);if(e!=null&&typeof Object.getOwnPropertySymbols==`function`)for(var i=0,r=Object.getOwnPropertySymbols(e);i<r.length;i++)t.indexOf(r[i])<0&&Object.prototype.propertyIsEnumerable.call(e,r[i])&&(n[r[i]]=e[r[i]]);return n}function n(e,t,n,r){function i(e){return e instanceof n?e:new n(function(t){t(e)})}return new(n||=Promise)(function(n,a){function o(e){try{c(r.next(e))}catch(e){a(e)}}function s(e){try{c(r.throw(e))}catch(e){a(e)}}function c(e){e.done?n(e.value):i(e.value).then(o,s)}c((r=r.apply(e,t||[])).next())})}let r=e=>e?(...t)=>e(...t):(...e)=>fetch(...e);var i=class extends Error{constructor(e,t=`FunctionsError`,n){super(e),this.name=t,this.context=n}toJSON(){return{name:this.name,message:this.message,context:this.context}}},a=class extends i{constructor(e){super(`Failed to send a request to the Edge Function`,`FunctionsFetchError`,e)}},o=class extends i{constructor(e){super(`Relay Error invoking the Edge Function`,`FunctionsRelayError`,e)}},s=class extends i{constructor(e){super(`Edge Function returned a non-2xx status code`,`FunctionsHttpError`,e)}},c;(function(e){e.Any=`any`,e.ApNortheast1=`ap-northeast-1`,e.ApNortheast2=`ap-northeast-2`,e.ApSouth1=`ap-south-1`,e.ApSoutheast1=`ap-southeast-1`,e.ApSoutheast2=`ap-southeast-2`,e.CaCentral1=`ca-central-1`,e.EuCentral1=`eu-central-1`,e.EuWest1=`eu-west-1`,e.EuWest2=`eu-west-2`,e.EuWest3=`eu-west-3`,e.SaEast1=`sa-east-1`,e.UsEast1=`us-east-1`,e.UsWest1=`us-west-1`,e.UsWest2=`us-west-2`})(c||={});var l=class{constructor(e,{headers:t={},customFetch:n,region:i=c.Any}={}){this.url=e,this.headers=t,this.region=i,this.fetch=r(n)}setAuth(e){this.headers.Authorization=`Bearer ${e}`}invoke(e){return n(this,arguments,void 0,function*(e,t={}){let n,r;try{let{headers:i,method:c,body:l,signal:u,timeout:d}=t,f={},{region:p}=t;p||=this.region;let m=new URL(`${this.url}/${e}`);p&&p!==`any`&&(f[`x-region`]=p,m.searchParams.set(`forceFunctionRegion`,p));let h;l&&(i&&!Object.prototype.hasOwnProperty.call(i,`Content-Type`)||!i)?typeof Blob<`u`&&l instanceof Blob||l instanceof ArrayBuffer?(f[`Content-Type`]=`application/octet-stream`,h=l):typeof l==`string`?(f[`Content-Type`]=`text/plain`,h=l):typeof FormData<`u`&&l instanceof FormData?h=l:(f[`Content-Type`]=`application/json`,h=JSON.stringify(l)):h=l&&typeof l!=`string`&&!(typeof Blob<`u`&&l instanceof Blob)&&!(l instanceof ArrayBuffer)&&!(typeof FormData<`u`&&l instanceof FormData)?JSON.stringify(l):l;let ee=u;d&&(r=new AbortController,n=setTimeout(()=>r.abort(),d),u?(ee=r.signal,u.addEventListener(`abort`,()=>r.abort())):ee=r.signal);let g=yield this.fetch(m.toString(),{method:c||`POST`,headers:Object.assign(Object.assign(Object.assign({},f),this.headers),i),body:h,signal:ee}).catch(e=>{throw new a(e)}),te=g.headers.get(`x-relay-error`);if(te&&te===`true`)throw new o(g);if(!g.ok)throw new s(g);let _=(g.headers.get(`Content-Type`)??`text/plain`).split(`;`)[0].trim(),ne;return ne=_===`application/json`?yield g.json():_===`application/octet-stream`||_===`application/pdf`?yield g.blob():_===`text/event-stream`?g:_===`multipart/form-data`?yield g.formData():yield g.text(),{data:ne,error:null,response:g}}catch(e){return{data:null,error:e,response:e instanceof s||e instanceof o?e.context:void 0}}finally{n&&clearTimeout(n)}})}};let u=e=>Math.min(1e3*2**e,3e4),d=[520,503],f=[`GET`,`HEAD`,`OPTIONS`];var p=class extends Error{constructor(e){super(e.message),this.name=`PostgrestError`,this.details=e.details,this.hint=e.hint,this.code=e.code}toJSON(){return{name:this.name,message:this.message,details:this.details,hint:this.hint,code:this.code}}};function m(e,t){return new Promise(n=>{if(t?.aborted){n();return}let r=setTimeout(()=>{t?.removeEventListener(`abort`,i),n()},e);function i(){clearTimeout(r),n()}t?.addEventListener(`abort`,i)})}function h(e,t,n,r){return!(!r||n>=3||!f.includes(e)||!d.includes(t))}var ee=class{constructor(e){this.shouldThrowOnError=!1,this.retryEnabled=!0,this.method=e.method,this.url=e.url,this.headers=new Headers(e.headers),this.schema=e.schema,this.body=e.body,this.shouldThrowOnError=e.shouldThrowOnError??!1,this.signal=e.signal,this.isMaybeSingle=e.isMaybeSingle??!1,this.shouldStripNulls=e.shouldStripNulls??!1,this.urlLengthLimit=e.urlLengthLimit??8e3,this.retryEnabled=e.retry??!0,e.fetch?this.fetch=e.fetch:this.fetch=fetch}throwOnError(){return this.shouldThrowOnError=!0,this}stripNulls(){if(this.headers.get(`Accept`)===`text/csv`)throw Error(`stripNulls() cannot be used with csv()`);return this.shouldStripNulls=!0,this}setHeader(e,t){return this.headers=new Headers(this.headers),this.headers.set(e,t),this}retry(e){return this.retryEnabled=e,this}then(e,t){var n=this;if(this.schema===void 0||([`GET`,`HEAD`].includes(this.method)?this.headers.set(`Accept-Profile`,this.schema):this.headers.set(`Content-Profile`,this.schema)),this.method!==`GET`&&this.method!==`HEAD`&&this.headers.set(`Content-Type`,`application/json`),this.shouldStripNulls){let e=this.headers.get(`Accept`);e===`application/vnd.pgrst.object+json`?this.headers.set(`Accept`,`application/vnd.pgrst.object+json;nulls=stripped`):(!e||e===`application/json`)&&this.headers.set(`Accept`,`application/vnd.pgrst.array+json;nulls=stripped`)}let r=this.fetch,i=(async()=>{let e=0;for(;;){let t=new Headers(n.headers);e>0&&t.set(`X-Retry-Count`,String(e));let i;try{i=await r(n.url.toString(),{method:n.method,headers:t,body:JSON.stringify(n.body,(e,t)=>typeof t==`bigint`?t.toString():t),signal:n.signal})}catch(t){if(t instanceof Error&&(t.name===`AbortError`||`code`in t&&t.code===`ABORT_ERR`)||!f.includes(n.method))throw t;if(n.retryEnabled&&e<3){let t=u(e);e++,await m(t,n.signal);continue}throw t}if(h(n.method,i.status,e,n.retryEnabled)){let t=i.headers?.get(`Retry-After`)??null,r=t===null?u(e):Math.max(0,parseInt(t,10)||0)*1e3;await i.text(),e++,await m(r,n.signal);continue}return await n.processResponse(i)}})();return this.shouldThrowOnError||(i=i.catch(e=>{let t=``,n=``,r=``,i=e?.cause;if(i){let n=i?.message??``,r=i?.code??``;t=`${e?.name??`FetchError`}: ${e?.message}`,t+=`\n\nCaused by: ${i?.name??`Error`}: ${n}`,r&&(t+=` (${r})`),i?.stack&&(t+=`\n${i.stack}`)}else t=e?.stack??``;let a=this.url.toString().length;return e?.name===`AbortError`||e?.code===`ABORT_ERR`?(r=``,n=`Request was aborted (timeout or manual cancellation)`,a>this.urlLengthLimit&&(n+=`. Note: Your request URL is ${a} characters, which may exceed server limits. If selecting many fields, consider using views. If filtering with large arrays (e.g., .in('id', [many IDs])), consider using an RPC function to pass values server-side.`)):(i?.name===`HeadersOverflowError`||i?.code===`UND_ERR_HEADERS_OVERFLOW`)&&(r=``,n=`HTTP headers exceeded server limits (typically 16KB)`,a>this.urlLengthLimit&&(n+=`. Your request URL is ${a} characters. If selecting many fields, consider using views. If filtering with large arrays (e.g., .in('id', [200+ IDs])), consider using an RPC function instead.`)),{success:!1,error:{message:`${e?.name??`FetchError`}: ${e?.message}`,details:t,hint:n,code:r},data:null,count:null,status:0,statusText:``}})),i.then(e,t)}async processResponse(e){var t=this;let n=null,r=null,i=null,a=e.status,o=e.statusText;if(e.ok){if(t.method!==`HEAD`){let n=await e.text();n===``||(r=t.headers.get(`Accept`)===`text/csv`||t.headers.get(`Accept`)&&t.headers.get(`Accept`)?.includes(`application/vnd.pgrst.plan+text`)?n:JSON.parse(n))}let s=t.headers.get(`Prefer`)?.match(/count=(exact|planned|estimated)/),c=e.headers.get(`content-range`)?.split(`/`);s&&c&&c.length>1&&(i=parseInt(c[1])),t.isMaybeSingle&&Array.isArray(r)&&(r.length>1?(n={code:`PGRST116`,details:`Results contain ${r.length} rows, application/vnd.pgrst.object+json requires 1 row`,hint:null,message:`JSON object requested, multiple (or no) rows returned`},r=null,i=null,a=406,o=`Not Acceptable`):r=r.length===1?r[0]:null)}else{let i=await e.text();try{n=JSON.parse(i),Array.isArray(n)&&e.status===404&&(r=[],n=null,a=200,o=`OK`)}catch{e.status===404&&i===``?(a=204,o=`No Content`):n={message:i}}if(n&&t.shouldThrowOnError)throw new p(n)}return{success:n===null,error:n,data:r,count:i,status:a,statusText:o}}returns(){return this}overrideTypes(){return this}},g=class extends ee{select(e){let t=!1,n=(e??`*`).split(``).map(e=>/\s/.test(e)&&!t?``:(e===`"`&&(t=!t),e)).join(``);return this.url.searchParams.set(`select`,n),this.headers.append(`Prefer`,`return=representation`),this}order(e,{ascending:t=!0,nullsFirst:n,foreignTable:r,referencedTable:i=r}={}){let a=i?`${i}.order`:`order`,o=this.url.searchParams.get(a);return this.url.searchParams.set(a,`${o?`${o},`:``}${e}.${t?`asc`:`desc`}${n===void 0?``:n?`.nullsfirst`:`.nullslast`}`),this}limit(e,{foreignTable:t,referencedTable:n=t}={}){let r=n===void 0?`limit`:`${n}.limit`;return this.url.searchParams.set(r,`${e}`),this}range(e,t,{foreignTable:n,referencedTable:r=n}={}){let i=r===void 0?`offset`:`${r}.offset`,a=r===void 0?`limit`:`${r}.limit`;return this.url.searchParams.set(i,`${e}`),this.url.searchParams.set(a,`${t-e+1}`),this}abortSignal(e){return this.signal=e,this}single(){return this.headers.set(`Accept`,`application/vnd.pgrst.object+json`),this}maybeSingle(){return this.isMaybeSingle=!0,this}csv(){return this.headers.set(`Accept`,`text/csv`),this}geojson(){return this.headers.set(`Accept`,`application/geo+json`),this}explain({analyze:e=!1,verbose:t=!1,settings:n=!1,buffers:r=!1,wal:i=!1,format:a=`text`}={}){let o=[e?`analyze`:null,t?`verbose`:null,n?`settings`:null,r?`buffers`:null,i?`wal`:null].filter(Boolean).join(`|`),s=this.headers.get(`Accept`)??`application/json`;return this.headers.set(`Accept`,`application/vnd.pgrst.plan+${a}; for="${s}"; options=${o};`),this}rollback(){return this.headers.append(`Prefer`,`tx=rollback`),this}returns(){return this}maxAffected(e){return this.headers.append(`Prefer`,`handling=strict`),this.headers.append(`Prefer`,`max-affected=${e}`),this}};let te=RegExp(`[,()]`);var _=class extends g{eq(e,t){return this.url.searchParams.append(e,`eq.${t}`),this}neq(e,t){return this.url.searchParams.append(e,`neq.${t}`),this}gt(e,t){return this.url.searchParams.append(e,`gt.${t}`),this}gte(e,t){return this.url.searchParams.append(e,`gte.${t}`),this}lt(e,t){return this.url.searchParams.append(e,`lt.${t}`),this}lte(e,t){return this.url.searchParams.append(e,`lte.${t}`),this}like(e,t){return this.url.searchParams.append(e,`like.${t}`),this}likeAllOf(e,t){return this.url.searchParams.append(e,`like(all).{${t.join(`,`)}}`),this}likeAnyOf(e,t){return this.url.searchParams.append(e,`like(any).{${t.join(`,`)}}`),this}ilike(e,t){return this.url.searchParams.append(e,`ilike.${t}`),this}ilikeAllOf(e,t){return this.url.searchParams.append(e,`ilike(all).{${t.join(`,`)}}`),this}ilikeAnyOf(e,t){return this.url.searchParams.append(e,`ilike(any).{${t.join(`,`)}}`),this}regexMatch(e,t){return this.url.searchParams.append(e,`match.${t}`),this}regexIMatch(e,t){return this.url.searchParams.append(e,`imatch.${t}`),this}is(e,t){return this.url.searchParams.append(e,`is.${t}`),this}isDistinct(e,t){return this.url.searchParams.append(e,`isdistinct.${t}`),this}in(e,t){let n=Array.from(new Set(t)).map(e=>typeof e==`string`&&te.test(e)?`"${e}"`:`${e}`).join(`,`);return this.url.searchParams.append(e,`in.(${n})`),this}notIn(e,t){let n=Array.from(new Set(t)).map(e=>typeof e==`string`&&te.test(e)?`"${e}"`:`${e}`).join(`,`);return this.url.searchParams.append(e,`not.in.(${n})`),this}contains(e,t){return typeof t==`string`?this.url.searchParams.append(e,`cs.${t}`):Array.isArray(t)?this.url.searchParams.append(e,`cs.{${t.join(`,`)}}`):this.url.searchParams.append(e,`cs.${JSON.stringify(t)}`),this}containedBy(e,t){return typeof t==`string`?this.url.searchParams.append(e,`cd.${t}`):Array.isArray(t)?this.url.searchParams.append(e,`cd.{${t.join(`,`)}}`):this.url.searchParams.append(e,`cd.${JSON.stringify(t)}`),this}rangeGt(e,t){return this.url.searchParams.append(e,`sr.${t}`),this}rangeGte(e,t){return this.url.searchParams.append(e,`nxl.${t}`),this}rangeLt(e,t){return this.url.searchParams.append(e,`sl.${t}`),this}rangeLte(e,t){return this.url.searchParams.append(e,`nxr.${t}`),this}rangeAdjacent(e,t){return this.url.searchParams.append(e,`adj.${t}`),this}overlaps(e,t){return typeof t==`string`?this.url.searchParams.append(e,`ov.${t}`):this.url.searchParams.append(e,`ov.{${t.join(`,`)}}`),this}textSearch(e,t,{config:n,type:r}={}){let i=``;r===`plain`?i=`pl`:r===`phrase`?i=`ph`:r===`websearch`&&(i=`w`);let a=n===void 0?``:`(${n})`;return this.url.searchParams.append(e,`${i}fts${a}.${t}`),this}match(e){return Object.entries(e).filter(([e,t])=>t!==void 0).forEach(([e,t])=>{this.url.searchParams.append(e,`eq.${t}`)}),this}not(e,t,n){return this.url.searchParams.append(e,`not.${t}.${n}`),this}or(e,{foreignTable:t,referencedTable:n=t}={}){let r=n?`${n}.or`:`or`;return this.url.searchParams.append(r,`(${e})`),this}filter(e,t,n){return this.url.searchParams.append(e,`${t}.${n}`),this}},ne=class{constructor(e,{headers:t={},schema:n,fetch:r,urlLengthLimit:i=8e3,retry:a}){this.url=e,this.headers=new Headers(t),this.schema=n,this.fetch=r,this.urlLengthLimit=i,this.retry=a}cloneRequestState(){return{url:new URL(this.url.toString()),headers:new Headers(this.headers)}}select(e,t){let{head:n=!1,count:r}=t??{},i=n?`HEAD`:`GET`,a=!1,o=(e??`*`).split(``).map(e=>/\s/.test(e)&&!a?``:(e===`"`&&(a=!a),e)).join(``),{url:s,headers:c}=this.cloneRequestState();return s.searchParams.set(`select`,o),r&&c.append(`Prefer`,`count=${r}`),new _({method:i,url:s,headers:c,schema:this.schema,fetch:this.fetch,urlLengthLimit:this.urlLengthLimit,retry:this.retry})}insert(e,{count:t,defaultToNull:n=!0}={}){let{url:r,headers:i}=this.cloneRequestState();if(t&&i.append(`Prefer`,`count=${t}`),n||i.append(`Prefer`,`missing=default`),Array.isArray(e)){let t=e.reduce((e,t)=>e.concat(Object.keys(t)),[]);if(t.length>0){let e=[...new Set(t)].map(e=>`"${e}"`);r.searchParams.set(`columns`,e.join(`,`))}}return new _({method:`POST`,url:r,headers:i,schema:this.schema,body:e,fetch:this.fetch??fetch,urlLengthLimit:this.urlLengthLimit,retry:this.retry})}upsert(e,{onConflict:t,ignoreDuplicates:n=!1,count:r,defaultToNull:i=!0}={}){let{url:a,headers:o}=this.cloneRequestState();if(o.append(`Prefer`,`resolution=${n?`ignore`:`merge`}-duplicates`),t!==void 0&&a.searchParams.set(`on_conflict`,t),r&&o.append(`Prefer`,`count=${r}`),i||o.append(`Prefer`,`missing=default`),Array.isArray(e)){let t=e.reduce((e,t)=>e.concat(Object.keys(t)),[]);if(t.length>0){let e=[...new Set(t)].map(e=>`"${e}"`);a.searchParams.set(`columns`,e.join(`,`))}}return new _({method:`POST`,url:a,headers:o,schema:this.schema,body:e,fetch:this.fetch??fetch,urlLengthLimit:this.urlLengthLimit,retry:this.retry})}update(e,{count:t}={}){let{url:n,headers:r}=this.cloneRequestState();return t&&r.append(`Prefer`,`count=${t}`),new _({method:`PATCH`,url:n,headers:r,schema:this.schema,body:e,fetch:this.fetch??fetch,urlLengthLimit:this.urlLengthLimit,retry:this.retry})}delete({count:e}={}){let{url:t,headers:n}=this.cloneRequestState();return e&&n.append(`Prefer`,`count=${e}`),new _({method:`DELETE`,url:t,headers:n,schema:this.schema,fetch:this.fetch??fetch,urlLengthLimit:this.urlLengthLimit,retry:this.retry})}};function re(e){"@babel/helpers - typeof";return re=typeof Symbol==`function`&&typeof Symbol.iterator==`symbol`?function(e){return typeof e}:function(e){return e&&typeof Symbol==`function`&&e.constructor===Symbol&&e!==Symbol.prototype?`symbol`:typeof e},re(e)}function ie(e,t){if(re(e)!=`object`||!e)return e;var n=e[Symbol.toPrimitive];if(n!==void 0){var r=n.call(e,t||`default`);if(re(r)!=`object`)return r;throw TypeError(`@@toPrimitive must return a primitive value.`)}return(t===`string`?String:Number)(e)}function ae(e){var t=ie(e,`string`);return re(t)==`symbol`?t:t+``}function oe(e,t,n){return(t=ae(t))in e?Object.defineProperty(e,t,{value:n,enumerable:!0,configurable:!0,writable:!0}):e[t]=n,e}function se(e,t){var n=Object.keys(e);if(Object.getOwnPropertySymbols){var r=Object.getOwnPropertySymbols(e);t&&(r=r.filter(function(t){return Object.getOwnPropertyDescriptor(e,t).enumerable})),n.push.apply(n,r)}return n}function ce(e){for(var t=1;t<arguments.length;t++){var n=arguments[t]==null?{}:arguments[t];t%2?se(Object(n),!0).forEach(function(t){oe(e,t,n[t])}):Object.getOwnPropertyDescriptors?Object.defineProperties(e,Object.getOwnPropertyDescriptors(n)):se(Object(n)).forEach(function(t){Object.defineProperty(e,t,Object.getOwnPropertyDescriptor(n,t))})}return e}var le=class e{constructor(e,{headers:t={},schema:n,fetch:r,timeout:i,urlLengthLimit:a=8e3,retry:o}={}){this.url=e,this.headers=new Headers(t),this.schemaName=n,this.urlLengthLimit=a;let s=r??globalThis.fetch;i!==void 0&&i>0?this.fetch=(e,t)=>{let n=new AbortController,r=setTimeout(()=>n.abort(),i),a=t?.signal;if(a){if(a.aborted)return clearTimeout(r),s(e,t);let i=()=>{clearTimeout(r),n.abort()};return a.addEventListener(`abort`,i,{once:!0}),s(e,ce(ce({},t),{},{signal:n.signal})).finally(()=>{clearTimeout(r),a.removeEventListener(`abort`,i)})}return s(e,ce(ce({},t),{},{signal:n.signal})).finally(()=>clearTimeout(r))}:this.fetch=s,this.retry=o}from(e){if(!e||typeof e!=`string`||e.trim()===``)throw Error(`Invalid relation name: relation must be a non-empty string.`);return new ne(new URL(`${this.url}/${e}`),{headers:new Headers(this.headers),schema:this.schemaName,fetch:this.fetch,urlLengthLimit:this.urlLengthLimit,retry:this.retry})}schema(t){return new e(this.url,{headers:this.headers,schema:t,fetch:this.fetch,urlLengthLimit:this.urlLengthLimit,retry:this.retry})}rpc(e,t={},{head:n=!1,get:r=!1,count:i}={}){let a,o=new URL(`${this.url}/rpc/${e}`),s,c=e=>typeof e==`object`&&!!e&&(!Array.isArray(e)||e.some(c)),l=n&&Object.values(t).some(c);l?(a=`POST`,s=t):n||r?(a=n?`HEAD`:`GET`,Object.entries(t).filter(([e,t])=>t!==void 0).map(([e,t])=>[e,Array.isArray(t)?`{${t.join(`,`)}}`:`${t}`]).forEach(([e,t])=>{o.searchParams.append(e,t)})):(a=`POST`,s=t);let u=new Headers(this.headers);return l?u.set(`Prefer`,i?`count=${i},return=minimal`:`return=minimal`):i&&u.set(`Prefer`,`count=${i}`),new _({method:a,url:o,headers:u,schema:this.schemaName,body:s,fetch:this.fetch??fetch,urlLengthLimit:this.urlLengthLimit,retry:this.retry})}},ue=class{constructor(){}static detectEnvironment(){if(typeof WebSocket<`u`)return{type:`native`,wsConstructor:WebSocket};let e=globalThis;if(typeof globalThis<`u`&&e.WebSocket!==void 0)return{type:`native`,wsConstructor:e.WebSocket};let t=typeof global<`u`?global:void 0;if(t&&t.WebSocket!==void 0)return{type:`native`,wsConstructor:t.WebSocket};if(typeof globalThis<`u`&&e.WebSocketPair!==void 0&&globalThis.WebSocket===void 0)return{type:`cloudflare`,error:`Cloudflare Workers detected. WebSocket clients are not supported in Cloudflare Workers.`,workaround:`Use Cloudflare Workers WebSocket API for server-side WebSocket handling, or deploy to a different runtime.`};if(typeof globalThis<`u`&&e.EdgeRuntime||typeof navigator<`u`&&navigator.userAgent?.includes(`Vercel-Edge`))return{type:`unsupported`,error:`Edge runtime detected (Vercel Edge/Netlify Edge). WebSockets are not supported in edge functions.`,workaround:`Use serverless functions or a different deployment target for WebSocket functionality.`};let n=globalThis.process;if(n){let e=n.versions;if(e&&e.node){let t=e.node,n=parseInt(t.replace(/^v/,``).split(`.`)[0]);return n>=22?globalThis.WebSocket===void 0?{type:`unsupported`,error:`Node.js ${n} detected but native WebSocket not found.`,workaround:`Provide a WebSocket implementation via the transport option.`}:{type:`native`,wsConstructor:globalThis.WebSocket}:{type:`unsupported`,error:`Node.js ${n} detected without native WebSocket support.`,workaround:`For Node.js < 22, install "ws" package and provide it via the transport option:
 import ws from "ws"
@@ -213,6 +213,36 @@ hr.div{border:none;border-top:1px solid var(--border);margin:24px 0;}
 
 .live-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:11px; }
 
+/* Raporlar */
+.r-kaynak { display:inline-flex; border:1px solid var(--border); border-radius:var(--radius); overflow:hidden }
+.r-kaynak button { font:inherit; font-size:12.5px; padding:7px 13px; border:0; background:var(--surface);
+                   color:var(--text2); cursor:pointer }
+.r-kaynak button + button { border-left:1px solid var(--border) }
+.r-kaynak button.on { background:var(--text); color:var(--surface); font-weight:600 }
+.r-ozet { display:grid; gap:12px }
+.r-kart { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:14px 16px }
+.r-kart .k { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--text2) }
+.r-kart .v { font-size:23px; font-weight:600; margin-top:6px; font-variant-numeric:tabular-nums }
+.r-kart .a { font-size:12px; color:var(--text3); margin-top:2px }
+.r-kart.koyu { background:var(--text); border-color:var(--text) }
+.r-kart.koyu .k { color:var(--border2) } .r-kart.koyu .v { color:var(--surface) }
+.r-sekme { display:flex; gap:4px; border-bottom:1px solid var(--border); margin-bottom:14px }
+.r-sekme button { font:inherit; font-size:13.5px; padding:9px 18px; border:0; background:none;
+                  color:var(--text2); cursor:pointer; border-bottom:2px solid transparent }
+.r-sekme button.on { color:var(--text); font-weight:600; border-bottom-color:var(--accent) }
+.r-tbl td, .r-tbl th { white-space:nowrap }
+.r-tbl .num { text-align:right; font-variant-numeric:tabular-nums }
+.r-tbl tfoot td { background:var(--surface2); font-weight:700; border-bottom:0 }
+.r-grup td { background:var(--surface2); font-weight:600; border-top:1px solid var(--border) }
+.r-alt td { color:var(--text2) }
+.r-eksi { color:var(--red); font-weight:600 }
+.r-esit { color:var(--text3) }
+.r-uy { display:flex; align-items:center; gap:8px; padding:10px 14px; border-radius:var(--radius);
+        font-size:13px; margin-bottom:10px }
+.r-uy.amber { background:var(--amber-bg); border:1px solid var(--amber-border); color:var(--amber) }
+.r-uy.red   { background:var(--red-bg);   border:1px solid var(--red-border);   color:var(--red) }
+.r-uy a { color:inherit; font-weight:600; margin-left:auto; white-space:nowrap }
+
 /* Güncel sekmesi — kompakt tablo */
 .gun-kutu { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); }
 .gun-tbl { width:100%; border-collapse:collapse; }
@@ -384,7 +414,7 @@ body.col-resizing, body.col-resizing * { cursor:col-resize !important; user-sele
 <!-- ══ AUTH ══ -->
 <div id="screen-auth" class="center-screen" style="display:none">
   <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);padding:36px 40px;width:100%;max-width:380px;box-shadow:var(--shadow)">
-    <div style="font-size:20px;font-weight:700;letter-spacing:-.4px;margin-bottom:4px">AGRI Mesai Takip <span style="font-size:11px;font-weight:400;color:var(--text3)">v3.1</span></div>
+    <div style="font-size:20px;font-weight:700;letter-spacing:-.4px;margin-bottom:4px">AGRI Mesai Takip <span style="font-size:11px;font-weight:400;color:var(--text3)">v3.2</span></div>
     <div style="font-size:13px;color:var(--text2);margin-bottom:26px">Devam etmek için giriş yapın</div>
     <div id="auth-err" style="background:var(--red-bg);border:1px solid var(--red-border);color:var(--red);border-radius:var(--radius);padding:10px 12px;font-size:13px;margin-bottom:14px;display:none"></div>
     <div class="field"><label>E-posta</label><input id="a-email" type="email" placeholder="ornek@sirket.com" autocomplete="email"></div>
@@ -395,7 +425,7 @@ body.col-resizing, body.col-resizing * { cursor:col-resize !important; user-sele
 
 <div id="app" style="display:none">
   <header>
-    <div class="logo">AGRI Mesai Takip <span style="font-size:11px;font-weight:400;color:var(--text3)">v3.1</span></div>
+    <div class="logo">AGRI Mesai Takip <span style="font-size:11px;font-weight:400;color:var(--text3)">v3.2</span></div>
     <div class="hdr-right">
       <span id="db-dot"><span class="dot dy"></span></span>
       <span id="user-role-badge" style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:10px;display:none"></span>
@@ -507,31 +537,32 @@ body.col-resizing, body.col-resizing * { cursor:col-resize !important; user-sele
 
     <!-- RAPORLAR -->
     <div class="tab-panel" id="tab-summary">
-      <div class="filters" style="margin-bottom:20px">
-        <select id="s-per"><option value="all">Tüm zamanlar</option><option value="week">Son 7 gün</option><option value="month">Bu ay</option></select>
-        <select id="s-reg">
+      <div class="filters" style="margin-bottom:14px">
+        <select id="r-donem" onchange="raporDonemSec()" style="min-width:150px"></select>
+        <input type="date" id="r-bas" onchange="raporSerbestOldu()" style="padding:7px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:13px">
+        <input type="date" id="r-bit" onchange="raporSerbestOldu()" style="padding:7px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:13px">
+        <select id="r-reg">
           <option value="">Tüm bölgeler</option>
           <option value="istanbul">İstanbul</option>
           <option value="tekirdag">Tekirdağ</option>
           <option value="bandirma">Bandırma</option>
           <option value="izmir">İzmir</option>
         </select>
-        <button class="btn btn-sm" onclick="renderSummary()">Uygula</button>
-      </div>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-        <div class="st" id="sum-chart-title">Kişi başı toplam saat</div>
-        <div style="display:flex;gap:4px;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">
-          <button id="s-chart-total" class="btn" style="border:none;border-radius:0;background:var(--accent);color:#fff;padding:4px 12px;font-size:12px" onclick="setSumChart('total')">Toplam Saat</button>
-          <button id="s-chart-ot" class="btn" style="border:none;border-radius:0;padding:4px 12px;font-size:12px" onclick="setSumChart('ot')">Fazla Mesai</button>
+        <span style="width:1px;height:22px;background:var(--border);margin:0 2px"></span>
+        <span style="font-size:12px;color:var(--text2)">Saat kaynağı</span>
+        <div class="r-kaynak" id="r-kaynak">
+          <button data-k="agri" class="on" onclick="raporKaynakSec(this)">AGRI</button>
+          <button data-k="nova" onclick="raporKaynakSec(this)">Nova</button>
+          <button data-k="fark" onclick="raporKaynakSec(this)">Karşılaştır</button>
         </div>
+        <button class="btn btn-p btn-sm" onclick="loadRapor()">Uygula</button>
+        <button class="btn btn-sm" onclick="raporExcel()" style="margin-left:auto">Excel indir</button>
       </div>
-      <div class="sum-grid" id="sum-bars"></div>
-      <hr class="div">
-      <div class="st" style="margin-bottom:14px">İş bazında</div>
-      <div class="tbl-wrap">
-        <table><thead><tr><th>İş No</th><th>Vardiya</th><th>Toplam Saat</th><th>Çalışanlar</th></tr></thead>
-        <tbody id="job-tb"></tbody></table>
-      </div>
+
+      <div id="r-uyari"></div>
+      <div id="r-ozet" style="margin-bottom:16px"></div>
+      <div id="r-sekme" class="r-sekme"></div>
+      <div id="r-icerik"></div>
     </div>
 
     <!-- HAM MESAJLAR -->
@@ -1370,7 +1401,6 @@ async function loadAll() {
     allImports = [...new Set(allShifts.map(s => s.import_id).filter(Boolean))];
     renderDashboard();
     populateFilters();
-    renderSummary();
     renderMsgs();
     updateApprovalBadge();
     loadLive();
@@ -1550,7 +1580,7 @@ function refreshActiveTab() {
     if (aktif === 'shifts')   applyFilters();
     if (aktif === 'approval') loadApproval();
     if (aktif === 'live')     loadLive();
-    if (aktif === 'summary')  renderSummary();
+    if (aktif === 'summary')  loadRapor();
   } catch(e) {}
 }
 
@@ -1618,69 +1648,745 @@ function renderMsgs() {
   </tr>`).join('');
 }
 
-// ─────────────────────────────────────────────
-//  SUMMARY
-// ─────────────────────────────────────────────
+// ═════════════════════════════════════════════════════════════
+//  RAPORLAR
+//  Dönem bazlı saat ve maliyet raporu. Saat kaynağı AGRI check-in
+//  ya da Nova olabilir, üçüncü seçenek ikisini karşılaştırır.
+//
+//  Vardiya KAPANIŞ tarihine göre döneme düşer (end_dt). Açık
+//  vardiyaların end_dt'si olmadığı için hiçbir döneme girmez;
+//  sayıları uyarı olarak gösterilir.
+//
+//  Saatler veritabanında hesaplanmıştır (normal_h / overtime_h /
+//  holiday_h). Burada yalnızca toplanır ve ücretlendirilir:
+//    maliyet = (normal + fm×1,5 + tatil×2,0) × saatlik × (1+SGK)
+//    saatlik = o tarihte geçerli aylık brüt / aylık çalışma saati
+// ═════════════════════════════════════════════════════════════
 
-let sumChartMode = 'total'; // 'total' | 'ot'
+const FM_CARPAN    = 1.5;
+const TATIL_CARPAN = 2.0;
 
-function setSumChart(mode) {
-  sumChartMode = mode;
-  const totalBtn = document.getElementById('s-chart-total');
-  const otBtn    = document.getElementById('s-chart-ot');
-  if (totalBtn) { totalBtn.style.background = mode === 'total' ? 'var(--accent)' : ''; totalBtn.style.color = mode === 'total' ? '#fff' : ''; }
-  if (otBtn)    { otBtn.style.background    = mode === 'ot'    ? 'var(--amber)' : '';  otBtn.style.color    = mode === 'ot'    ? '#fff' : ''; }
-  const titleEl = document.getElementById('sum-chart-title');
-  if (titleEl) titleEl.textContent = mode === 'ot' ? 'Kişi başı fazla mesai' : 'Kişi başı toplam saat';
-  // byP zaten hesaplı — sadece barları yeniden render et
-  if (window._lastByP) renderSumBars(window._lastByP, window._lastCols);
-}
+let raporKaynak  = 'agri';   // agri | nova | fark
+let raporGorunum = 'kisi';   // kisi | is | kisi-is | masraf
+let raporVeri    = null;     // son hesaplanan sonuç
+let raporYukleniyor = false;
 
-function renderSumBars(byP, COLS) {
-  window._lastByP  = byP;
-  window._lastCols = COLS;
-  const isOt = sumChartMode === 'ot';
-  const field = isOt ? 'ot' : 'h';
-  const label = isOt ? 'fazla mesai' : 'toplam';
-  const sp = Object.entries(byP).sort((a,b) => b[1][field]-a[1][field]);
-  const mx = sp.length ? sp[0][1][field] : 1;
-  document.getElementById('sum-bars').innerHTML = sp.map(([p,v],i) => {
-    const val = v[field];
-    const pct = mx > 0 ? Math.round(val/mx*100) : 0;
-    const color = isOt ? '#b45309' : COLS[i%COLS.length];
-    return `<div class="sum-row">
-      <div class="sum-name">${cn(p)}</div>
-      <div class="bar-out">
-        <div class="bar-in" style="width:${pct}%;background:${color}"></div>
-        <span class="bar-lbl">${val.toFixed(0)}s ${label} / ${v.n} vardiya</span>
-      </div>
-    </div>`;
-  }).join('') || '<div class="muted">Veri yok</div>';
-}
-
-function renderSummary() {
-  const period=g('s-per'), now=new Date();
-  let d = allShifts;
-  if (period==='week')  d=d.filter(s=>(now-new Date(s.start_dt))<7*864e5);
-  if (period==='month') d=d.filter(s=>{ const x=new Date(s.start_dt); return x.getFullYear()===now.getFullYear()&&x.getMonth()===now.getMonth(); });
-  const sreg = g('s-reg');
-  if (sreg) d=d.filter(s=>s.region===sreg);
-
-  const COLS=['#1d4ed8','#15803d','#b45309','#b91c1c','#7c3aed','#0e7490','#c2410c','#4d7c0f','#be185d','#0f766e'];
-  const byP={};
-  for (const s of d) {
-    if(!byP[s.person]) byP[s.person]={h:0,ot:0,n:0};
-    byP[s.person].h  += parseFloat(s.duration_h||0);
-    byP[s.person].ot += fmToplam(s);
-    byP[s.person].n++;
+// ── Sekme ilk açıldığında ──
+async function raporAc() {
+  const sel = document.getElementById('r-donem');
+  if (sel && !sel.options.length) {
+    await loadPeriods();
+    await loadBordroAyar();
+    await loadNovaDurumAyar();
+    doldurDonemSecimi();
   }
-  renderSumBars(byP, COLS);
+  loadRapor();
+}
 
-  const byJ={};
-  for (const s of d) { const j=s.job||'?'; if(!byJ[j]) byJ[j]={h:0,n:0,pp:new Set()}; byJ[j].h+=parseFloat(s.duration_h||0); byJ[j].n++; byJ[j].pp.add(cn(s.person)); }
-  document.getElementById('job-tb').innerHTML = Object.entries(byJ).sort((a,b)=>b[1].n-a[1].n)
-    .map(([j,v])=>`<tr><td class="mono">${esc(j)}</td><td>${v.n}</td><td>${v.h>0?v.h.toFixed(0)+'s':'—'}</td><td>${[...v.pp].map(p=>`<span class="tag">${esc(p)}</span>`).join('')}</td></tr>`)
-    .join('') || '<tr class="empty"><td colspan="4">Veri yok</td></tr>';
+// Ayarlar sekmesine girilmeden de onaylı durum listesi gerekiyor
+async function loadNovaDurumAyar() {
+  try {
+    const { data } = await sb.from('app_config')
+      .select('value').eq('key', 'nova_onayli_durum').single();
+    novaOnayliDurum = (data?.value || '').split(',').map(s => s.trim()).filter(Boolean);
+  } catch(e) { novaOnayliDurum = []; }
+}
+
+function doldurDonemSecimi() {
+  const sel = document.getElementById('r-donem');
+  if (!sel) return;
+  sel.innerHTML = (periodsData || [])
+      .map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join('')
+    + '<option value="">Serbest tarih aralığı</option>';
+  if (periodsData && periodsData.length) {
+    sel.value = String(periodsData[0].id);
+    raporDonemSec();
+  } else {
+    // Dönem tanımlı değil: son 30 gün
+    const bit = new Date(), bas = new Date(Date.now() - 30 * 86400000);
+    document.getElementById('r-bas').value = dateKey(bas);
+    document.getElementById('r-bit').value = dateKey(bit);
+  }
+}
+
+function raporDonemSec() {
+  const id = document.getElementById('r-donem').value;
+  const p  = (periodsData || []).find(x => String(x.id) === id);
+  if (!p) return;
+  document.getElementById('r-bas').value = String(p.start_date).slice(0, 10);
+  document.getElementById('r-bit').value = String(p.end_date).slice(0, 10);
+}
+
+// Tarih elle değiştirilirse dönem seçimi serbeste düşer
+function raporSerbestOldu() {
+  const sel = document.getElementById('r-donem');
+  const bas = document.getElementById('r-bas').value;
+  const bit = document.getElementById('r-bit').value;
+  const p   = (periodsData || []).find(x => String(x.id) === sel.value);
+  if (p && (String(p.start_date).slice(0,10) !== bas || String(p.end_date).slice(0,10) !== bit)) {
+    sel.value = '';
+  }
+}
+
+function raporKaynakSec(btn) {
+  raporKaynak = btn.dataset.k;
+  document.querySelectorAll('#r-kaynak button').forEach(b => b.classList.toggle('on', b === btn));
+  if (raporKaynak === 'nova' && raporGorunum === 'kisi-is') raporGorunum = 'kisi';
+  if (raporKaynak === 'agri' && raporGorunum === 'masraf')  raporGorunum = 'kisi';
+  loadRapor();
+}
+
+function raporGorunumSec(g) {
+  raporGorunum = g;
+  renderRapor();
+}
+
+// ── Ana yükleme ──────────────────────────────────────────────
+async function loadRapor() {
+  if (raporYukleniyor) return;
+  const bas = document.getElementById('r-bas')?.value;
+  const bit = document.getElementById('r-bit')?.value;
+  const icerik = document.getElementById('r-icerik');
+  if (!bas || !bit) {
+    if (icerik) icerik.innerHTML = '<div class="muted">Dönem veya tarih aralığı seçin</div>';
+    return;
+  }
+  if (bas > bit) {
+    if (icerik) icerik.innerHTML = '<div class="muted">Başlangıç bitişten sonra olamaz</div>';
+    return;
+  }
+
+  raporYukleniyor = true;
+  if (icerik) icerik.innerHTML = '<div class="muted">Hesaplanıyor…</div>';
+
+  // Gün sınırları yerel saate göre
+  const basIso = new Date(bas + 'T00:00:00').toISOString();
+  const bitIso = new Date(bit + 'T23:59:59.999').toISOString();
+
+  try {
+    const isler = [
+      sb.from('user_profiles').select('id, full_name, role, regions, nova_adi, aktif'),
+      sadeceApp(sb.from('shifts')
+          .select('id, user_id, person, job, region, start_dt, end_dt, duration_h, normal_h, overtime_h, holiday_h, status'))
+        .eq('status', 'done').not('end_dt', 'is', null)
+        .gte('end_dt', basIso).lte('end_dt', bitIso).limit(10000),
+      sb.from('sys_shifts')
+        .select('id, surec_no, olusturan, is_no, masraf, durum, start_dt, end_dt, normal_h, overtime_h, holiday_h')
+        .not('end_dt', 'is', null)
+        .gte('end_dt', basIso).lte('end_dt', bitIso).limit(10000),
+      // Açık vardiyalar — döneme giremiyor, uyarı olarak sayılır
+      sadeceApp(sb.from('shifts').select('id, person, start_dt'))
+        .eq('status', 'open').lte('start_dt', bitIso).limit(1000),
+    ];
+    if (currentProfile?.role === 'admin') {
+      isler.push(sb.from('salaries').select('user_id, gross_monthly, valid_from'));
+    }
+
+    const sonuc = await Promise.all(isler);
+    for (const r of sonuc) if (r.error) throw r.error;
+
+    const kadro   = sonuc[0].data || [];
+    const agriHam = sonuc[1].data || [];
+    const novaHam = sonuc[2].data || [];
+    const acik    = sonuc[3].data || [];
+    const ucretler = sonuc[4]?.data || [];
+
+    raporVeri = hesaplaRapor({ kadro, agriHam, novaHam, acik, ucretler, bas, bit });
+    renderRapor();
+  } catch(e) {
+    if (icerik) icerik.innerHTML = `<div class="bos-note">Rapor alınamadı: ${esc(e.message)}</div>`;
+    console.error(e);
+  }
+  raporYukleniyor = false;
+}
+
+// ── Hesap ────────────────────────────────────────────────────
+function hesaplaRapor({ kadro, agriHam, novaHam, acik, ucretler, bas, bit }) {
+  const bolgeF = g('r-reg');
+  const norm = s => (s || '').trim().toLocaleLowerCase('tr');
+
+  const kisiById   = new Map(kadro.map(u => [u.id, u]));
+  const kisiByNova = new Map(kadro.filter(u => u.nova_adi).map(u => [norm(u.nova_adi), u]));
+
+  // Kişinin o tarihteki saatlik ücreti
+  const ucretSirali = {};
+  ucretler.forEach(r => {
+    (ucretSirali[r.user_id] = ucretSirali[r.user_id] || []).push(r);
+  });
+  Object.values(ucretSirali).forEach(a => a.sort((x, y) => y.valid_from.localeCompare(x.valid_from)));
+
+  function saatlik(uid, tarihStr) {
+    const liste = ucretSirali[uid];
+    if (!liste) return null;
+    const r = liste.find(s => s.valid_from <= tarihStr);
+    return r ? parseFloat(r.gross_monthly) / bordroAyar.monthly_hours : null;
+  }
+  function maliyet(uid, tarihStr, n, fm, t) {
+    const s = saatlik(uid, tarihStr);
+    if (s === null) return null;
+    return (n + fm * FM_CARPAN + t * TATIL_CARPAN) * s * (1 + bordroAyar.sgk_rate);
+  }
+
+  // Kaynakları ortak biçime getir
+  function satirYap(kaynak, r) {
+    let uid = null, ad = '—', bolge = '';
+    if (kaynak === 'agri') {
+      uid = r.user_id || null;
+      const u = uid ? kisiById.get(uid) : null;
+      ad = u?.full_name || cn(r.person) || '—';
+      bolge = r.region || (u?.regions || [])[0] || '';
+    } else {
+      const u = kisiByNova.get(norm(r.olusturan));
+      uid = u?.id || null;
+      ad = u?.full_name || (r.olusturan || '—');
+      bolge = (u?.regions || [])[0] || '';
+    }
+    const n  = parseFloat(r.normal_h   || 0);
+    const fm = parseFloat(r.overtime_h || 0);
+    const t  = parseFloat(r.holiday_h  || 0);
+    const tarih = String(r.end_dt).slice(0, 10);
+    return {
+      uid, ad, bolge,
+      is: (kaynak === 'agri' ? r.job : r.is_no) || '—',
+      masraf: (kaynak === 'nova' ? (r.masraf || '').trim() : '') || '',
+      n, fm, t, saat: n + fm + t,
+      sure: parseFloat(r.duration_h || (n + fm + t)),
+      mal: uid ? maliyet(uid, tarih, n, fm, t) : null,
+      eslesmedi: !uid,
+      ham: r,
+    };
+  }
+
+  // Nova: yalnızca onaylı durumlar
+  const novaSuzulmus = novaOnayliDurum.length
+    ? novaHam.filter(r => novaOnayliDurum.includes((r.durum || '').trim()))
+    : novaHam;
+
+  let agri = agriHam.map(r => satirYap('agri', r));
+  let nova = novaSuzulmus.map(r => satirYap('nova', r));
+
+  // Eşleşmeyen Nova kayıtları ayrı tutulur, toplamlara karışmaz
+  const novaEslesmeyen = nova.filter(s => s.eslesmedi);
+  nova = nova.filter(s => !s.eslesmedi);
+
+  if (bolgeF) {
+    agri = agri.filter(s => s.bolge === bolgeF);
+    nova = nova.filter(s => s.bolge === bolgeF);
+  }
+
+  // Şüpheli süreler — 24 saate kırpılmış vardiyalar
+  const supheli = agriHam
+    .filter(r => parseFloat(r.duration_h || 0) > 24.01)
+    .map(r => ({
+      id: r.id,
+      ad: kisiById.get(r.user_id)?.full_name || cn(r.person),
+      is: r.job || '—',
+      bas: r.start_dt, bit: r.end_dt,
+      gercek: parseFloat(r.duration_h || 0),
+      sayilan: parseFloat(r.normal_h || 0) + parseFloat(r.overtime_h || 0) + parseFloat(r.holiday_h || 0),
+    }))
+    .sort((a, b) => b.gercek - a.gercek);
+
+  // Nova kaydı hiç olmayan kişiler
+  const novaliUid = new Set(nova.map(s => s.uid));
+  const novaYok = [...new Set(agri.map(s => s.uid).filter(Boolean))]
+    .filter(uid => !novaliUid.has(uid))
+    .map(uid => {
+      const satirlar = agri.filter(s => s.uid === uid);
+      return {
+        uid,
+        ad: kisiById.get(uid)?.full_name || '—',
+        saat: satirlar.reduce((a, s) => a + s.saat, 0),
+        mal:  satirlar.reduce((a, s) => a + (s.mal || 0), 0),
+      };
+    });
+
+  return {
+    bas, bit, agri, nova, novaEslesmeyen, novaYok, supheli,
+    acikSayisi: (acik || []).length,
+    maliyetVar: currentProfile?.role === 'admin' && ucretler.length > 0,
+    ucretsizKisiler: [...new Set(agri.filter(s => s.uid && s.mal === null).map(s => s.ad))],
+  };
+}
+
+// ── Gruplama yardımcıları ────────────────────────────────────
+function raporTopla(satirlar, anahtar) {
+  const m = new Map();
+  satirlar.forEach(s => {
+    const k = anahtar(s);
+    if (!m.has(k)) m.set(k, { k, v: 0, n: 0, fm: 0, t: 0, saat: 0, mal: 0, malVar: false, kisiler: new Set(), isler: new Set() });
+    const a = m.get(k);
+    a.v++; a.n += s.n; a.fm += s.fm; a.t += s.t; a.saat += s.saat;
+    if (s.mal !== null) { a.mal += s.mal; a.malVar = true; }
+    if (s.ad) a.kisiler.add(s.ad);
+    if (s.is) a.isler.add(s.is);
+    a.bolge = a.bolge || s.bolge;
+  });
+  return [...m.values()];
+}
+
+const fmtSaat = n => (n || 0).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+function raporKaynakAdi() {
+  return raporKaynak === 'nova' ? 'Nova — onaylı' : 'AGRI check-in';
+}
+
+function raporSatirlari() {
+  return raporKaynak === 'nova' ? raporVeri.nova : raporVeri.agri;
+}
+
+// ── Render ───────────────────────────────────────────────────
+function renderRapor() {
+  if (!raporVeri) return;
+  renderRaporUyari();
+  renderRaporOzet();
+  renderRaporSekme();
+
+  const el = document.getElementById('r-icerik');
+  if (!el) return;
+  if (raporKaynak === 'fark')          el.innerHTML = raporFarkHtml();
+  else if (raporGorunum === 'kisi')    el.innerHTML = raporKisiHtml();
+  else if (raporGorunum === 'is')      el.innerHTML = raporIsHtml();
+  else if (raporGorunum === 'kisi-is') el.innerHTML = raporKisiIsHtml();
+  else if (raporGorunum === 'masraf')  el.innerHTML = raporMasrafHtml();
+}
+
+function renderRaporUyari() {
+  const el = document.getElementById('r-uyari');
+  if (!el) return;
+  const u = [];
+
+  if (raporVeri.supheli.length) {
+    const fazla = raporVeri.supheli.reduce((a, s) => a + (s.gercek - s.sayilan), 0);
+    u.push(`<div class="r-uy amber">⚠ <b>${raporVeri.supheli.length} vardiya</b> 24 saati aşıyor;
+      ${fmtSaat(fazla)} saat kırpıldı.
+      <a href="#" onclick="raporSupheliAc();return false">İncele</a></div>`);
+  }
+  if (raporVeri.acikSayisi) {
+    u.push(`<div class="r-uy amber">⚠ <b>${raporVeri.acikSayisi} açık vardiya</b> var; kapanmadığı için rapora girmiyor.</div>`);
+  }
+  if (raporVeri.maliyetVar && raporVeri.ucretsizKisiler.length) {
+    u.push(`<div class="r-uy red">⚠ Ücreti tanımlı olmayan ${raporVeri.ucretsizKisiler.length} kişi var
+      (${esc(raporVeri.ucretsizKisiler.slice(0, 3).join(', '))}${raporVeri.ucretsizKisiler.length > 3 ? '…' : ''});
+      saatleri sayılıyor, maliyetleri sayılmıyor.</div>`);
+  }
+  if (raporKaynak !== 'agri' && raporVeri.novaEslesmeyen.length) {
+    u.push(`<div class="r-uy red">⚠ <b>${raporVeri.novaEslesmeyen.length} Nova kaydı</b> hiçbir enspektörle eşleşmedi;
+      toplamlara girmiyor. Kullanıcılar sekmesinden Nova adı girin.</div>`);
+  }
+  el.innerHTML = u.join('');
+}
+
+function renderRaporOzet() {
+  const el = document.getElementById('r-ozet');
+  if (!el) return;
+
+  if (raporKaynak === 'fark') {
+    const a = raporToplam(raporVeri.agri), n = raporToplam(raporVeri.nova);
+    const ds = n.saat - a.saat, dm = n.mal - a.mal;
+    const oran = a.saat > 0 ? (n.saat / a.saat * 100) : 0;
+    el.className = 'r-ozet';
+    el.style.gridTemplateColumns = 'repeat(3, minmax(0,1fr))';
+    el.innerHTML = `
+      ${ozetKart('AGRI check-in', fmtSaat(a.saat) + ' sa', raporVeri.maliyetVar ? fmtPara(a.mal) : `${a.v} vardiya`)}
+      ${ozetKart('Nova — onaylı',  fmtSaat(n.saat) + ' sa', raporVeri.maliyetVar ? fmtPara(n.mal) : `${n.v} süreç`)}
+      ${ozetKart('Fark', (ds >= 0 ? '+' : '−') + fmtSaat(Math.abs(ds)) + ' sa',
+                 raporVeri.maliyetVar ? ((dm >= 0 ? '+' : '−') + fmtPara(Math.abs(dm))) : '',
+                 'koyu', a.saat > 0 ? `Nova, AGRI'nin %${oran.toFixed(1).replace('.', ',')}'i` : '')}`;
+    return;
+  }
+
+  const t = raporToplam(raporSatirlari());
+  const kisiSayisi = new Set(raporSatirlari().map(s => s.uid || s.ad)).size;
+  const yuzde = t.saat > 0 ? (t.n / t.saat * 100).toFixed(1).replace('.', ',') : '0,0';
+  el.className = 'r-ozet';
+  el.style.gridTemplateColumns = `repeat(${raporVeri.maliyetVar ? 6 : 5}, minmax(0,1fr))`;
+  el.innerHTML =
+      ozetKart('Toplam saat', fmtSaat(t.saat), `${t.v} ${raporKaynak === 'nova' ? 'süreç' : 'vardiya'}`)
+    + ozetKart('Normal', fmtSaat(t.n), `%${yuzde}`)
+    + ozetKart('Fazla mesai', fmtSaat(t.fm), '×1,5', '', '', 'var(--amber)')
+    + ozetKart('Tatil', fmtSaat(t.t), '×2,0', '', '', 'var(--accent-text)')
+    + ozetKart('Çalışan', String(kisiSayisi), raporKaynakAdi())
+    + (raporVeri.maliyetVar
+        ? ozetKart('Toplam maliyet', fmtPara(t.mal), 'SGK dahil', 'koyu')
+        : '');
+}
+
+function ozetKart(baslik, deger, alt, sinif, alt2, renk) {
+  return `<div class="r-kart ${sinif || ''}">
+    <div class="k">${esc(baslik)}</div>
+    <div class="v"${renk ? ` style="color:${renk}"` : ''}>${esc(deger)}</div>
+    <div class="a">${esc(alt || alt2 || '')}</div>
+  </div>`;
+}
+
+function raporToplam(satirlar) {
+  return satirlar.reduce((a, s) => {
+    a.v++; a.n += s.n; a.fm += s.fm; a.t += s.t; a.saat += s.saat; a.mal += (s.mal || 0);
+    return a;
+  }, { v: 0, n: 0, fm: 0, t: 0, saat: 0, mal: 0 });
+}
+
+function renderRaporSekme() {
+  const el = document.getElementById('r-sekme');
+  if (!el) return;
+  if (raporKaynak === 'fark') { el.innerHTML = ''; return; }
+  const sekmeler = [['kisi', 'Kişi bazında'], ['is', 'İş bazında'], ['kisi-is', 'Kişi × İş']];
+  if (raporKaynak === 'nova') sekmeler.push(['masraf', 'Masraf merkezi']);
+  el.innerHTML = sekmeler.map(([k, ad]) =>
+    `<button class="${raporGorunum === k ? 'on' : ''}" onclick="raporGorunumSec('${k}')">${ad}</button>`).join('');
+}
+
+// ── Görünümler ───────────────────────────────────────────────
+function sutunMaliyet() { return raporVeri.maliyetVar; }
+
+function raporKisiHtml() {
+  const grup = raporTopla(raporSatirlari(), s => s.ad).sort((a, b) => b.saat - a.saat);
+  const t = raporToplam(raporSatirlari());
+  const mc = sutunMaliyet();
+  return tabloSar(`
+    <thead><tr>
+      <th>Çalışan</th><th>Bölge</th><th class="num">Vardiya</th>
+      <th class="num">Normal</th><th class="num" style="color:var(--amber)">Fazla mesai</th>
+      <th class="num" style="color:var(--accent-text)">Tatil</th><th class="num">Toplam saat</th>
+      ${mc ? '<th class="num">Maliyet</th>' : ''}
+    </tr></thead>
+    <tbody>${grup.map(r => `<tr>
+      <td><b>${esc(r.k)}</b></td>
+      <td style="color:var(--text2)">${esc(regionLabel(r.bolge))}</td>
+      <td class="num">${r.v}</td>
+      <td class="num">${fmtSaat(r.n)}</td>
+      <td class="num" style="color:var(--amber)">${r.fm ? fmtSaat(r.fm) : '—'}</td>
+      <td class="num" style="color:var(--accent-text)">${r.t ? fmtSaat(r.t) : '—'}</td>
+      <td class="num"><b>${fmtSaat(r.saat)}</b></td>
+      ${mc ? `<td class="num"><b>${r.malVar ? fmtPara(r.mal) : '—'}</b></td>` : ''}
+    </tr>`).join('') || bosSatir(mc ? 8 : 7)}</tbody>
+    <tfoot><tr>
+      <td>TOPLAM</td><td></td><td class="num">${t.v}</td>
+      <td class="num">${fmtSaat(t.n)}</td>
+      <td class="num" style="color:var(--amber)">${fmtSaat(t.fm)}</td>
+      <td class="num" style="color:var(--accent-text)">${fmtSaat(t.t)}</td>
+      <td class="num">${fmtSaat(t.saat)}</td>
+      ${mc ? `<td class="num">${fmtPara(t.mal)}</td>` : ''}
+    </tr></tfoot>`);
+}
+
+function raporIsHtml() {
+  const grup = raporTopla(raporSatirlari(), s => s.is).sort((a, b) => b.saat - a.saat);
+  const t = raporToplam(raporSatirlari());
+  const mc = sutunMaliyet();
+  return tabloSar(`
+    <thead><tr>
+      <th>İş no</th><th>Bölge</th><th class="num">Kişi</th><th class="num">Vardiya</th>
+      <th class="num">Normal</th><th class="num" style="color:var(--amber)">Fazla mesai</th>
+      <th class="num" style="color:var(--accent-text)">Tatil</th><th class="num">Toplam saat</th>
+      ${mc ? '<th class="num">Maliyet</th>' : ''}<th>Çalışanlar</th>
+    </tr></thead>
+    <tbody>${grup.map(r => `<tr>
+      <td class="mono"><b>${esc(r.k)}</b></td>
+      <td style="color:var(--text2)">${esc(regionLabel(r.bolge))}</td>
+      <td class="num">${r.kisiler.size}</td>
+      <td class="num">${r.v}</td>
+      <td class="num">${fmtSaat(r.n)}</td>
+      <td class="num" style="color:var(--amber)">${r.fm ? fmtSaat(r.fm) : '—'}</td>
+      <td class="num" style="color:var(--accent-text)">${r.t ? fmtSaat(r.t) : '—'}</td>
+      <td class="num"><b>${fmtSaat(r.saat)}</b></td>
+      ${mc ? `<td class="num"><b>${r.malVar ? fmtPara(r.mal) : '—'}</b></td>` : ''}
+      <td>${[...r.kisiler].map(k => `<span class="tag">${esc(k)}</span>`).join(' ')}</td>
+    </tr>`).join('') || bosSatir(mc ? 10 : 9)}</tbody>
+    <tfoot><tr>
+      <td>TOPLAM</td><td></td>
+      <td class="num">${new Set(raporSatirlari().map(s => s.ad)).size}</td>
+      <td class="num">${t.v}</td>
+      <td class="num">${fmtSaat(t.n)}</td>
+      <td class="num" style="color:var(--amber)">${fmtSaat(t.fm)}</td>
+      <td class="num" style="color:var(--accent-text)">${fmtSaat(t.t)}</td>
+      <td class="num">${fmtSaat(t.saat)}</td>
+      ${mc ? `<td class="num">${fmtPara(t.mal)}</td>` : ''}<td></td>
+    </tr></tfoot>`);
+}
+
+function raporKisiIsHtml() {
+  const sat = raporSatirlari();
+  const kisiler = raporTopla(sat, s => s.ad).sort((a, b) => b.saat - a.saat);
+  const t  = raporToplam(sat);
+  const mc = sutunMaliyet();
+  const govde = kisiler.map(k => {
+    const alt = raporTopla(sat.filter(s => s.ad === k.k), s => s.is).sort((a, b) => b.saat - a.saat);
+    return `<tr class="r-grup">
+        <td>${esc(k.k)} <span style="font-weight:400;color:var(--text2)">· ${esc(regionLabel(k.bolge))}</span></td>
+        <td class="num">${k.v}</td><td class="num">${fmtSaat(k.n)}</td>
+        <td class="num">${fmtSaat(k.fm)}</td><td class="num">${fmtSaat(k.t)}</td>
+        <td class="num">${fmtSaat(k.saat)}</td>
+        ${mc ? `<td class="num">${k.malVar ? fmtPara(k.mal) : '—'}</td>` : ''}
+      </tr>` + alt.map(i => `<tr class="r-alt">
+        <td class="mono" style="padding-left:32px">${esc(i.k)}</td>
+        <td class="num">${i.v}</td><td class="num">${fmtSaat(i.n)}</td>
+        <td class="num">${i.fm ? fmtSaat(i.fm) : '—'}</td>
+        <td class="num">${i.t ? fmtSaat(i.t) : '—'}</td>
+        <td class="num">${fmtSaat(i.saat)}</td>
+        ${mc ? `<td class="num">${i.malVar ? fmtPara(i.mal) : '—'}</td>` : ''}
+      </tr>`).join('');
+  }).join('');
+  return tabloSar(`
+    <thead><tr>
+      <th>Çalışan / iş</th><th class="num">Vardiya</th><th class="num">Normal</th>
+      <th class="num" style="color:var(--amber)">Fazla mesai</th>
+      <th class="num" style="color:var(--accent-text)">Tatil</th><th class="num">Toplam saat</th>
+      ${mc ? '<th class="num">Maliyet</th>' : ''}
+    </tr></thead>
+    <tbody>${govde || bosSatir(mc ? 7 : 6)}</tbody>
+    <tfoot><tr>
+      <td>TOPLAM</td><td class="num">${t.v}</td><td class="num">${fmtSaat(t.n)}</td>
+      <td class="num">${fmtSaat(t.fm)}</td><td class="num">${fmtSaat(t.t)}</td>
+      <td class="num">${fmtSaat(t.saat)}</td>
+      ${mc ? `<td class="num">${fmtPara(t.mal)}</td>` : ''}
+    </tr></tfoot>`);
+}
+
+function raporMasrafHtml() {
+  const sat  = raporSatirlari();
+  const grup = raporTopla(sat, s => s.masraf || '(boş)').sort((a, b) => b.saat - a.saat);
+  const t    = raporToplam(sat);
+  const mc   = sutunMaliyet();
+  return tabloSar(`
+    <thead><tr>
+      <th>Masraf merkezi</th><th class="num">Kişi</th><th class="num">İş</th><th class="num">Süreç</th>
+      <th class="num">Normal</th><th class="num" style="color:var(--amber)">Fazla mesai</th>
+      <th class="num" style="color:var(--accent-text)">Tatil</th><th class="num">Toplam saat</th>
+      ${mc ? '<th class="num">Maliyet</th>' : ''}
+    </tr></thead>
+    <tbody>${grup.map(r => `<tr>
+      <td class="mono"><b>${esc(r.k)}</b></td>
+      <td class="num">${r.kisiler.size}</td><td class="num">${r.isler.size}</td><td class="num">${r.v}</td>
+      <td class="num">${fmtSaat(r.n)}</td>
+      <td class="num" style="color:var(--amber)">${r.fm ? fmtSaat(r.fm) : '—'}</td>
+      <td class="num" style="color:var(--accent-text)">${r.t ? fmtSaat(r.t) : '—'}</td>
+      <td class="num"><b>${fmtSaat(r.saat)}</b></td>
+      ${mc ? `<td class="num"><b>${r.malVar ? fmtPara(r.mal) : '—'}</b></td>` : ''}
+    </tr>`).join('') || bosSatir(mc ? 9 : 8)}</tbody>
+    <tfoot><tr>
+      <td>TOPLAM</td>
+      <td class="num">${new Set(sat.map(s => s.ad)).size}</td>
+      <td class="num">${new Set(sat.map(s => s.is)).size}</td>
+      <td class="num">${t.v}</td>
+      <td class="num">${fmtSaat(t.n)}</td>
+      <td class="num" style="color:var(--amber)">${fmtSaat(t.fm)}</td>
+      <td class="num" style="color:var(--accent-text)">${fmtSaat(t.t)}</td>
+      <td class="num">${fmtSaat(t.saat)}</td>
+      ${mc ? `<td class="num">${fmtPara(t.mal)}</td>` : ''}
+    </tr></tfoot>`);
+}
+
+function raporFarkHtml() {
+  const a = raporTopla(raporVeri.agri, s => s.ad);
+  const n = raporTopla(raporVeri.nova, s => s.ad);
+  const adlar = [...new Set([...a.map(r => r.k), ...n.map(r => r.k)])];
+  const bul = (liste, ad) => liste.find(r => r.k === ad);
+  const mc = sutunMaliyet();
+
+  const satirlar = adlar.map(ad => {
+    const ra = bul(a, ad), rn = bul(n, ad);
+    return {
+      ad,
+      aSaat: ra ? ra.saat : 0, aMal: ra ? ra.mal : 0, aVar: !!ra, aMalVar: !!(ra && ra.malVar),
+      nSaat: rn ? rn.saat : 0, nMal: rn ? rn.mal : 0, nVar: !!rn, nMalVar: !!(rn && rn.malVar),
+    };
+  }).sort((x, y) => (x.nSaat - x.aSaat) - (y.nSaat - y.aSaat));
+
+  const ta = raporToplam(raporVeri.agri), tn = raporToplam(raporVeri.nova);
+  const fark = v => v === 0
+    ? '<span class="r-esit">0,00</span>'
+    : `<span class="r-eksi">${v < 0 ? '−' : '+'}${fmtSaat(Math.abs(v))}</span>`;
+  const farkP = v => v === 0
+    ? '<span class="r-esit">—</span>'
+    : `<span class="r-eksi">${v < 0 ? '−' : '+'}${fmtPara(Math.abs(v))}</span>`;
+
+  const tablo = tabloSar(`
+    <thead><tr>
+      <th>Çalışan</th>
+      <th class="num">AGRI saat</th>${mc ? '<th class="num">AGRI maliyet</th>' : ''}
+      <th class="num" style="color:#0066CC">Nova saat</th>${mc ? '<th class="num" style="color:#0066CC">Nova maliyet</th>' : ''}
+      <th class="num">Fark saat</th>${mc ? '<th class="num">Fark maliyet</th>' : ''}
+    </tr></thead>
+    <tbody>${satirlar.map(r => `<tr${!r.nVar ? ' style="background:var(--red-bg)"' : ''}>
+      <td><b>${esc(r.ad)}</b></td>
+      <td class="num">${fmtSaat(r.aSaat)}</td>${mc ? `<td class="num">${r.aMalVar ? fmtPara(r.aMal) : '—'}</td>` : ''}
+      <td class="num">${r.nVar ? fmtSaat(r.nSaat) : '<span style="color:var(--red)">kayıt yok</span>'}</td>
+      ${mc ? `<td class="num">${r.nVar && r.nMalVar ? fmtPara(r.nMal) : '—'}</td>` : ''}
+      <td class="num">${fark(r.nSaat - r.aSaat)}</td>
+      ${mc ? `<td class="num">${r.aMalVar || r.nMalVar ? farkP(r.nMal - r.aMal) : '—'}</td>` : ''}
+    </tr>`).join('') || bosSatir(mc ? 7 : 4)}</tbody>
+    <tfoot><tr>
+      <td>TOPLAM</td>
+      <td class="num">${fmtSaat(ta.saat)}</td>${mc ? `<td class="num">${fmtPara(ta.mal)}</td>` : ''}
+      <td class="num">${fmtSaat(tn.saat)}</td>${mc ? `<td class="num">${fmtPara(tn.mal)}</td>` : ''}
+      <td class="num">${fark(tn.saat - ta.saat)}</td>
+      ${mc ? `<td class="num">${farkP(tn.mal - ta.mal)}</td>` : ''}
+    </tr></tfoot>`);
+
+  let ek = '';
+  if (raporVeri.novaEslesmeyen.length) {
+    ek = `<div class="sh" style="margin-top:22px"><div class="st">Eşleşmeyen Nova kayıtları</div></div>
+      <div class="tbl-wrap"><table class="r-tbl">
+        <thead><tr><th>Süreç no</th><th>Oluşturan</th><th>İş no</th><th>Masraf</th>
+          <th>Çalışma</th><th class="num">Saat</th><th>Durum</th></tr></thead>
+        <tbody>${raporVeri.novaEslesmeyen.map(s => `<tr>
+          <td class="mono">${esc(s.ham.surec_no || '—')}</td>
+          <td><b>${esc(s.ham.olusturan || '—')}</b></td>
+          <td class="mono">${esc(s.is)}</td>
+          <td class="mono">${esc(s.masraf || '—')}</td>
+          <td style="color:var(--text2)">${fmtD(s.ham.start_dt)} ${fmtT(s.ham.start_dt)} – ${fmtT(s.ham.end_dt)}</td>
+          <td class="num">${fmtSaat(s.saat)}</td>
+          <td style="color:var(--green)">${esc(s.ham.durum || '—')}</td>
+        </tr>`).join('')}</tbody>
+      </table></div>`;
+  }
+  return tablo + ek;
+}
+
+function tabloSar(ic) {
+  return `<div class="tbl-wrap"><table class="r-tbl">${ic}</table></div>`;
+}
+function bosSatir(n) {
+  return `<tr class="empty"><td colspan="${n}">Bu dönemde kayıt yok</td></tr>`;
+}
+
+// ── Şüpheli vardiyalar ───────────────────────────────────────
+function raporSupheliAc() {
+  if (!raporVeri?.supheli.length) return;
+  const satirlar = raporVeri.supheli.map(s => `<tr>
+    <td><b>${esc(s.ad)}</b></td>
+    <td class="mono">${esc(s.is)}</td>
+    <td class="mono" style="color:var(--text2)">${fmtD(s.bas)} ${fmtT(s.bas)}</td>
+    <td class="mono" style="color:var(--text2)">${fmtD(s.bit)} ${fmtT(s.bit)}</td>
+    <td class="num" style="color:var(--red);font-weight:600">${fmtSaat(s.gercek)}</td>
+    <td class="num">${fmtSaat(s.sayilan)}</td>
+    <td style="text-align:right"><button class="btn btn-sm" onclick="gotoShift(${s.id})">Aç</button></td>
+  </tr>`).join('');
+  modalAc('24 saati aşan vardiyalar', `
+    <div style="font-size:12.5px;color:var(--text2);margin-bottom:12px">
+      Bu vardiyalar 24 saate kırpılarak hesaplandı. Çıkış unutulmuşsa saat ve maliyet şişer.
+    </div>
+    <div class="tbl-wrap"><table class="r-tbl">
+      <thead><tr><th>Çalışan</th><th>İş no</th><th>Giriş</th><th>Çıkış</th>
+        <th class="num">Gerçek</th><th class="num">Sayılan</th><th></th></tr></thead>
+      <tbody>${satirlar}</tbody>
+    </table></div>`);
+}
+
+function modalAc(baslik, ic) {
+  let el = document.getElementById('rapor-modal');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'rapor-modal';
+    el.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:400;'
+      + 'align-items:flex-start;justify-content:center;padding:60px 20px;overflow-y:auto';
+    el.onclick = e => { if (e.target === el) el.style.display = 'none'; };
+    document.body.appendChild(el);
+  }
+  el.innerHTML = `<div style="background:var(--surface);border-radius:var(--radius-xl);padding:24px 28px;
+      width:100%;max-width:880px;box-shadow:0 8px 32px rgba(0,0,0,0.2)">
+    <div style="display:flex;align-items:center;margin-bottom:14px">
+      <div style="font-size:15px;font-weight:600">${esc(baslik)}</div>
+      <button class="btn btn-sm" style="margin-left:auto"
+        onclick="document.getElementById('rapor-modal').style.display='none'">Kapat</button>
+    </div>${ic}</div>`;
+  el.style.display = 'flex';
+}
+
+// ── Excel ────────────────────────────────────────────────────
+function raporExcel() {
+  if (!raporVeri) { toast('Önce rapor alın', true); return; }
+  const mc = sutunMaliyet();
+  const don = document.getElementById('r-donem');
+  const donemAdi = don?.selectedOptions[0]?.textContent?.trim() || 'Serbest';
+  const bilgi = `${donemAdi} · ${fmtDStr(raporVeri.bas)} – ${fmtDStr(raporVeri.bit)} · ${raporKaynakAdi()}`;
+
+  const sayfalar = [];
+
+  const kisiBaslik = ['Çalışan', 'Bölge', 'Vardiya', 'Normal', 'Fazla mesai', 'Tatil', 'Toplam saat'];
+  if (mc) kisiBaslik.push('Maliyet');
+  const kaynaklar = raporKaynak === 'fark'
+    ? [['AGRI', raporVeri.agri], ['Nova', raporVeri.nova]]
+    : [[raporKaynak === 'nova' ? 'Nova' : 'AGRI', raporSatirlari()]];
+
+  kaynaklar.forEach(([ad, sat]) => {
+    const kisi = raporTopla(sat, s => s.ad).sort((a, b) => b.saat - a.saat);
+    sayfalar.push([`${ad} kişi`, [kisiBaslik, ...kisi.map(r => {
+      const sr = [r.k, regionLabel(r.bolge), r.v, r.n, r.fm, r.t, r.saat];
+      if (mc) sr.push(r.malVar ? Math.round(r.mal * 100) / 100 : '');
+      return sr;
+    })]]);
+
+    const is = raporTopla(sat, s => s.is).sort((a, b) => b.saat - a.saat);
+    const isBaslik = ['İş no', 'Bölge', 'Kişi', 'Vardiya', 'Normal', 'Fazla mesai', 'Tatil', 'Toplam saat'];
+    if (mc) isBaslik.push('Maliyet');
+    isBaslik.push('Çalışanlar');
+    sayfalar.push([`${ad} iş`, [isBaslik, ...is.map(r => {
+      const sr = [r.k, regionLabel(r.bolge), r.kisiler.size, r.v, r.n, r.fm, r.t, r.saat];
+      if (mc) sr.push(r.malVar ? Math.round(r.mal * 100) / 100 : '');
+      sr.push([...r.kisiler].join(', '));
+      return sr;
+    })]]);
+
+    // Ham satırlar — kontrol için
+    const hamBaslik = ['Çalışan', 'Bölge', 'İş no', 'Masraf', 'Normal', 'Fazla mesai', 'Tatil', 'Toplam saat'];
+    if (mc) hamBaslik.push('Maliyet');
+    sayfalar.push([`${ad} detay`, [hamBaslik, ...sat.map(s => {
+      const sr = [s.ad, regionLabel(s.bolge), s.is, s.masraf, s.n, s.fm, s.t, s.saat];
+      if (mc) sr.push(s.mal !== null ? Math.round(s.mal * 100) / 100 : '');
+      return sr;
+    })]]);
+  });
+
+  if (raporKaynak === 'nova' || raporKaynak === 'fark') {
+    const mas = raporTopla(raporVeri.nova, s => s.masraf || '(boş)').sort((a, b) => b.saat - a.saat);
+    const b = ['Masraf merkezi', 'Kişi', 'İş', 'Süreç', 'Normal', 'Fazla mesai', 'Tatil', 'Toplam saat'];
+    if (mc) b.push('Maliyet');
+    sayfalar.push(['Masraf merkezi', [b, ...mas.map(r => {
+      const sr = [r.k, r.kisiler.size, r.isler.size, r.v, r.n, r.fm, r.t, r.saat];
+      if (mc) sr.push(r.malVar ? Math.round(r.mal * 100) / 100 : '');
+      return sr;
+    })]]);
+  }
+
+  if (raporVeri.supheli.length) {
+    sayfalar.push(['Şüpheli süre', [
+      ['Çalışan', 'İş no', 'Giriş', 'Çıkış', 'Gerçek saat', 'Sayılan saat'],
+      ...raporVeri.supheli.map(s => [s.ad, s.is, fmtD(s.bas) + ' ' + fmtT(s.bas),
+        fmtD(s.bit) + ' ' + fmtT(s.bit), s.gercek, s.sayilan]),
+    ]]);
+  }
+  if (raporVeri.novaEslesmeyen.length) {
+    sayfalar.push(['Eşleşmeyen Nova', [
+      ['Süreç no', 'Oluşturan', 'İş no', 'Masraf', 'Başlama', 'Bitiş', 'Saat', 'Durum'],
+      ...raporVeri.novaEslesmeyen.map(s => [s.ham.surec_no, s.ham.olusturan, s.is, s.masraf,
+        fmtD(s.ham.start_dt) + ' ' + fmtT(s.ham.start_dt),
+        fmtD(s.ham.end_dt) + ' ' + fmtT(s.ham.end_dt), s.saat, s.ham.durum]),
+    ]]);
+  }
+
+  const dosya = `AGRI_rapor_${raporVeri.bas}_${raporVeri.bit}_${raporKaynak}.xlsx`;
+  try {
+    const wb = XLSX.utils.book_new();
+    sayfalar.forEach(([ad, veri]) => {
+      const ws = XLSX.utils.aoa_to_sheet([[bilgi], [], ...veri]);
+      XLSX.utils.book_append_sheet(wb, ws, ad.slice(0, 31));
+    });
+    XLSX.writeFile(wb, dosya);
+    toast('✓ Excel indirildi');
+  } catch(e) {
+    // Excel yazılamıyorsa CSV'ye düş — rapor elde kalsın
+    const csv = sayfalar.map(([ad, veri]) =>
+      ad + '\n' + veri.map(r => r.map(c => `"${String(c ?? '').replace(/"/g, '""')}"`).join(';')).join('\n')
+    ).join('\n\n');
+    const url = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' }));
+    const a = document.createElement('a');
+    a.href = url; a.download = dosya.replace('.xlsx', '.csv'); a.click();
+    URL.revokeObjectURL(url);
+    toast('Excel yazılamadı, CSV indirildi', true);
+  }
 }
 
 // ─────────────────────────────────────────────
@@ -6147,7 +6853,7 @@ function go(name) {
   else                 { try { leaveLiveTab(); } catch(e){} }
 
   if (name==='shifts')   { try { applyFilters(); } catch(e){} }
-  if (name==='summary')  { try { renderSummary(); } catch(e){} }
+  if (name==='summary')  { try { raporAc(); } catch(e){ console.error(e); } }
   if (name==='messages') { try { loadMessages(); } catch(e){} }
   if (name==='import')   { try { populateCmpPerson(); initCmpDateRange(); } catch(e){} }
   if (name==='approval') { try { populateApprovalFilters().then(() => loadApproval()); } catch(e){} }
