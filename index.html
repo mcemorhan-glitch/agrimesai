@@ -1272,12 +1272,13 @@ async function enterApp(user) {
   // Sadece ilk girişte onay sekmesine git, token refresh'inde mevcut sekmeyi koru
   if (!window._appReady) {
     window._appReady = true;
-    loadWaSetting()
+    Promise.all([loadWaSetting(), loadHolidays()])
       .then(() => { applyWaUI(); return loadAll(); })
       .then(() => go('live'))
       .catch(() => go('live'));
   } else {
-    loadWaSetting().then(() => { applyWaUI(); loadAll(); });
+    Promise.all([loadWaSetting(), loadHolidays()])
+      .then(() => { applyWaUI(); loadAll(); });
   }
 }
 
@@ -1805,17 +1806,70 @@ for (let y = 2020; y <= 2030; y++) {
   }
 }
 
+// Yarım gün tatiller: 28 Ekim ve bayram arifeleri.
+// 13:00'e kadar normal mesai, sonrası tatil.
+const HALF_DAY_SET = new Set();
+const HALF_DAY_START = 13;
+
+// Tatil listesinin asıl kaynağı veritabanıdır — yukarıdaki gömülü
+// tablo yalnızca sorgu başarısız olursa kullanılır. Böylece dini
+// bayramları her yıl tek yerden güncellemek yeterli olur.
+async function loadHolidays() {
+  try {
+    const { data, error } = await sb.from('holidays')
+      .select('holiday_date, name, half_day, has_eve');
+    if (error) throw error;
+    if (!data || !data.length) return;          // tablo boşsa gömülü liste kalsın
+
+    HOLIDAY_SET.clear();
+    HALF_DAY_SET.clear();
+    for (const k of Object.keys(HOLIDAY_NAMES)) delete HOLIDAY_NAMES[k];
+
+    // Önce tatillerin kendisi
+    data.forEach(h => {
+      const key = String(h.holiday_date).slice(0, 10);
+      (h.half_day ? HALF_DAY_SET : HOLIDAY_SET).add(key);
+      HOLIDAY_NAMES[key] = h.name;
+    });
+
+    // Sonra arifeler: has_eve işaretli bayramın bir gün öncesi yarım gün.
+    // Gün zaten tatilse (örn. bayram hafta içi uzun tatile denk gelmişse)
+    // dokunulmaz — tam gün kazanır.
+    data.filter(h => h.has_eve).forEach(h => {
+      const d = new Date(String(h.holiday_date).slice(0, 10) + 'T00:00:00');
+      d.setDate(d.getDate() - 1);
+      const key = dateKey(d);
+      if (HOLIDAY_SET.has(key) || HALF_DAY_SET.has(key)) return;
+      HALF_DAY_SET.add(key);
+      HOLIDAY_NAMES[key] = h.name.replace(/\s*\d+\.\s*gün$/, '') + ' arifesi';
+    });
+  } catch(e) {
+    console.warn('Tatil listesi veritabanından okunamadı, gömülü liste kullanılıyor:', e.message);
+  }
+}
+
 function dateKey(dt) {
   const d = dt instanceof Date ? dt : new Date(dt);
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
 
+// Tam gün tatil. Yarım günler burada sayılmaz — sabahı normal mesaidir.
 function isHoliday(dt) {
   return HOLIDAY_SET.has(dateKey(dt));
 }
 
+function isHalfDay(dt) {
+  return HALF_DAY_SET.has(dateKey(dt));
+}
+
 function holidayName(dt) {
   return HOLIDAY_NAMES[dateKey(dt)] || 'Resmi Tatil';
+}
+
+// Tam gün veya yarım gün — ekranda tatil etiketi için
+function tatilMi(dt) {
+  const k = dateKey(dt);
+  return HOLIDAY_SET.has(k) || HALF_DAY_SET.has(k);
 }
 
 function isWeekend(dt) {
@@ -1858,6 +1912,9 @@ function calcOvertime(startDt, endDt) {
     const hour = cur.getHours();
 
     if (isPublicHolidayOrWeekend(cur)) {
+      overtimeMin += minutes;
+    } else if (isHalfDay(cur) && hour >= HALF_DAY_START) {
+      // Yarım gün tatilin öğleden sonrası
       overtimeMin += minutes;
     } else {
       // Hafta içi normal iş günü: 08:00–17:00 normal, geri kalan fazla mesai
