@@ -1758,7 +1758,7 @@ async function loadRapor() {
     const isler = [
       sb.from('user_profiles').select('id, full_name, role, regions, nova_adi, aktif'),
       sadeceApp(sb.from('shifts')
-          .select('id, user_id, person, job, region, start_dt, end_dt, duration_h, normal_h, overtime_h, holiday_h, status, approval_status'))
+          .select('id, user_id, person, job, region, start_dt, end_dt, duration_h, normal_h, overtime_h, holiday_h, status, approval_status, loc_fails'))
         .eq('status', 'done').not('end_dt', 'is', null)
         .gte('end_dt', basIso).lte('end_dt', bitIso).limit(10000),
       // Nova penceresi bir gün geniş: dönem sınırına yakın vardiyaların
@@ -1897,6 +1897,47 @@ function hesaplaRapor({ kadro, agriHam, novaHam, acik, ucretler, bas, bit }) {
     nova = nova.filter(s => s.bolge === bolgeF);
   }
 
+  // ── Konum alınamayan vardiyalar ─────────────────────────────
+  // Ayırt edici olan sebep:
+  //   code 1 ya da izin 'denied'  → cihazda konum izni KAPALI. Kişinin
+  //                                 kendi elinde olan bir şey.
+  //   code 2 / 3                  → sinyal yok ya da zayıf. Gemi ambarı,
+  //                                 bodrum, dağ başı — elinde değil.
+  //   code null                   → eski kayıt, sebep saklanmıyordu.
+  // Bir kişide izin kapalı sayısı birikiyorsa bakılması gereken o.
+  const konumVardiyalar = [];
+  agri.forEach(s => {
+    const f = Array.isArray(s.ham.loc_fails) ? s.ham.loc_fails : [];
+    if (!f.length) return;
+    const izinsiz  = f.filter(r => r.code === 1 || r.izin === 'denied').length;
+    const sinyal   = f.filter(r => r.code === 2 || r.code === 3).length;
+    konumVardiyalar.push({
+      id: s.ham.id, uid: s.uid, ad: s.ad, is: s.is, bolge: s.bolge,
+      bas: s.ham.start_dt, bit: s.ham.end_dt,
+      olaylar: f, izinsiz, sinyal, belirsiz: f.length - izinsiz - sinyal,
+    });
+  });
+
+  const konumKisiMap = new Map();
+  konumVardiyalar.forEach(v => {
+    const k = v.uid || v.ad;
+    if (!konumKisiMap.has(k)) {
+      konumKisiMap.set(k, { ad: v.ad, uid: v.uid, vardiya: 0,
+                            izinsiz: 0, sinyal: 0, belirsiz: 0, son: null });
+    }
+    const a = konumKisiMap.get(k);
+    a.vardiya++; a.izinsiz += v.izinsiz; a.sinyal += v.sinyal; a.belirsiz += v.belirsiz;
+    const sonOlay = v.olaylar.map(o => o.ts).filter(Boolean).sort().slice(-1)[0] || v.bit;
+    if (!a.son || sonOlay > a.son) a.son = sonOlay;
+  });
+  const konum = {
+    vardiyalar: konumVardiyalar.sort((a, b) => (b.izinsiz - a.izinsiz) || (b.sinyal - a.sinyal)),
+    kisiler: [...konumKisiMap.values()]
+      .sort((a, b) => (b.izinsiz - a.izinsiz) || (b.vardiya - a.vardiya)),
+    izinKapaliVardiya: konumVardiyalar.filter(v => v.izinsiz > 0).length,
+    sinyalVardiya:     konumVardiyalar.filter(v => v.izinsiz === 0 && v.sinyal > 0).length,
+  };
+
   // Alışılmadık uzunlukta vardiyalar — saatler kırpılmıyor, olduğu gibi
   // hesaplanıyor; çıkış unutulmuşsa maliyet gerçekten şişer, görülsün.
   const supheli = agriHam
@@ -1948,7 +1989,7 @@ function hesaplaRapor({ kadro, agriHam, novaHam, acik, ucretler, bas, bit }) {
     });
 
   return {
-    bas, bit, agri, nova, novaEslesmeyen, novaYok, supheli, bozuk,
+    bas, bit, agri, nova, novaEslesmeyen, novaYok, supheli, bozuk, konum,
     gevsekler, novasizlar, bekleyen,
     acikSayisi: (acik || []).length,
     maliyetVar: currentProfile?.role === 'admin' && ucretler.length > 0,
@@ -2132,6 +2173,20 @@ function renderRaporUyari() {
     u.push(uyariKutu('novasiz', 'red', raporVeri.novasizlar.length,
       `<b>${raporVeri.novasizlar.length} onaylı vardiyanın</b> Nova karşılığı yok;
        kendi saatiyle hesaplandı. <a href="#" onclick="raporNovasizAc();return false">İncele</a>`));
+  }
+  if (raporVeri.konum.izinKapaliVardiya) {
+    const k = raporVeri.konum;
+    const kisi = k.kisiler.filter(c => c.izinsiz > 0);
+    u.push(uyariKutu('konumizni', 'red', k.izinKapaliVardiya,
+      `<b>${k.izinKapaliVardiya} vardiyada</b> cihazda konum izni kapalı olduğu için
+       konum kaydedilemedi — ${kisi.length} kişi
+       (${esc(kisi.slice(0, 3).map(c => c.ad).join(', '))}${kisi.length > 3 ? '…' : ''}).
+       <a href="#" onclick="raporKonumAc();return false">İncele</a>`));
+  }
+  if (raporVeri.konum.sinyalVardiya) {
+    u.push(uyariKutu('konumsinyal', 'amber', raporVeri.konum.sinyalVardiya,
+      `<b>${raporVeri.konum.sinyalVardiya} vardiyada</b> konum sinyali alınamadı;
+       izin açık görünüyor. <a href="#" onclick="raporKonumAc();return false">İncele</a>`));
   }
   if (raporVeri.acikSayisi) {
     u.push(uyariKutu('acik', 'amber', raporVeri.acikSayisi,
@@ -2545,6 +2600,55 @@ function raporNovasizAc() {
       <thead><tr><th>Çalışan</th><th>İş no</th><th>Çalışma</th>
         <th class="num">Saat</th><th class="num">Maliyet</th><th></th></tr></thead>
       <tbody>${s}</tbody></table></div>`);
+}
+
+function raporKonumAc() {
+  const k = raporVeri?.konum;
+  if (!k || !k.vardiyalar.length) return;
+
+  const sayi = (n, renk) => n
+    ? `<span style="color:${renk};font-weight:600">${n}</span>`
+    : '<span style="color:var(--text3)">—</span>';
+
+  const kisiSatir = k.kisiler.map(c => `<tr>
+    <td><b>${esc(c.ad)}</b></td>
+    <td class="num">${c.vardiya}</td>
+    <td class="num">${sayi(c.izinsiz, 'var(--red)')}</td>
+    <td class="num">${sayi(c.sinyal, 'var(--amber)')}</td>
+    <td class="num">${sayi(c.belirsiz, 'var(--text2)')}</td>
+    <td class="mono" style="color:var(--text2)">${c.son ? fmtD(c.son) + ' ' + fmtT(c.son) : '—'}</td>
+  </tr>`).join('');
+
+  const vardiyaSatir = k.vardiyalar.map(v => {
+    const olay = v.olaylar.map(o =>
+      `<div style="color:${locFailRenk(o)}">${esc(locFailMetni(o))}`
+      + `<span style="color:var(--text3)"> · ${o.ts ? fmtT(o.ts) : '?'}</span></div>`
+    ).join('');
+    return `<tr>
+      <td><b>${esc(v.ad)}</b></td>
+      <td class="mono">${esc(v.is)}</td>
+      <td class="mono" style="color:var(--text2);white-space:nowrap">
+        ${fmtD(v.bas)} ${fmtT(v.bas)} – ${fmtT(v.bit)}</td>
+      <td style="font-size:12px;line-height:1.5">${olay}</td>
+      <td style="text-align:right"><button class="btn btn-sm" onclick="gotoShift(${v.id})">Aç</button></td>
+    </tr>`;
+  }).join('');
+
+  modalAc('Konum alınamayan vardiyalar', `
+    <div style="font-size:12.5px;color:var(--text2);margin-bottom:14px">
+      <b style="color:var(--red)">İzin kapalı</b>: cihazın konum izni kapatılmış, uygulama
+      konumu hiç soramadı. <b style="color:var(--amber)">Sinyal yok</b>: izin açık ama konum
+      alınamadı — kapalı alan, zayıf sinyal. <b>Sebep yok</b>: eski kayıt, sebebi saklanmıyordu.
+    </div>
+    <div class="tbl-wrap"><table class="r-tbl">
+      <thead><tr><th>Çalışan</th><th class="num">Vardiya</th>
+        <th class="num">İzin kapalı</th><th class="num">Sinyal yok</th>
+        <th class="num">Sebep yok</th><th>Son olay</th></tr></thead>
+      <tbody>${kisiSatir}</tbody></table></div>
+    <div style="font-size:13px;font-weight:600;margin:18px 0 8px">Vardiya dökümü</div>
+    <div class="tbl-wrap"><table class="r-tbl">
+      <thead><tr><th>Çalışan</th><th>İş no</th><th>Çalışma</th><th>Olaylar</th><th></th></tr></thead>
+      <tbody>${vardiyaSatir}</tbody></table></div>`);
 }
 
 function modalAc(baslik, ic) {
